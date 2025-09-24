@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    // Hilt for DI
+    alias(libs.plugins.hilt.android)
 }
 
 android {
@@ -26,10 +28,38 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+    buildFeatures {
+        buildConfig = true
+        dataBinding = true
+    }
 }
 
 dependencies {
-
+    // Hilt
+    implementation libs.hilt.android
+    annotationProcessor libs.hilt.compiler
+    // ViewModel + LiveData
+    implementation libs.lifecycle.viewmodel.ktx
+    implementation libs.lifecycle.livedata.ktx
+    implementation libs.lifecycle.runtime.ktx
+    // Retrofit + RxJava3 Adapter
+    implementation libs.adapter.rxjava3
+    // RxJava3
+    implementation libs.rxjava
+    // RxAndroid (Scheduler cho main thread)
+    implementation libs.rxandroid
+    // Picasso for image loading
+    implementation libs.picasso
+    // Retrofit
+    implementation libs.retrofit
+    // Gson
+    implementation libs.converter.gson
+    // Views/Fragments Integration
+    implementation libs.navigation.fragment
+    // Feature module support for Fragments
+    implementation libs.navigation.dynamic.features.fragment
+    implementation libs.navigation.ui
+    // Default dependencies
     implementation libs.appcompat
     implementation libs.material
     testImplementation libs.junit
