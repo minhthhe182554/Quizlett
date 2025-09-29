@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "810987014107",
+    "project_id": "quizlett-f7da8",
+    "storage_bucket": "quizlett-f7da8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:810987014107:android:884f7206381910963949fe",
+        "android_client_info": {
+          "package_name": "com.hminq.quizlett"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDN91t8JoTLMTG_Omy2LJUTAuCDlBNn8OM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
