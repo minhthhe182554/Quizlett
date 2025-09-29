@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     // Hilt for DI
     alias(libs.plugins.hilt.android)
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -31,12 +32,27 @@ android {
     buildFeatures {
         buildConfig = true
         dataBinding = true
+        compose true
     }
 }
 
 dependencies {
+    // Firebase Auth
+    implementation 'com.google.firebase:firebase-auth'
+    // Firebase BOM
+    implementation platform('com.google.firebase:firebase-bom:34.3.0')
     // Hilt
     implementation libs.hilt.android
+    implementation libs.activity.compose
+    implementation platform(libs.compose.bom)
+    implementation libs.ui
+    implementation libs.ui.graphics
+    implementation libs.ui.tooling.preview
+    implementation libs.material3
+    implementation libs.activity
+    implementation libs.constraintlayout
+    androidTestImplementation platform(libs.compose.bom)
+    androidTestImplementation libs.ui.test.junit4
     annotationProcessor libs.hilt.compiler
     // ViewModel + LiveData
     implementation libs.lifecycle.viewmodel.ktx
@@ -65,4 +81,6 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+    debugImplementation libs.ui.tooling
+    debugImplementation libs.ui.test.manifest
 }
