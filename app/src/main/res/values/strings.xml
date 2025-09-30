@@ -4,14 +4,24 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="welcome_img_description">Welcome image</string>
     <string name="welcome_title">The best way to study\nSign up for free</string>
-    <string name="signin_btn_text">SIGN UP WITH EMAIL</string>
+    <string name="welcome_btn_text">SIGN UP WITH EMAIL</string>
     <string name="signUn_btn_text">SIGN UP</string>
     <string name="have_an_account">Have an account ?</string>
     <string name="link_to_signIn">Sign in</string>
     <string name="already_had_account">Already had an account</string>
+    <string name="dont_have_account">Don\'t have an account ?</string>
     <string name="sign_up_title">Create new account</string>
     <string name="sign_in_title">Welcome back</string>
+    <string name="signIn_btn_text">SIGN IN</string>
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
     <string name="fullname_hint">Full Name</string>
+    <string name="forgot_password">Forgot password ?</string>
+    <string name="enter_email">Enter your email</string>
+    <string name="reset_password">Reset password</string>
+    <string name="email_sent_success">Check your email for reset password instruction</string>
+    <string name="email_sent_error">Error while sending reset password email</string>
+    <string name="signIn_error">Error while signing in</string>
+    <string name="signUp_error">Error while signing up</string>
+    <string name="signUp_success">Sign up successfully</string>
 </resources>

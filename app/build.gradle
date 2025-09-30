@@ -37,6 +37,10 @@ android {
 }
 
 dependencies {
+    // Firebase Storage
+    implementation 'com.google.firebase:firebase-storage'
+    // Firebase Realtime database
+    implementation 'com.google.firebase:firebase-database'
     // Firebase Auth
     implementation 'com.google.firebase:firebase-auth'
     // Firebase BOM
