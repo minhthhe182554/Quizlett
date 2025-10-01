@@ -44,8 +44,6 @@ public class SignUpFragment extends Fragment {
 
         // get SignUpViewModel with this Fragment scope
         signUpViewModel = new ViewModelProvider(this).get(SignUpViewModel.class);
-        // get NavController
-        navController = NavHostFragment.findNavController(this);
     }
 
     @Override
@@ -54,6 +52,9 @@ public class SignUpFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentSignUpBinding.inflate(inflater, container, false);
         bindViews();
+
+        // get NavController
+        navController = NavHostFragment.findNavController(this);
         return binding.getRoot();
     }
 
@@ -100,7 +101,7 @@ public class SignUpFragment extends Fragment {
             if (isUserSignedUp) {
                 // navigate to home
                 Message.showShort(view, getString(SIGNUP_SUCCESS));
-                navController.navigate(R.id.action_signUpFragment_to_homeFragment);
+                navController.navigate(R.id.action_signUpFragment_to_containerFragment);
             }
         });
     }
