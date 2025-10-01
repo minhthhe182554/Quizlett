@@ -41,8 +41,7 @@ public class SignInFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        signInViewModel = new ViewModelProvider(requireActivity()).get(SignInViewModel.class);
-        navController = NavHostFragment.findNavController(this);
+        signInViewModel = new ViewModelProvider(this).get(SignInViewModel.class);
     }
 
     @Override
@@ -51,7 +50,8 @@ public class SignInFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentSignInBinding.inflate(inflater, container, false);
         bindViews();
-
+        // get NavController
+        navController = NavHostFragment.findNavController(this);
         return binding.getRoot();
     }
 
@@ -90,9 +90,9 @@ public class SignInFragment extends Fragment {
             }
         });
 
-        signInViewModel.getIsUserSignedInLiveData().observe(getViewLifecycleOwner(), isUserSignedIn -> {
+        signInViewModel.getSignInSuccessLiveData().observe(getViewLifecycleOwner(), isUserSignedIn -> {
             if (isUserSignedIn) {
-                navController.navigate(R.id.action_signInFragment_to_homeFragment);
+                navController.navigate(R.id.action_signInFragment_to_containerFragment);
             }
             else {
                 Log.d(TAG, "User somehow not signin");
