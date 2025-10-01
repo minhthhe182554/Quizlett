@@ -61,7 +61,10 @@ public class SettingFragment extends Fragment {
         btnBack.setOnClickListener(l -> navController.popBackStack());
 
         btnSignOut.setOnClickListener(l -> sharedViewModel.signOut());
-        btnDeleteAccount.setOnClickListener(l -> sharedViewModel.deleteAccount());
+//        btnDeleteAccount.setOnClickListener(l -> sharedViewModel.deleteAccount());
+        btnDeleteAccount.setOnClickListener(l -> {
+            Message.showShort(view, "Đừng bấm vào chưa làm xong");
+        });
 
         sharedViewModel.getSignOutErrorLiveData().observe(getViewLifecycleOwner(), error -> {
             Message.showShort(view, getString(SIGNOUT_ERROR));
