@@ -26,7 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class ForgotPasswordFragment extends Fragment {
     private static final String TAG = "FRAGMENT_FORGOT_PASSWORD";
     private FragmentForgotPasswordBinding binding;
-    private ForgotPasswordVieModel forgotPasswordVieModel;
+    private ForgotPasswordViewModel forgotPasswordViewModel;
     private NavController navController;
     private Button btnBack, btnResetPassword;
     private EditText etEmail;
@@ -37,9 +37,8 @@ public class ForgotPasswordFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        forgotPasswordVieModel = new ViewModelProvider(this).get(ForgotPasswordVieModel.class);
+        forgotPasswordViewModel = new ViewModelProvider(this).get(ForgotPasswordViewModel.class);
 
-        navController = NavHostFragment.findNavController(this);
     }
 
     @Override
@@ -49,6 +48,8 @@ public class ForgotPasswordFragment extends Fragment {
 
         binding = FragmentForgotPasswordBinding.inflate(inflater, container, false);
         bindViews();
+        // get NavController
+        navController = NavHostFragment.findNavController(this);
         return binding.getRoot();
     }
 
@@ -59,20 +60,20 @@ public class ForgotPasswordFragment extends Fragment {
         btnBack.setOnClickListener(l -> navController.popBackStack());
 
         btnResetPassword.setOnClickListener(l -> {
-            forgotPasswordVieModel.resetPassword(etEmail.getText().toString());
+            forgotPasswordViewModel.resetPassword(etEmail.getText().toString());
         });
 
-        forgotPasswordVieModel.getValidationErrorLiveData().observe(getViewLifecycleOwner(), exception -> {
+        forgotPasswordViewModel.getValidationErrorLiveData().observe(getViewLifecycleOwner(), exception -> {
             if (exception.getField() == EMAIL) {
                 etEmail.setError(exception.getMessage());
             }
         });
 
-        forgotPasswordVieModel.getResetErrorLiveData().observe(getViewLifecycleOwner(), error -> {
+        forgotPasswordViewModel.getResetErrorLiveData().observe(getViewLifecycleOwner(), error -> {
             Message.showShort(view, getString(EMAIL_SENT_ERROR));
         });
 
-        forgotPasswordVieModel.getResetSuccessLiveData().observe(getViewLifecycleOwner(), success -> {
+        forgotPasswordViewModel.getResetSuccessLiveData().observe(getViewLifecycleOwner(), success -> {
             if (success) {
                 Message.showShort(view, getString(EMAIL_SENT_SUCCESS));
                 navController.popBackStack();
