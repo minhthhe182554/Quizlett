@@ -3,6 +3,7 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="welcome_img_description">Welcome image</string>
+    <string name="profile_img_description">User profile image</string>
     <string name="welcome_title">The best way to study\nSign up for free</string>
     <string name="welcome_btn_text">SIGN UP WITH EMAIL</string>
     <string name="signUn_btn_text">SIGN UP</string>
@@ -24,4 +25,9 @@
     <string name="signIn_error">Error while signing in</string>
     <string name="signUp_error">Error while signing up</string>
     <string name="signUp_success">Sign up successfully</string>
+    <string name="welcome_back">Welcome back</string>
+    <string name="btn_signout_text">SIGN OUT</string>
+    <string name="btn_delete_account_text">DELETE ACCOUNT</string>
+    <string name="signout_error">Error while signing out</string>
+    <string name="delete_account_error">Error while delete account</string>
 </resources>
