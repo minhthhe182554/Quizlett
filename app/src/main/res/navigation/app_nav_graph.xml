@@ -62,7 +62,11 @@
         android:id="@+id/homeFragment"
         android:name="com.hminq.quizlett.ui.home.HomeFragment"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_questionListFragment"
+            app:destination="@id/questionListFragment" />
+    </fragment>
     <fragment
         android:id="@+id/forgotPasswordFragment"
         android:name="com.hminq.quizlett.ui.forgotpassword.ForgotPasswordFragment"
@@ -71,5 +75,24 @@
         <action
             android:id="@+id/action_forgotPasswordFragment_to_signInFragment"
             app:destination="@id/signInFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/questionListFragment"
+        android:name="com.hminq.quizlett.ui.question.list.QuestionListFragment"
+        android:label="QuestionListFragment" >
+        <action
+            android:id="@+id/action_questionListFragment_to_questionDetailFragment"
+            app:destination="@id/questionDetailFragment" />
+        <action
+            android:id="@+id/action_questionListFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/questionDetailFragment"
+        android:name="com.hminq.quizlett.ui.question.detail.QuestionDetailFragment"
+        android:label="QuestionDetailFragment" >
+        <action
+            android:id="@+id/action_questionDetailFragment_to_questionListFragment"
+            app:destination="@id/questionListFragment" />
     </fragment>
 </navigation>

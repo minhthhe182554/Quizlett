@@ -24,4 +24,34 @@
     <string name="signIn_error">Error while signing in</string>
     <string name="signUp_error">Error while signing up</string>
     <string name="signUp_success">Sign up successfully</string>
+    <string-array name="answer_options_array">
+        <item>Option 1</item>
+        <item>Option 2</item>
+        <item>Option 3</item>
+        <item>Option 4</item>
+    </string-array>
+    <string-array name="difficulty_array">
+        <item>EASY</item>
+        <item>MEDIUM</item>
+        <item>HARD</item>
+    </string-array>
+    <string name="question_text_placeholder">Question Text</string>
+    <string name="difficulty_placeholder">Difficulty: %s</string>
+    <string name="answer_options_placeholder">Answer Options: %s</string>
+    <string name="correct_answer_placeholder">Correct Answer: %s</string>
+    <string name="question_list_title">Manage Questions</string>
+
+    <string name="question_text_label">Question Text</string>
+    <string name="enter_question_text_hint">Enter the question text</string>
+    <string name="answer_options_label">Answer Options</string>
+    <string name="option_1_hint">Option 1</string>
+    <string name="option_2_hint">Option 2</string>
+    <string name="option_3_hint">Option 3</string>
+    <string name="option_4_hint">Option 4</string>
+    <string name="correct_answer_label">Correct Answer</string>
+    <string name="difficulty_label">Difficulty</string>
+    <string name="save_question_button">Save</string>
+    <string name="delete_question_button">Delete</string>
+    <string name="fab_add_question_description">Add new question</string>
+    <string name="manage_questions_button_text">mannage question</string>
 </resources>
