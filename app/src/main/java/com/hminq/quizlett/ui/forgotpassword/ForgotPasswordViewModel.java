@@ -10,10 +10,12 @@ import com.hminq.quizlett.exceptions.ValidationException;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
-public class ForgotPasswordVieModel extends ViewModel {
+public class ForgotPasswordViewModel extends ViewModel {
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final MutableLiveData<Boolean> resetSuccess = new MutableLiveData<>();
     private final MutableLiveData<Throwable> resetError = new MutableLiveData<>();
@@ -21,13 +23,15 @@ public class ForgotPasswordVieModel extends ViewModel {
     private final UserRepository userRepository;
 
     @Inject
-    public ForgotPasswordVieModel(UserRepository userRepository) {
+    public ForgotPasswordViewModel(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     public void resetPassword(String email) {
         disposables.add(
                 userRepository.resetPassword(email)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 () -> resetSuccess.postValue(true),
                                 throwable -> {

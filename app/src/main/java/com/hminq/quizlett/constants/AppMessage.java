@@ -8,4 +8,7 @@ public class AppMessage {
     public static final int SIGNIN_ERROR = R.string.signIn_error;
     public static final int SIGNUP_ERROR = R.string.signUp_error;
     public static final int SIGNUP_SUCCESS = R.string.signUp_error;
+    public static final int WELCOME_BACK = R.string.welcome_back;
+    public static final int SIGNOUT_ERROR = R.string.signout_error;
+    public static final int DELETE_ACCOUNT_ERROR = R.string.delete_account_error;
 }

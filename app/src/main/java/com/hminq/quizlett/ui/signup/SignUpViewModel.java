@@ -10,7 +10,9 @@ import com.hminq.quizlett.exceptions.ValidationException;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
 public class SignUpViewModel extends ViewModel {
@@ -29,6 +31,8 @@ public class SignUpViewModel extends ViewModel {
     public void signUp(String email, String password, String fullname) {
         disposables.add(
                 userRepository.signUp(email, password, fullname)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(authResult -> {
                             isUserSignedUp.postValue(true);
                         }, throwable -> {

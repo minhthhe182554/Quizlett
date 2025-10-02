@@ -3,6 +3,6 @@
     <style name="Theme.Quizlett" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:fontFamily">@font/project_font</item>
         <item name="fontFamily">@font/project_font</item>
-        <item name="android:background">@color/dark_blue</item>
+        <item name="android:windowBackground">@color/dark_blue</item>
     </style>
 </resources>

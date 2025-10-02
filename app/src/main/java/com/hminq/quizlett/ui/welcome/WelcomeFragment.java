@@ -1,8 +1,9 @@
-package com.hminq.quizlett.ui;
+package com.hminq.quizlett.ui.welcome;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -15,9 +16,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.hminq.quizlett.R;
 import com.hminq.quizlett.databinding.FragmentWelcomeBinding;
+import com.hminq.quizlett.ui.SharedViewModel;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -25,7 +26,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class WelcomeFragment extends Fragment {
     private static final String TAG = "FRAGMENT_WELCOME";
     private FragmentWelcomeBinding binding;
-    private SharedViewModel sharedViewModel;
     private NavController navController;
     private Button btnSignUp;
     private TextView tvLinkToSignIn;
@@ -37,11 +37,6 @@ public class WelcomeFragment extends Fragment {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        // get SharedViewModel with MainActivity scope
-        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-
-        // get NavController
-        navController = NavHostFragment.findNavController(this);
     }
 
     @Override
@@ -51,33 +46,17 @@ public class WelcomeFragment extends Fragment {
         Log.d(TAG, "onCreateView");
         binding = FragmentWelcomeBinding.inflate(inflater, container, false);
         bindViews();
-        FirebaseAuth.getInstance().signOut();
-        // check if any user signed in
-        checkIfUserSignedIn();
-
-        btnSignUp.setOnClickListener(l -> navController.navigate(R.id.action_welcomeFragment_to_signUpFragment));
-        tvLinkToSignIn.setOnClickListener(l -> navController.navigate(R.id.action_welcomeFragment_to_signInFragment));
+        // get NavController
+        navController = NavHostFragment.findNavController(this);
         return binding.getRoot();
     }
 
-    private void checkIfUserSignedIn() {
-        sharedViewModel.getCurrentUser();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        sharedViewModel.getCurrentUserLiveData().observe(getViewLifecycleOwner(), user -> {
-            if (user != null) {
-                Log.d(TAG, "Current user: " + user.getFullname());
-                navController.navigate(R.id.action_welcomeFragment_to_homeFragment);
-            }
-            else {
-                Log.d(TAG, "No user signed in.");
-            }
-        });
-
-        sharedViewModel.getAuthErrorLiveData().observe(getViewLifecycleOwner(), error -> {
-            if (error != null) {
-                Log.d(TAG, error.getMessage());
-            }
-        });
+        btnSignUp.setOnClickListener(l -> navController.navigate(R.id.action_welcomeFragment_to_signUpFragment));
+        tvLinkToSignIn.setOnClickListener(l -> navController.navigate(R.id.action_welcomeFragment_to_signInFragment));
     }
 
     private void bindViews() {
