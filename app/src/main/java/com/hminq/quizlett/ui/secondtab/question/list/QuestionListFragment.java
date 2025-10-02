@@ -1,4 +1,4 @@
-package com.hminq.quizlett.ui.question.list;
+package com.hminq.quizlett.ui.secondtab.question.list;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,10 +20,9 @@ import com.hminq.quizlett.R;
 import com.hminq.quizlett.data.remote.model.Difficulty; // Import Difficulty
 import com.hminq.quizlett.databinding.FragmentQuestionListBinding;
 import com.hminq.quizlett.data.remote.model.Question;
-import com.hminq.quizlett.ui.question.adapter.QuestionAdapter;
+import com.hminq.quizlett.ui.secondtab.question.adapter.QuestionAdapter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -35,6 +34,7 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
     private QuestionListViewModel viewModel;
     private QuestionAdapter adapter;
     private NavController navController;
+
 
     @Nullable
     @Override
@@ -65,11 +65,11 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
 
     private void setupClickListeners() {
         binding.fabAddQuestion.setOnClickListener(v -> {
-            navController.navigate(R.id.action_questionListFragment_to_questionDetailFragment);
+            navController.navigate(R.id.action_tab2_questionList_to_questionDetail);
         });
 
         binding.btnBack.setOnClickListener(v -> {
-            navController.navigate(R.id.action_questionListFragment_to_homeFragment);
+            navController.popBackStack();
         });
     }
 
@@ -95,8 +95,8 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
         for (Difficulty d : Difficulty.values()) {
             difficultyOptions.add(d.name());
         }
-        ArrayAdapter<String> difficultyAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, difficultyOptions);
-        difficultyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> difficultyAdapter = new ArrayAdapter<>(requireContext(), R.layout.spiner_item, difficultyOptions);
+        difficultyAdapter.setDropDownViewResource(R.layout.spiner_item);
         binding.spinnerDifficultyFilter.setAdapter(difficultyAdapter);
 
         binding.spinnerDifficultyFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -140,7 +140,8 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
     public void onItemClick(Question question) {
         Bundle bundle = new Bundle();
         bundle.putString("quesId", question.getQuesId());
-        navController.navigate(R.id.action_questionListFragment_to_questionDetailFragment, bundle);
+        // Navigate to QuestionDetailFragment for editing/viewing (using new action ID)
+        navController.navigate(R.id.action_tab2_questionList_to_questionDetail, bundle);
     }
 
     @Override

@@ -1,9 +1,10 @@
-package com.hminq.quizlett.ui.question.list;
+package com.hminq.quizlett.ui.secondtab.question.list;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.hminq.quizlett.data.remote.model.Difficulty;
 import com.hminq.quizlett.data.remote.model.Question;
 import com.hminq.quizlett.data.repository.QuestionRepository;
@@ -20,6 +21,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class QuestionListViewModel extends ViewModel {
 
     private final QuestionRepository questionRepository;
+
     private final MutableLiveData<List<Question>> _filteredQuestions = new MutableLiveData<>();
     public LiveData<List<Question>> getFilteredQuestions() {
         return _filteredQuestions;
@@ -41,19 +43,30 @@ public class QuestionListViewModel extends ViewModel {
     }
 
     public void loadQuestions() {
-        questionRepository.getAllQuestions(new QuestionRepository.OnQuestionsLoadedListener() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser() != null
+                ? FirebaseAuth.getInstance().getCurrentUser().getUid()
+                : null;
+
+        if (userId == null) {
+            _errorMessage.setValue("No user logged in");
+            allQuestionsList = new ArrayList<>();
+            return;
+        }
+
+        questionRepository.getAllQuestions(userId, new QuestionRepository.OnQuestionsLoadedListener() {
             @Override
             public void onQuestionsLoaded(List<Question> questionList, String error) {
                 if (error != null) {
                     _errorMessage.setValue(error);
-                    allQuestionsList = new ArrayList<>(); // Clear existing on error
+                    allQuestionsList = new ArrayList<>();
                 } else {
                     allQuestionsList = new ArrayList<>(questionList != null ? questionList : new ArrayList<>());
                 }
-                applyFilters(); // Apply current filters to the newly loaded list
+                applyFilters();
             }
         });
     }
+
 
     public void setSearchQuery(String query) {
         currentSearchQuery = query != null ? query.toLowerCase().trim() : "";

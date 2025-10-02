@@ -1,4 +1,4 @@
-package com.hminq.quizlett.ui.question.detail;
+package com.hminq.quizlett.ui.secondtab.question.detail;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -68,25 +68,43 @@ public class QuestionDetailFragment extends Fragment {
         setupClickListeners();
     }
 
+//    private void setupSpinners() {
+//        ArrayAdapter<CharSequence> answerAdapter = ArrayAdapter.createFromResource(
+//                requireContext(),
+//                R.array.answer_options_array,
+//                android.R.layout.simple_spinner_item
+//        );
+//        answerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        binding.spinnerCorrectAnswer.setAdapter(answerAdapter);
+//
+//
+//        ArrayAdapter<CharSequence> difficultyAdapter = ArrayAdapter.createFromResource(
+//                requireContext(),
+//                R.array.difficulty_array,
+//                android.R.layout.simple_spinner_item
+//        );
+//        difficultyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        binding.spinnerDifficulty.setAdapter(difficultyAdapter);
+//    }
+
     private void setupSpinners() {
         ArrayAdapter<CharSequence> answerAdapter = ArrayAdapter.createFromResource(
                 requireContext(),
                 R.array.answer_options_array,
-                android.R.layout.simple_spinner_item
+                R.layout.spiner_item
         );
-        answerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        answerAdapter.setDropDownViewResource(R.layout.spiner_item);
         binding.spinnerCorrectAnswer.setAdapter(answerAdapter);
 
 
         ArrayAdapter<CharSequence> difficultyAdapter = ArrayAdapter.createFromResource(
                 requireContext(),
                 R.array.difficulty_array,
-                android.R.layout.simple_spinner_item
+                R.layout.spiner_item
         );
-        difficultyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        difficultyAdapter.setDropDownViewResource(R.layout.spiner_item);
         binding.spinnerDifficulty.setAdapter(difficultyAdapter);
     }
-
     private void observeViewModel() {
         viewModel.getQuestion().observe(getViewLifecycleOwner(), question -> {
             if (question != null) {

@@ -6,7 +6,7 @@
 
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".ui.question.list.QuestionListFragment">
+    tools:context=".ui.secondtab.question.list.QuestionListFragment">
 
     <androidx.cardview.widget.CardView
         android:layout_width="0dp"

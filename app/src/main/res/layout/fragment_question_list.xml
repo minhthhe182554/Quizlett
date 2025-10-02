@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/dark_blue"
-        tools:context=".ui.question.list.QuestionListFragment">
+        tools:context=".ui.secondtab.question.list.QuestionListFragment">
 
 
         <Button
@@ -52,7 +52,7 @@
             app:layout_constraintEnd_toStartOf="@+id/spinnerDifficultyFilter"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvQuestionListTitle"
-            app:queryHint="Search by question text..." />
+            app:queryHint="@string/query_hint_search" />
 
         <Spinner
             android:id="@+id/spinnerDifficultyFilter"
@@ -93,6 +93,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:tint="@android:color/white" />
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

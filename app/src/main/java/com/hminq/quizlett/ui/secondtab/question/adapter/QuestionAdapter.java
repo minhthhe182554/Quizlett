@@ -1,4 +1,4 @@
-package com.hminq.quizlett.ui.question.adapter;
+package com.hminq.quizlett.ui.secondtab.question.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;

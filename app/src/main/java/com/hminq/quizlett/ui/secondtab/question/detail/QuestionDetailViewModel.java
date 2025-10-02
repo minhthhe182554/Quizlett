@@ -1,4 +1,4 @@
-package com.hminq.quizlett.ui.question.detail;
+package com.hminq.quizlett.ui.secondtab.question.detail;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

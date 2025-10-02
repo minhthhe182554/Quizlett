@@ -118,32 +118,32 @@ public class QuestionRepository {
         });
     }
 
-    public void getAllQuestions(OnQuestionsLoadedListener listener) {
-        Log.d(TAG, "getAllQuestions called");
+    public void getAllQuestions(String userId, OnQuestionsLoadedListener listener) {
+        Log.d(TAG, "getAllQuestions called for userId: " + userId);
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 List<Question> questions = new ArrayList<>();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Question question = snapshot.getValue(Question.class);
-                    if (question != null) {
+                    if (question != null && userId.equals(question.getUserId())) {
                         questions.add(question);
                     }
                 }
-                Log.d(TAG, "getAllQuestions successful, loaded " + questions.size() + " questions.");
+                Log.d(TAG, "getAllQuestions successful, loaded " + questions.size() + " questions for userId " + userId);
                 listener.onQuestionsLoaded(questions, null);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "getAllQuestions onCancelled", databaseError.toException());
+                Log.e(TAG, "getAllQuestions onCancelled for userId " + userId, databaseError.toException());
                 listener.onQuestionsLoaded(null, databaseError.getMessage());
             }
         });
     }
 
-    public void getQuestionsByDifficulty(Difficulty difficulty, OnQuestionsLoadedListener listener) {
-        Log.d(TAG, "getQuestionsByDifficulty called for difficulty: " + difficulty.name());
+    public void getQuestionsByDifficulty(Difficulty difficulty, String userId, OnQuestionsLoadedListener listener) {
+        Log.d(TAG, "getQuestionsByDifficulty called for difficulty: " + difficulty.name() + " and userId: " + userId);
         databaseReference.orderByChild("difficulty").equalTo(difficulty.name())
                 .addValueEventListener(new ValueEventListener() {
                     @Override
@@ -151,17 +151,19 @@ public class QuestionRepository {
                         List<Question> questions = new ArrayList<>();
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                             Question question = snapshot.getValue(Question.class);
-                            if (question != null) {
+                            if (question != null && userId.equals(question.getUserId())) {
                                 questions.add(question);
                             }
                         }
-                        Log.d(TAG, "getQuestionsByDifficulty successful for " + difficulty.name() + ", loaded " + questions.size() + " questions.");
+                        Log.d(TAG, "getQuestionsByDifficulty successful for " + difficulty.name()
+                                + " and userId " + userId + ", loaded " + questions.size() + " questions.");
                         listener.onQuestionsLoaded(questions, null);
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-                        Log.e(TAG, "getQuestionsByDifficulty onCancelled for difficulty: " + difficulty.name(), databaseError.toException());
+                        Log.e(TAG, "getQuestionsByDifficulty onCancelled for difficulty: "
+                                + difficulty.name() + " and userId " + userId, databaseError.toException());
                         listener.onQuestionsLoaded(null, databaseError.getMessage());
                     }
                 });

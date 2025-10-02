@@ -56,11 +56,8 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // Set click listener for the Manage Questions button
-        binding.btnManageQuestionsHome.setOnClickListener(v -> {
-            // TODO: Ensure R.id.action_homeFragment_to_questionListFragment exists in your nav_graph.xml
-            navController.navigate(R.id.action_homeFragment_to_questionListFragment);
-        });
+        // The OnClickListener for btnManageQuestionsHome has been removed
+        // as the button is no longer in fragment_home.xml
     }
 
     @Override

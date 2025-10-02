@@ -46,7 +46,7 @@
     <string name="answer_options_placeholder">Answer Options: %s</string>
     <string name="correct_answer_placeholder">Correct Answer: %s</string>
     <string name="question_list_title">Manage Questions</string>
-
+    <string name="query_hint_search">Search...</string>
     <string name="question_text_label">Question Text</string>
     <string name="enter_question_text_hint">Enter the question text</string>
     <string name="answer_options_label">Answer Options</string>

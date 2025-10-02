@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/dark_blue"
-        tools:context=".ui.question.detail.QuestionDetailFragment">
+        tools:context=".ui.secondtab.question.detail.QuestionDetailFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -235,6 +235,7 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@id/guideline_buttons_vertical"
                 app:layout_constraintTop_toTopOf="@id/btnSaveQuestion" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
