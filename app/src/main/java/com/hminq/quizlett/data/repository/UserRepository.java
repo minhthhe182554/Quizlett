@@ -11,6 +11,7 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.StorageReference;
 import com.hminq.quizlett.data.remote.model.User;
 import com.hminq.quizlett.exceptions.ValidationException;
@@ -29,10 +30,10 @@ public class UserRepository {
 
     @Inject
     public UserRepository(FirebaseAuth firebaseAuth,
-                          DatabaseReference userReference,
+                          FirebaseDatabase firebaseDatabase,
                           StorageReference profileImageReference) {
         this.firebaseAuth = firebaseAuth;
-        this.userReference = userReference;
+        this.userReference = firebaseDatabase.getReference("users");
         this.profileImageReference = profileImageReference;
     }
 

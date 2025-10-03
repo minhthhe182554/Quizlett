@@ -4,23 +4,16 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation; // Import đầy đủ
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import com.hminq.quizlett.R;
 import com.hminq.quizlett.databinding.FragmentSecondTabBinding;
 
 public class SecondTabFragment extends Fragment {
-
     private FragmentSecondTabBinding binding;
 
-
-    public SecondTabFragment() {
-
-    }
+    public SecondTabFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,12 +31,6 @@ public class SecondTabFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        NavController navController = Navigation.findNavController(view);
-
-        binding.btnGoToManageQuestions.setOnClickListener(v -> {
-            navController.navigate(R.id.action_secondTabFragment_to_questionListFragment);
-        });
     }
 
     @Override

@@ -3,29 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/tab2_nav_graph"
-    app:startDestination="@id/secondTabFragment"> 
-
-    <fragment
-        android:id="@+id/secondTabFragment"
-        android:name="com.hminq.quizlett.ui.secondtab.SecondTabFragment"
-        android:label="fragment_second_tab"
-        tools:layout="@layout/fragment_second_tab">
-        <action
-            android:id="@+id/action_secondTabFragment_to_questionListFragment"
-            app:destination="@id/questionListFragment" />
-    </fragment>
+    app:startDestination="@id/dashBoardFragment">
 
     <fragment
         android:id="@+id/questionListFragment"
         android:name="com.hminq.quizlett.ui.secondtab.question.list.QuestionListFragment"
         android:label="fragment_question_list"
         tools:layout="@layout/fragment_question_list">
+
         <action
-            android:id="@+id/action_tab2_questionList_to_questionDetail"
+            android:id="@+id/action_questionListFragment_to_questionDetailFragment"
             app:destination="@id/questionDetailFragment" />
         <action
-            android:id="@+id/action_questionListFragment_to_secondTabFragment"
-            app:destination="@id/secondTabFragment" />
+            android:id="@+id/action_questionListFragment_to_dashBoardFragment"
+            app:destination="@id/dashBoardFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 
     <fragment
@@ -40,9 +32,25 @@
     </fragment>
 
     <fragment
-        android:id="@+id/createLessonFragment"
-        android:name="com.hminq.quizlett.ui.secondtab.createlesson.CreateLessonFragment"
+        android:id="@+id/lessonListFragment"
+        android:name="com.hminq.quizlett.ui.secondtab.lesson.LessonListFragment"
         android:label="fragment_create_lesson"
-        tools:layout="@layout/fragment_create_lesson" />
+        tools:layout="@layout/fragment_lesson_list" >
+        <action
+            android:id="@+id/action_createLessonFragment_to_dashBoardFragment"
+            app:destination="@id/dashBoardFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/dashBoardFragment"
+        android:name="com.hminq.quizlett.ui.secondtab.dashboard.DashBoardFragment"
+        android:label="DashBoardFragment"
+        tools:layout="@layout/fragment_dash_board">
+        <action
+            android:id="@+id/action_dashBoardFragment_to_questionListFragment"
+            app:destination="@id/questionListFragment" />
+        <action
+            android:id="@+id/action_dashBoardFragment_to_createLessonFragment"
+            app:destination="@id/lessonListFragment" />
+    </fragment>
 
 </navigation>

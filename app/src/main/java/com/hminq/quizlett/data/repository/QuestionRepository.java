@@ -17,13 +17,12 @@ import javax.inject.Inject;
 
 public class QuestionRepository {
     private static final String TAG = "QUESTION_REPO";
-    private DatabaseReference databaseReference;
+    private DatabaseReference questionReference;
 
     @Inject
-    public QuestionRepository() {
+    public QuestionRepository(FirebaseDatabase firebaseDatabase) {
         Log.d(TAG, "QuestionRepository initialized");
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference("questions");
+        this.questionReference = firebaseDatabase.getReference("questions");
     }
 
     // Added userId parameter
@@ -34,12 +33,12 @@ public class QuestionRepository {
             listener.onQuestionAdded(false, "User ID cannot be null or empty.");
             return;
         }
-        String quesId = databaseReference.push().getKey();
+        String quesId = questionReference.push().getKey();
         if (quesId != null) {
             Log.d(TAG, "Generated quesId: " + quesId);
             // Added userId to Question constructor
             Question question = new Question(quesId, request.getQuestionText(), request.getAnswerOptions(), request.getCorrectAnswerIndex(), request.getDifficulty(), userId);
-            databaseReference.child(quesId).setValue(question)
+            questionReference.child(quesId).setValue(question)
                     .addOnSuccessListener(aVoid -> {
                         Log.d(TAG, "addQuestion successful for quesId: " + quesId);
                         listener.onQuestionAdded(true, null);
@@ -67,7 +66,7 @@ public class QuestionRepository {
             Question question = new Question(request.getQuesId(), request.getQuestionText(), request.getAnswerOptions(), request.getCorrectAnswerIndex(), request.getDifficulty(), userId);
             // TODO: Optional - Add a check here to ensure the userId matches the original creator if only creators can update.
             // For now, it updates the question with the passed userId.
-            databaseReference.child(request.getQuesId()).setValue(question)
+            questionReference.child(request.getQuesId()).setValue(question)
                     .addOnSuccessListener(aVoid -> {
                         Log.d(TAG, "updateQuestion successful for quesId: " + request.getQuesId());
                         listener.onQuestionUpdated(true, null);
@@ -84,7 +83,7 @@ public class QuestionRepository {
 
     public void deleteQuestion(String quesId, OnQuestionDeletedListener listener) {
         Log.d(TAG, "deleteQuestion called for quesId: " + quesId);
-        databaseReference.child(quesId).removeValue()
+        questionReference.child(quesId).removeValue()
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "deleteQuestion successful for quesId: " + quesId);
                     listener.onQuestionDeleted(true, null);
@@ -97,7 +96,7 @@ public class QuestionRepository {
 
     public void getQuestionById(String quesId, OnQuestionLoadedListener listener) {
         Log.d(TAG, "getQuestionById called for quesId: " + quesId);
-        databaseReference.child(quesId).addListenerForSingleValueEvent(new ValueEventListener() {
+        questionReference.child(quesId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Question question = dataSnapshot.getValue(Question.class);
@@ -120,7 +119,7 @@ public class QuestionRepository {
 
     public void getAllQuestions(String userId, OnQuestionsLoadedListener listener) {
         Log.d(TAG, "getAllQuestions called for userId: " + userId);
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        questionReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 List<Question> questions = new ArrayList<>();
@@ -144,7 +143,7 @@ public class QuestionRepository {
 
     public void getQuestionsByDifficulty(Difficulty difficulty, String userId, OnQuestionsLoadedListener listener) {
         Log.d(TAG, "getQuestionsByDifficulty called for difficulty: " + difficulty.name() + " and userId: " + userId);
-        databaseReference.orderByChild("difficulty").equalTo(difficulty.name())
+        questionReference.orderByChild("difficulty").equalTo(difficulty.name())
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {

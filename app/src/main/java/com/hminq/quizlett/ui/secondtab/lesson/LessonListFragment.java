@@ -1,4 +1,4 @@
-package com.hminq.quizlett.ui.secondtab.createlesson;
+package com.hminq.quizlett.ui.secondtab.lesson;
 
 import android.os.Bundle;
 
@@ -10,9 +10,9 @@ import android.view.ViewGroup;
 
 import com.hminq.quizlett.R;
 
-public class CreateLessonFragment extends Fragment {
+public class LessonListFragment extends Fragment {
 
-    public CreateLessonFragment() {}
+    public LessonListFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -23,6 +23,6 @@ public class CreateLessonFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_create_lesson, container, false);
+        return inflater.inflate(R.layout.fragment_lesson_list, container, false);
     }
 }
