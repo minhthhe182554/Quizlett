@@ -3,11 +3,46 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/tab2_nav_graph"
-    app:startDestination="@id/createLessonFragment">
+    app:startDestination="@id/secondTabFragment"> 
+
+    <fragment
+        android:id="@+id/secondTabFragment"
+        android:name="com.hminq.quizlett.ui.secondtab.SecondTabFragment"
+        android:label="fragment_second_tab"
+        tools:layout="@layout/fragment_second_tab">
+        <action
+            android:id="@+id/action_secondTabFragment_to_questionListFragment"
+            app:destination="@id/questionListFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/questionListFragment"
+        android:name="com.hminq.quizlett.ui.secondtab.question.list.QuestionListFragment"
+        android:label="fragment_question_list"
+        tools:layout="@layout/fragment_question_list">
+        <action
+            android:id="@+id/action_tab2_questionList_to_questionDetail"
+            app:destination="@id/questionDetailFragment" />
+        <action
+            android:id="@+id/action_questionListFragment_to_secondTabFragment"
+            app:destination="@id/secondTabFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/questionDetailFragment"
+        android:name="com.hminq.quizlett.ui.secondtab.question.detail.QuestionDetailFragment"
+        android:label="fragment_question_detail"
+        tools:layout="@layout/fragment_question_detail" >
+
+        <action
+            android:id="@+id/action_questionDetailFragment_to_questionListFragment"
+            app:destination="@id/questionListFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/createLessonFragment"
         android:name="com.hminq.quizlett.ui.secondtab.createlesson.CreateLessonFragment"
         android:label="fragment_create_lesson"
         tools:layout="@layout/fragment_create_lesson" />
+
 </navigation>

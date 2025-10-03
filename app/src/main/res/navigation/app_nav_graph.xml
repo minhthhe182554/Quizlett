@@ -59,6 +59,11 @@
             app:popUpToInclusive="true"/>
     </fragment>
     <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.hminq.quizlett.ui.home.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" />
+    <fragment
         android:id="@+id/forgotPasswordFragment"
         android:name="com.hminq.quizlett.ui.forgotpassword.ForgotPasswordFragment"
         android:label="ForgotPasswordFragment"

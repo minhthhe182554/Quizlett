@@ -2,10 +2,11 @@ package com.hminq.quizlett.ui;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.hminq.quizlett.R;
 import com.hminq.quizlett.ui.firsttab.FirstTabFragment;
-import com.hminq.quizlett.ui.secondtab.SecondTabFragment;
 import com.hminq.quizlett.ui.thirdtab.ThirdTabFragment;
 
 public class ViewPagerAdapter extends FragmentStateAdapter  {
@@ -22,7 +23,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter  {
             case 0:
                 return new FirstTabFragment();
             case 1:
-                return new SecondTabFragment();
+                return NavHostFragment.create(R.navigation.tab2_nav_graph);
             case 2:
                 return new ThirdTabFragment();
             default:
