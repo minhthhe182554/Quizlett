@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
-import androidx.appcompat.widget.SearchView; // Import SearchView
+import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,9 +15,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.hminq.quizlett.R;
-import com.hminq.quizlett.data.remote.model.Difficulty; // Import Difficulty
+import com.hminq.quizlett.data.remote.model.Difficulty;
 import com.hminq.quizlett.databinding.FragmentQuestionListBinding;
 import com.hminq.quizlett.data.remote.model.Question;
 import com.hminq.quizlett.ui.secondtab.question.adapter.QuestionAdapter;
@@ -29,11 +30,20 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class QuestionListFragment extends Fragment implements QuestionAdapter.OnItemClickListener {
-
+    private static final String TAG = "FRAGMENT_QUESTION_LIST";
     private FragmentQuestionListBinding binding;
     private QuestionListViewModel viewModel;
     private QuestionAdapter adapter;
     private NavController navController;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        navController = NavHostFragment.findNavController(this);
+        viewModel = new ViewModelProvider(this).get(QuestionListViewModel.class);
+    }
+
 
 
     @Nullable
@@ -46,9 +56,6 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        navController = Navigation.findNavController(view);
-        viewModel = new ViewModelProvider(this).get(QuestionListViewModel.class);
 
         setupRecyclerView();
         setupClickListeners();
@@ -65,11 +72,11 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
 
     private void setupClickListeners() {
         binding.fabAddQuestion.setOnClickListener(v -> {
-            navController.navigate(R.id.action_tab2_questionList_to_questionDetail);
+            navController.navigate(R.id.action_questionListFragment_to_questionDetailFragment);
         });
 
         binding.btnBack.setOnClickListener(v -> {
-            navController.popBackStack();
+            navController.navigate(R.id.action_questionListFragment_to_dashBoardFragment);
         });
     }
 
@@ -140,8 +147,8 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
     public void onItemClick(Question question) {
         Bundle bundle = new Bundle();
         bundle.putString("quesId", question.getQuesId());
-        // Navigate to QuestionDetailFragment for editing/viewing (using new action ID)
-        navController.navigate(R.id.action_tab2_questionList_to_questionDetail, bundle);
+
+        navController.navigate(R.id.action_questionListFragment_to_questionDetailFragment, bundle);
     }
 
     @Override

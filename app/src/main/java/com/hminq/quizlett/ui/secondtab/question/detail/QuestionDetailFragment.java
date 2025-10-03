@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.hminq.quizlett.R;
 import com.hminq.quizlett.data.remote.model.Difficulty;
@@ -30,12 +31,19 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class QuestionDetailFragment extends Fragment {
-
+    private static final String TAG = "FRAGMENT_QUESTION_DETAIL";
     private FragmentQuestionDetailBinding binding;
     private QuestionDetailViewModel viewModel;
     private NavController navController;
     private String quesId = null;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        navController = NavHostFragment.findNavController(this);
+        viewModel = new ViewModelProvider(this).get(QuestionDetailViewModel.class);
+        super.onCreate(savedInstanceState);
+    }
+    
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -46,9 +54,6 @@ public class QuestionDetailFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        navController = Navigation.findNavController(view);
-        viewModel = new ViewModelProvider(this).get(QuestionDetailViewModel.class);
 
         setupSpinners();
 
@@ -67,25 +72,6 @@ public class QuestionDetailFragment extends Fragment {
         observeViewModel();
         setupClickListeners();
     }
-
-//    private void setupSpinners() {
-//        ArrayAdapter<CharSequence> answerAdapter = ArrayAdapter.createFromResource(
-//                requireContext(),
-//                R.array.answer_options_array,
-//                android.R.layout.simple_spinner_item
-//        );
-//        answerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        binding.spinnerCorrectAnswer.setAdapter(answerAdapter);
-//
-//
-//        ArrayAdapter<CharSequence> difficultyAdapter = ArrayAdapter.createFromResource(
-//                requireContext(),
-//                R.array.difficulty_array,
-//                android.R.layout.simple_spinner_item
-//        );
-//        difficultyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        binding.spinnerDifficulty.setAdapter(difficultyAdapter);
-//    }
 
     private void setupSpinners() {
         ArrayAdapter<CharSequence> answerAdapter = ArrayAdapter.createFromResource(
