@@ -21,6 +21,7 @@ import com.hminq.quizlett.R;
 import com.hminq.quizlett.data.remote.model.Difficulty;
 import com.hminq.quizlett.databinding.FragmentQuestionListBinding;
 import com.hminq.quizlett.data.remote.model.Question;
+import com.hminq.quizlett.ui.SharedViewModel;
 import com.hminq.quizlett.ui.secondtab.question.adapter.QuestionAdapter;
 
 import java.util.ArrayList;
@@ -33,8 +34,10 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
     private static final String TAG = "FRAGMENT_QUESTION_LIST";
     private FragmentQuestionListBinding binding;
     private QuestionListViewModel viewModel;
+    private SharedViewModel sharedViewModel;
     private QuestionAdapter adapter;
     private NavController navController;
+    private String currentUserId;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,9 +45,9 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
 
         navController = NavHostFragment.findNavController(this);
         viewModel = new ViewModelProvider(this).get(QuestionListViewModel.class);
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        currentUserId = sharedViewModel.getCurrentUserUid();
     }
-
-
 
     @Nullable
     @Override
@@ -62,7 +65,8 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
         setupFilterControls();
         observeViewModel();
 
-        viewModel.loadQuestions();
+        // refactor
+        viewModel.loadQuestions(currentUserId);
     }
 
     private void setupRecyclerView() {
@@ -99,9 +103,11 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
 
         List<String> difficultyOptions = new ArrayList<>();
         difficultyOptions.add("All Difficulties");
+
         for (Difficulty d : Difficulty.values()) {
             difficultyOptions.add(d.name());
         }
+
         ArrayAdapter<String> difficultyAdapter = new ArrayAdapter<>(requireContext(), R.layout.spiner_item, difficultyOptions);
         difficultyAdapter.setDropDownViewResource(R.layout.spiner_item);
         binding.spinnerDifficultyFilter.setAdapter(difficultyAdapter);

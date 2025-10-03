@@ -9,9 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.NavOptions;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.view.LayoutInflater;
@@ -20,7 +17,6 @@ import android.view.ViewGroup;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.hminq.quizlett.R;
 import com.hminq.quizlett.databinding.FragmentContainerBinding;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -29,7 +25,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class ContainerFragment extends Fragment {
     private FragmentContainerBinding binding;
     private SharedViewModel sharedViewModel;
-    private NavController navController;
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
     private ViewPagerAdapter viewPagerAdapter;
@@ -47,7 +42,7 @@ public class ContainerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentContainerBinding.inflate(inflater, container, false);
-        navController = NavHostFragment.findNavController(this);
+
         viewPager = binding.viewPager;
         tabLayout = binding.tabLayout;
 
@@ -77,9 +72,5 @@ public class ContainerFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        if (sharedViewModel.getCurrentUserLiveData().getValue() == null) {
-            sharedViewModel.getCurrentUser();
-        }
     }
 }

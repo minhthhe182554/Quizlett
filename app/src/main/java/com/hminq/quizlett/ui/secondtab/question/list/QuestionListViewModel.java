@@ -42,10 +42,10 @@ public class QuestionListViewModel extends ViewModel {
         this.questionRepository = questionRepository;
     }
 
-    public void loadQuestions() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser() != null
-                ? FirebaseAuth.getInstance().getCurrentUser().getUid()
-                : null;
+    public void loadQuestions(String userId) {
+//        String userId = FirebaseAuth.getInstance().getCurrentUser() != null
+//                ? FirebaseAuth.getInstance().getCurrentUser().getUid()
+//                : null;
 
         if (userId == null) {
             _errorMessage.setValue("No user logged in");
