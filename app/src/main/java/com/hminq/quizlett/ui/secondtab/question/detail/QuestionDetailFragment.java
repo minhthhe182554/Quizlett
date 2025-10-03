@@ -21,6 +21,7 @@ import com.hminq.quizlett.data.remote.model.Question;
 import com.hminq.quizlett.data.dto.request.AddQuestionRequest;
 import com.hminq.quizlett.data.dto.request.UpdateQuestionRequest;
 import com.hminq.quizlett.databinding.FragmentQuestionDetailBinding;
+import com.hminq.quizlett.ui.SharedViewModel;
 
 
 import java.util.Arrays;
@@ -34,14 +35,20 @@ public class QuestionDetailFragment extends Fragment {
     private static final String TAG = "FRAGMENT_QUESTION_DETAIL";
     private FragmentQuestionDetailBinding binding;
     private QuestionDetailViewModel viewModel;
+    private SharedViewModel sharedViewModel;
     private NavController navController;
     private String quesId = null;
+    private String currentUserId;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         navController = NavHostFragment.findNavController(this);
         viewModel = new ViewModelProvider(this).get(QuestionDetailViewModel.class);
-        super.onCreate(savedInstanceState);
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
+        currentUserId = sharedViewModel.getCurrentUserUid();
     }
     
     @Nullable
@@ -154,11 +161,11 @@ public class QuestionDetailFragment extends Fragment {
         if (quesId == null) {
             // Add new question
             AddQuestionRequest request = new AddQuestionRequest(questionText, answerOptions, correctAnswerIndex, difficulty);
-            viewModel.addQuestion(request);
+            viewModel.addQuestion(request, currentUserId);
         } else {
             // Update existing question
             UpdateQuestionRequest request = new UpdateQuestionRequest(quesId, questionText, answerOptions, correctAnswerIndex, difficulty);
-            viewModel.updateQuestion(request);
+            viewModel.updateQuestion(request, currentUserId);
         }
     }
 

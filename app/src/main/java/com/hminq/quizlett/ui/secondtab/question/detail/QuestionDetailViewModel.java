@@ -19,16 +19,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class QuestionDetailViewModel extends ViewModel {
 
     private final QuestionRepository questionRepository;
-    private final FirebaseAuth firebaseAuth; // Added FirebaseAuth
+//    private final FirebaseAuth firebaseAuth; // Remove FirebaseAuth
 
     private final MutableLiveData<Question> question = new MutableLiveData<>();
     private final MutableLiveData<Boolean> actionSuccess = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
     @Inject
-    public QuestionDetailViewModel(QuestionRepository questionRepository, FirebaseAuth firebaseAuth) {
+    public QuestionDetailViewModel(QuestionRepository questionRepository) {
         this.questionRepository = questionRepository;
-        this.firebaseAuth = firebaseAuth; // Injected FirebaseAuth
+//        this.firebaseAuth = firebaseAuth; // Injected FirebaseAuth (bo di nhe)
     }
 
     public LiveData<Question> getQuestion() {
@@ -56,14 +56,13 @@ public class QuestionDetailViewModel extends ViewModel {
         });
     }
 
-    public void addQuestion(AddQuestionRequest request) {
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        if (currentUser == null) {
+    public void addQuestion(AddQuestionRequest request, String userId) {
+        if (userId == null) {
             errorMessage.setValue("No user logged in. Cannot add question.");
             actionSuccess.setValue(false); // Indicate failure
             return;
         }
-        String userId = currentUser.getUid();
+
         questionRepository.addQuestion(request, userId, new QuestionRepository.OnQuestionAddedListener() {
             @Override
             public void onQuestionAdded(boolean success, String error) {
@@ -76,14 +75,13 @@ public class QuestionDetailViewModel extends ViewModel {
         });
     }
 
-    public void updateQuestion(UpdateQuestionRequest request) {
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        if (currentUser == null) {
+    public void updateQuestion(UpdateQuestionRequest request, String userId) {
+        if (userId == null) {
             errorMessage.setValue("No user logged in. Cannot update question.");
             actionSuccess.setValue(false); // Indicate failure
             return;
         }
-        String userId = currentUser.getUid();
+
         questionRepository.updateQuestion(request, userId, new QuestionRepository.OnQuestionUpdatedListener() {
             @Override
             public void onQuestionUpdated(boolean success, String error) {

@@ -87,6 +87,10 @@ public class SharedViewModel extends ViewModel {
         );
     }
 
+    public String getCurrentUserUid() {
+        return currentUser.getValue().getUid();
+    }
+
     public LiveData<Throwable> getDeleteErrorLiveData() {
         return deleteError;
     }

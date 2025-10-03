@@ -41,12 +41,12 @@ public class MainActivity extends AppCompatActivity {
         navigateToAndClearStackOption = new NavOptions.Builder()
                 .setPopUpTo(R.id.app_nav_graph, true)
                 .build();
-        checkIfUserSignedIn();
-        checkIfUserSignedOut();
+        checkIfUserSignedInBefore();
+        checkIfUserSignedOutSuccess();
         setContentView(binding.getRoot());
     }
 
-    private void checkIfUserSignedIn() {
+    private void checkIfUserSignedInBefore() {
         sharedViewModel.getCurrentUser();
 
         sharedViewModel.getCurrentUserLiveData().observe(this, new Observer<>() {
@@ -63,6 +63,13 @@ public class MainActivity extends AppCompatActivity {
                     sharedViewModel.getCurrentUserLiveData().removeObserver(this);
                 } else {
                     Log.d(TAG, "User is null.");
+
+                    // navigate back to welcomeFragment if somehome user is null in runtime
+                    navController.navigate(
+                            R.id.welcomeFragment,
+                            null,
+                            navigateToAndClearStackOption
+                    );
                 }
             }
         });
@@ -75,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void checkIfUserSignedOut() {
+    private void checkIfUserSignedOutSuccess() {
         sharedViewModel.getSignOutSuccessLiveData().observe(this, success -> {
             if (success) {
                 Log.d(TAG, "Sign out success: ");
