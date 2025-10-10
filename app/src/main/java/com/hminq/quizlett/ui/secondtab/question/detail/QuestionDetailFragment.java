@@ -22,6 +22,7 @@ import com.hminq.quizlett.data.dto.request.AddQuestionRequest;
 import com.hminq.quizlett.data.dto.request.UpdateQuestionRequest;
 import com.hminq.quizlett.databinding.FragmentQuestionDetailBinding;
 import com.hminq.quizlett.ui.SharedViewModel;
+import com.hminq.quizlett.utils.Message;
 
 
 import java.util.Arrays;
@@ -76,7 +77,7 @@ public class QuestionDetailFragment extends Fragment {
             binding.btnDeleteQuestion.setVisibility(View.GONE);
         }
 
-        observeViewModel();
+        observeViewModel(view);
         setupClickListeners();
     }
 
@@ -98,7 +99,8 @@ public class QuestionDetailFragment extends Fragment {
         difficultyAdapter.setDropDownViewResource(R.layout.spiner_item);
         binding.spinnerDifficulty.setAdapter(difficultyAdapter);
     }
-    private void observeViewModel() {
+
+    private void observeViewModel(View view) {
         viewModel.getQuestion().observe(getViewLifecycleOwner(), question -> {
             if (question != null) {
                 populateUi(question);
@@ -107,14 +109,14 @@ public class QuestionDetailFragment extends Fragment {
 
         viewModel.getActionSuccess().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Toast.makeText(requireContext(), "Operation successful!", Toast.LENGTH_SHORT).show();
+                Message.showShort(view, "Operation successful!");
                 navController.popBackStack();
             }
         });
 
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), errorMessage -> {
             if (errorMessage != null) {
-                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                Message.showShort(view, errorMessage);
             }
         });
     }

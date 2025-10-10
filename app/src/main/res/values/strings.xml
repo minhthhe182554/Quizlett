@@ -46,6 +46,7 @@
     <string name="answer_options_placeholder">Answer Options: %s</string>
     <string name="correct_answer_placeholder">Correct Answer: %s</string>
     <string name="question_list_title">Manage Questions</string>
+    <string name="question_detail_title">Edit your question</string>
     <string name="query_hint_search">Search...</string>
     <string name="question_text_label">Question Text</string>
     <string name="enter_question_text_hint">Enter the question text</string>
@@ -60,4 +61,8 @@
     <string name="delete_question_button">Delete</string>
     <string name="fab_add_question_description">Add new question</string>
     <string name="manage_questions_button_text">mannage question</string>
+    <string name="top_lesson_title">Top lessons</string>
+    <string name="english_lesson_title">English</string>
+    <string name="chinese_lesson_title">Chinese</string>
+    <string name="japanese_lesson_title">Japanese</string>
 </resources>

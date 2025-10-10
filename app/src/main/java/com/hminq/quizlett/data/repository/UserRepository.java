@@ -3,7 +3,6 @@ package com.hminq.quizlett.data.repository;
 import static com.hminq.quizlett.constants.UserConstant.ERROR_IMG_URL;
 
 import android.util.Log;
-import android.widget.ImageView;
 
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -40,26 +39,29 @@ public class UserRepository {
     public Single<User> getCurrentUser() {
         return Single.create(emitter -> {
             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-            if (firebaseUser == null) {
-                emitter.onError(new Exception("No user logged in"));
-            }
-            else {
-                String currentUserUid = firebaseUser.getUid();
 
-                userReference.child(currentUserUid)
+            // change to tryOnError to avoid exception when observer is cleared
+            if (firebaseUser == null) {
+                emitter.tryOnError(new Exception("No user logged in"));
+
+                return;
+            }
+
+            userReference.child(firebaseUser.getUid())
                         .get()
                         .addOnSuccessListener(dataSnapshot -> {
+                            if (emitter.isDisposed()) return;
+
                             User currentUser = dataSnapshot.getValue(User.class);
 
                             if (currentUser == null) {
-                                emitter.onError(new Exception("User not found in DB"));
+                                emitter.tryOnError(new Exception("User not found in DB"));
                             }
                             else {
                                 emitter.onSuccess(currentUser);
                             }
                         })
-                        .addOnFailureListener(emitter::onError);
-            }
+                        .addOnFailureListener(emitter::tryOnError);
         });
     }
 
@@ -75,10 +77,12 @@ public class UserRepository {
         firebaseAuth
                 .signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
+                    if (emitter.isDisposed()) return;
+
                     Log.d(TAG, "sign in successful");
                     emitter.onSuccess(authResult);
                 })
-                .addOnFailureListener(emitter::onError)
+                .addOnFailureListener(emitter::tryOnError)
         );
     }
 
@@ -105,11 +109,15 @@ public class UserRepository {
 
                                     userReference.child(newUid)
                                             .setValue(newUser)
-                                            .addOnSuccessListener(unused -> emitter.onSuccess(authResult))
-                                            .addOnFailureListener(emitter::onError);
+                                            .addOnSuccessListener(unused -> {
+                                                if (emitter.isDisposed()) return;
+
+                                                emitter.onSuccess(authResult);
+                                            })
+                                            .addOnFailureListener(emitter::tryOnError);
                                 }
                         )
-                        .addOnFailureListener(emitter::onError)
+                        .addOnFailureListener(emitter::tryOnError)
         );
     }
 
@@ -124,15 +132,20 @@ public class UserRepository {
         return Completable.create(emitter -> {
             firebaseAuth.sendPasswordResetEmail(email)
                     .addOnSuccessListener(aVoid -> {
-                            emitter.onComplete();
+                        if (emitter.isDisposed()) return;
+
+                        emitter.onComplete();
                     })
-                    .addOnFailureListener(emitter::onError);
+                    .addOnFailureListener(emitter::tryOnError);
         });
     }
 
     public Completable signOut() {
         return Completable.create(emitter -> {
             firebaseAuth.signOut();
+
+            if (emitter.isDisposed()) return;
+
             emitter.onComplete();
         });
     }
@@ -141,7 +154,7 @@ public class UserRepository {
         return Completable.create(emitter -> {
             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
             if (firebaseUser == null) {
-                emitter.onError(new IllegalStateException("No user logged in"));
+                emitter.tryOnError(new IllegalStateException("No user logged in"));
                 return;
             }
 
@@ -160,18 +173,21 @@ public class UserRepository {
                                     // 3: Delete profile image
                                     deleteProfileImage(uid);
 
+                                    if (emitter.isDisposed()) return;
                                     emitter.onComplete();
                                 })
                                 .addOnFailureListener(e -> {
                                     Log.e(TAG, "Database deletion failed: " + e.getMessage());
                                     // Auth already deleted, but log the error
                                     // Database cleanup can be done later via Cloud Functions
+                                    if (emitter.isDisposed()) return;
                                     emitter.onComplete(); // Still complete since Auth is deleted
                                 });
                     })
                     .addOnFailureListener(authError -> {
                         Log.e(TAG, "Auth deletion failed: " + authError.getMessage());
-                        emitter.onError(authError); // Nothing deleted yet
+
+                        emitter.tryOnError(authError); // Nothing deleted yet
                     });
         });
     }
@@ -186,7 +202,7 @@ public class UserRepository {
         return Completable.create(emitter -> {
             FirebaseUser user = firebaseAuth.getCurrentUser();
             if (user == null || user.getEmail() == null) {
-                emitter.onError(new IllegalStateException("No user logged in"));
+                emitter.tryOnError(new IllegalStateException("No user logged in"));
                 return;
             }
 
@@ -195,17 +211,25 @@ public class UserRepository {
             user.reauthenticate(credential)
                     .addOnSuccessListener(aVoid -> {
                         Log.d(TAG, "Re-authentication successful");
+                        if (emitter.isDisposed()) return;
+
                         emitter.onComplete();
                     })
-                    .addOnFailureListener(emitter::onError);
+                    .addOnFailureListener(emitter::tryOnError);
         });
     }
 
     public Single<String> loadProfileImage(User user) {
-        StorageReference imageRef = profileImageReference.child(user.getProfileImageUrl());
 
         return Single.create(
                 emitter -> {
+                    if (user.getProfileImageUrl() == null) {
+                        emitter.tryOnError(new Exception("Profile image path is null"));
+                        return;
+                    }
+
+                    StorageReference imageRef = profileImageReference.child(user.getProfileImageUrl());
+
                     imageRef.getDownloadUrl()
                             .addOnSuccessListener(uri -> emitter.onSuccess(uri.toString()))
                             .addOnFailureListener(e -> {
@@ -214,13 +238,13 @@ public class UserRepository {
 
                                 errorImageRef.getDownloadUrl()
                                         .addOnSuccessListener(defaultUri -> {
+                                            if (emitter.isDisposed()) return;
+
                                             emitter.onSuccess(defaultUri.toString());
                                         })
-                                        .addOnFailureListener(emitter::onError);
+                                        .addOnFailureListener(emitter::tryOnError);
                             });
                 }
         );
     }
-
-
 }
