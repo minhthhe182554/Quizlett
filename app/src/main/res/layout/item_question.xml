@@ -3,7 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 <androidx.constraintlayout.widget.ConstraintLayout
-
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:context=".ui.secondtab.question.list.QuestionListFragment">
@@ -21,7 +20,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -33,17 +32,21 @@
                 android:layout_height="wrap_content"
                 android:text="@string/question_text_placeholder"
                 android:textColor="@android:color/white"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvDifficulty"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="@string/difficulty_placeholder"
-                android:textColor="@color/light_grey"
-                android:textSize="14sp" />
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
                 android:id="@+id/tvAnswerOptions"
@@ -52,7 +55,8 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/answer_options_placeholder"
                 android:textColor="@color/light_grey"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@id/tvQuestionText"/>
 
             <TextView
                 android:id="@+id/tvCorrectAnswer"
@@ -62,9 +66,10 @@
                 android:text="@string/correct_answer_placeholder"
                 android:textColor="@color/light_grey"
                 android:textSize="14sp"
-                android:textStyle="italic" />
+                android:textStyle="italic"
+                app:layout_constraintTop_toBottomOf="@id/tvAnswerOptions"/>
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
 

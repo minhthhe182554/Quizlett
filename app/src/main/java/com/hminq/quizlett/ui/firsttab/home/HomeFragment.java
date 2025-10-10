@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -32,6 +33,7 @@ public class HomeFragment extends Fragment {
     private SharedViewModel sharedViewModel;
     private NavController navController;
     private ImageView ivProfileImg;
+    private SearchView svSearch;
 
     public HomeFragment() {}
 
@@ -77,5 +79,6 @@ public class HomeFragment extends Fragment {
 
     private void bindViews() {
         ivProfileImg = binding.profileImage;
+        svSearch = binding.svLesson;
     }
 }

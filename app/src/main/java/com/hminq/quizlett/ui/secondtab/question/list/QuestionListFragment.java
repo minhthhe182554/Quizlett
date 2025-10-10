@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.hminq.quizlett.R;
@@ -75,7 +74,7 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
     }
 
     private void setupClickListeners() {
-        binding.fabAddQuestion.setOnClickListener(v -> {
+        binding.btnAddQuestion.setOnClickListener(v -> {
             navController.navigate(R.id.action_questionListFragment_to_questionDetailFragment);
         });
 

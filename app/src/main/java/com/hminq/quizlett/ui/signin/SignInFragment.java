@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.hminq.quizlett.R;
 import com.hminq.quizlett.databinding.FragmentSignInBinding;
+import com.hminq.quizlett.ui.SharedViewModel;
 import com.hminq.quizlett.utils.Message;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -30,6 +31,7 @@ public class SignInFragment extends Fragment {
     private static final String TAG = "FRAGMENT_SIGNIN";
     private FragmentSignInBinding binding;
     private SignInViewModel signInViewModel;
+    private SharedViewModel sharedViewModel;
     private NavController navController;
     private Button btnSignIn, btnBack;
     private EditText etEmail, etPassword;
@@ -42,6 +44,7 @@ public class SignInFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         signInViewModel = new ViewModelProvider(this).get(SignInViewModel.class);
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
     }
 
     @Override
@@ -93,6 +96,8 @@ public class SignInFragment extends Fragment {
         signInViewModel.getSignInSuccessLiveData().observe(getViewLifecycleOwner(), isUserSignedIn -> {
             if (isUserSignedIn) {
                 navController.navigate(R.id.action_signInFragment_to_containerFragment);
+
+                sharedViewModel.getCurrentUser();
             }
             else {
                 Log.d(TAG, "User somehow not signin");

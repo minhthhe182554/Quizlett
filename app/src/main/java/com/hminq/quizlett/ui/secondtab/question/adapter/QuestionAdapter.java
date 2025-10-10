@@ -67,7 +67,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
 
         public void bind(Question question, OnItemClickListener listener) {
             tvQuestionText.setText(question.getQuestionText());
-            tvDifficulty.setText("Difficulty: " + question.getDifficulty().name());
+            tvDifficulty.setText(question.getDifficulty().name().toUpperCase());
             tvAnswerOptions.setText("Answer Options: " + question.getAnswerOptions().toString());
             tvCorrectAnswer.setText("Correct Answer: " + question.getAnswerOptions().get(question.getCorrectAnswerIndex()));
             itemView.setOnClickListener(v -> listener.onItemClick(question));
