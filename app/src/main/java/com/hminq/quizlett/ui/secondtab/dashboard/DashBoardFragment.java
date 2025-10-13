@@ -41,6 +41,6 @@ public class DashBoardFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         binding.btnToQuestionManage.setOnClickListener(l -> navController.navigate(R.id.action_dashBoardFragment_to_questionListFragment));
-        binding.btnToLessonManage.setOnClickListener(l -> navController.navigate(R.id.action_dashBoardFragment_to_createLessonFragment));
+        binding.btnToLessonManage.setOnClickListener(l -> navController.navigate(R.id.action_dashBoardFragment_to_lessonListFragment));
     }
 }
