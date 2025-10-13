@@ -53,21 +53,21 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
 
     static class QuestionViewHolder extends RecyclerView.ViewHolder {
         TextView tvQuestionText;
-        TextView tvDifficulty;
+        TextView tvCategory;
         TextView tvAnswerOptions;
         TextView tvCorrectAnswer;
 
         public QuestionViewHolder(@NonNull View itemView) {
             super(itemView);
             tvQuestionText = itemView.findViewById(R.id.tvQuestionText);
-            tvDifficulty = itemView.findViewById(R.id.tvDifficulty);
+            tvCategory = itemView.findViewById(R.id.tvCategory);
             tvAnswerOptions = itemView.findViewById(R.id.tvAnswerOptions);
             tvCorrectAnswer = itemView.findViewById(R.id.tvCorrectAnswer);
         }
 
         public void bind(Question question, OnItemClickListener listener) {
             tvQuestionText.setText(question.getQuestionText());
-            tvDifficulty.setText(question.getDifficulty().name().toUpperCase());
+            tvCategory.setText(question.getCategory().name().toUpperCase());
             tvAnswerOptions.setText("Answer Options: " + question.getAnswerOptions().toString());
             tvCorrectAnswer.setText("Correct Answer: " + question.getAnswerOptions().get(question.getCorrectAnswerIndex()));
             itemView.setOnClickListener(v -> listener.onItemClick(question));

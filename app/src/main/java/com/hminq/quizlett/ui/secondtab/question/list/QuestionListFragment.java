@@ -17,7 +17,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.hminq.quizlett.R;
-import com.hminq.quizlett.data.remote.model.Difficulty;
+import com.hminq.quizlett.data.remote.model.LessonCategory;
 import com.hminq.quizlett.databinding.FragmentQuestionListBinding;
 import com.hminq.quizlett.data.remote.model.Question;
 import com.hminq.quizlett.ui.SharedViewModel;
@@ -64,7 +64,6 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
         setupFilterControls();
         observeViewModel();
 
-        // refactor
         viewModel.loadQuestions(currentUserId);
     }
 
@@ -99,37 +98,36 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
             }
         });
 
+        List<String> categoryOptions = new ArrayList<>();
+        categoryOptions.add("All Categories"); 
 
-        List<String> difficultyOptions = new ArrayList<>();
-        difficultyOptions.add("All Difficulties");
-
-        for (Difficulty d : Difficulty.values()) {
-            difficultyOptions.add(d.name());
+        for (LessonCategory c : LessonCategory.values()) {
+            categoryOptions.add(c.name());
         }
 
-        ArrayAdapter<String> difficultyAdapter = new ArrayAdapter<>(requireContext(), R.layout.spiner_item, difficultyOptions);
-        difficultyAdapter.setDropDownViewResource(R.layout.spiner_item);
-        binding.spinnerDifficultyFilter.setAdapter(difficultyAdapter);
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(requireContext(), R.layout.spiner_item, categoryOptions);
+        categoryAdapter.setDropDownViewResource(R.layout.spiner_item);
+        binding.spinnerCategoryFilter.setAdapter(categoryAdapter);
 
-        binding.spinnerDifficultyFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.spinnerCategoryFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position == 0) {
-                    viewModel.setDifficultyFilter(null);
+                    viewModel.setCategoryFilter(null);
                 } else {
-                    String selectedDifficultyStr = parent.getItemAtPosition(position).toString();
+                    String selectedCategoryStr = parent.getItemAtPosition(position).toString();
                     try {
-                        Difficulty selectedDifficulty = Difficulty.valueOf(selectedDifficultyStr);
-                        viewModel.setDifficultyFilter(selectedDifficulty);
+                        LessonCategory selectedCategory = LessonCategory.valueOf(selectedCategoryStr);
+                        viewModel.setCategoryFilter(selectedCategory);
                     } catch (IllegalArgumentException e) {
-                        viewModel.setDifficultyFilter(null);
+                        viewModel.setCategoryFilter(null);
                     }
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                viewModel.setDifficultyFilter(null);
+                viewModel.setCategoryFilter(null);
             }
         });
     }
@@ -151,7 +149,7 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
     @Override
     public void onItemClick(Question question) {
         Bundle bundle = new Bundle();
-        bundle.putString("quesId", question.getQuesId());
+        bundle.putString("quesId", question.getQuesId()); // Reverted
 
         navController.navigate(R.id.action_questionListFragment_to_questionDetailFragment, bundle);
     }

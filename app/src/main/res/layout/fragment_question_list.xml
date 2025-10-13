@@ -7,6 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/dark_blue"
+        android:padding="12dp"
         tools:context=".ui.secondtab.question.list.QuestionListFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -69,12 +70,12 @@
                 app:queryHint="@string/query_hint_search" />
 
             <Spinner
-                android:id="@+id/spinnerDifficultyFilter"
-                android:layout_width="100dp"
-                android:maxWidth="100dp"
+                android:id="@+id/spinnerCategoryFilter"
+                android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/input_field_bg"
+                android:maxWidth="100dp"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/searchViewQuestions" />
@@ -88,7 +89,7 @@
             android:layout_marginTop="10dp"
             android:padding="8dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/btnAddQuestion"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/searchLayout" />

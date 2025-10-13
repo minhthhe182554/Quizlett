@@ -198,12 +198,12 @@
                     app:layout_constraintTop_toBottomOf="@id/tvCorrectAnswerLabel" />
 
                 <TextView
-                    android:id="@+id/tvDifficultyLabel"
+                    android:id="@+id/tvCategoryLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_marginTop="16dp"
-                    android:text="@string/difficulty_label"
+                    android:text="@string/ques_category_label"
                     android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold"
@@ -211,20 +211,20 @@
                     app:layout_constraintTop_toBottomOf="@id/etOption4" />
 
                 <Spinner
-                    android:id="@+id/spinnerDifficulty"
+                    android:id="@+id/spinnerCategory"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_marginTop="8dp"
                     android:background="@drawable/input_field_bg"
-                    android:entries="@array/difficulty_array"
+                    android:entries="@array/lesson_category_array"
                     android:minHeight="60dp"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
                     android:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/guideline_spinners_vertical"
-                    app:layout_constraintTop_toBottomOf="@id/tvDifficultyLabel" />
+                    app:layout_constraintTop_toBottomOf="@id/tvCategoryLabel" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/guideline_buttons_vertical"

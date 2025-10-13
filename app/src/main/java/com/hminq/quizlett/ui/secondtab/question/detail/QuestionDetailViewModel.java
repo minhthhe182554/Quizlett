@@ -19,7 +19,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class QuestionDetailViewModel extends ViewModel {
 
     private final QuestionRepository questionRepository;
-//    private final FirebaseAuth firebaseAuth; // Remove FirebaseAuth
 
     private final MutableLiveData<Question> question = new MutableLiveData<>();
     private final MutableLiveData<Boolean> actionSuccess = new MutableLiveData<>();
@@ -28,7 +27,6 @@ public class QuestionDetailViewModel extends ViewModel {
     @Inject
     public QuestionDetailViewModel(QuestionRepository questionRepository) {
         this.questionRepository = questionRepository;
-//        this.firebaseAuth = firebaseAuth; // Injected FirebaseAuth (bo di nhe)
     }
 
     public LiveData<Question> getQuestion() {
@@ -59,7 +57,7 @@ public class QuestionDetailViewModel extends ViewModel {
     public void addQuestion(AddQuestionRequest request, String userId) {
         if (userId == null) {
             errorMessage.setValue("No user logged in. Cannot add question.");
-            actionSuccess.setValue(false); // Indicate failure
+            actionSuccess.setValue(false);
             return;
         }
 
@@ -78,7 +76,7 @@ public class QuestionDetailViewModel extends ViewModel {
     public void updateQuestion(UpdateQuestionRequest request, String userId) {
         if (userId == null) {
             errorMessage.setValue("No user logged in. Cannot update question.");
-            actionSuccess.setValue(false); // Indicate failure
+            actionSuccess.setValue(false);
             return;
         }
 
@@ -95,10 +93,7 @@ public class QuestionDetailViewModel extends ViewModel {
     }
 
     public void deleteQuestion(String quesId) {
-        // Note: You might want to add a check here to ensure only the user who created the question can delete it.
-        // This would involve fetching the question, checking its userId against the current user's ID,
-        // and then proceeding with deletion if they match.
-        // For now, it deletes based on quesId directly.
+
         questionRepository.deleteQuestion(quesId, new QuestionRepository.OnQuestionDeletedListener() {
             @Override
             public void onQuestionDeleted(boolean success, String error) {

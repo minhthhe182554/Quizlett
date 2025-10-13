@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.hminq.quizlett.data.remote.model.Difficulty;
+import com.hminq.quizlett.data.remote.model.LessonCategory;
 import com.hminq.quizlett.data.remote.model.Question;
 import com.hminq.quizlett.data.repository.QuestionRepository;
 
@@ -34,8 +34,7 @@ public class QuestionListViewModel extends ViewModel {
 
     private List<Question> allQuestionsList = new ArrayList<>();
     private String currentSearchQuery = "";
-    // Using null for difficulty to represent "All" or no filter by difficulty
-    private Difficulty currentDifficultyFilter = null; 
+    private LessonCategory currentCategoryFilter = null;
 
     @Inject
     public QuestionListViewModel(QuestionRepository questionRepository) {
@@ -43,9 +42,6 @@ public class QuestionListViewModel extends ViewModel {
     }
 
     public void loadQuestions(String userId) {
-//        String userId = FirebaseAuth.getInstance().getCurrentUser() != null
-//                ? FirebaseAuth.getInstance().getCurrentUser().getUid()
-//                : null;
 
         if (userId == null) {
             _errorMessage.setValue("No user logged in");
@@ -73,22 +69,20 @@ public class QuestionListViewModel extends ViewModel {
         applyFilters();
     }
 
-    public void setDifficultyFilter(Difficulty difficulty) {
-        currentDifficultyFilter = difficulty; // This can be null for "All"
+    public void setCategoryFilter(LessonCategory category) {
+        currentCategoryFilter = category;
         applyFilters();
     }
 
     private void applyFilters() {
         List<Question> tempFilteredList = new ArrayList<>(allQuestionsList);
 
-        // Filter by difficulty
-        if (currentDifficultyFilter != null) {
+        if (currentCategoryFilter != null) {
             tempFilteredList = tempFilteredList.stream()
-                    .filter(q -> q.getDifficulty() == currentDifficultyFilter)
+                    .filter(q -> q.getCategory() == currentCategoryFilter)
                     .collect(Collectors.toList());
         }
 
-        // Filter by search query (question text)
         if (!currentSearchQuery.isEmpty()) {
             tempFilteredList = tempFilteredList.stream()
                     .filter(q -> q.getQuestionText() != null && q.getQuestionText().toLowerCase().contains(currentSearchQuery))
