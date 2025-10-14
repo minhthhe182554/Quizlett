@@ -1,4 +1,4 @@
-package com.hminq.quizlett.ui.secondtab.question.list;
+package com.hminq.quizlett.ui.secondtab.lesson.list;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -7,21 +7,24 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
-import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+
 import com.hminq.quizlett.R;
+import com.hminq.quizlett.data.remote.model.Lesson;
 import com.hminq.quizlett.data.remote.model.LessonCategory;
-import com.hminq.quizlett.databinding.FragmentQuestionListBinding;
-import com.hminq.quizlett.data.remote.model.Question;
+
+
+import com.hminq.quizlett.databinding.FragmentLessonListBinding;
 import com.hminq.quizlett.ui.SharedViewModel;
-import com.hminq.quizlett.ui.secondtab.question.adapter.QuestionAdapter;
+import com.hminq.quizlett.ui.secondtab.lesson.adapter.LessonAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,21 +32,20 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class QuestionListFragment extends Fragment implements QuestionAdapter.OnItemClickListener {
-    private static final String TAG = "FRAGMENT_QUESTION_LIST";
-    private FragmentQuestionListBinding binding;
-    private QuestionListViewModel viewModel;
+public class LessonListFragment extends Fragment implements LessonAdapter.OnItemClickListener {
+
+    private FragmentLessonListBinding binding;
+    private LessonListViewModel viewModel;
     private SharedViewModel sharedViewModel;
-    private QuestionAdapter adapter;
+    private LessonAdapter adapter;
     private NavController navController;
     private String currentUserId;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         navController = NavHostFragment.findNavController(this);
-        viewModel = new ViewModelProvider(this).get(QuestionListViewModel.class);
+        viewModel = new ViewModelProvider(this).get(LessonListViewModel.class);
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         currentUserId = sharedViewModel.getCurrentUserUid();
     }
@@ -51,7 +53,7 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentQuestionListBinding.inflate(inflater, container, false);
+        binding = FragmentLessonListBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
@@ -60,31 +62,21 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
         super.onViewCreated(view, savedInstanceState);
 
         setupRecyclerView();
-        setupClickListeners();
         setupFilterControls();
+        setupClickListeners();
         observeViewModel();
 
-        viewModel.loadQuestions(currentUserId);
+        viewModel.loadLessons(currentUserId);
     }
 
     private void setupRecyclerView() {
-        adapter = new QuestionAdapter(new ArrayList<>(), this);
-        binding.recyclerViewQuestions.setAdapter(adapter);
-    }
-
-    private void setupClickListeners() {
-        binding.btnAddQuestion.setOnClickListener(v -> {
-            navController.navigate(R.id.action_questionListFragment_to_questionDetailFragment);
-        });
-
-        binding.btnBack.setOnClickListener(v -> {
-            navController.navigate(R.id.action_questionListFragment_to_dashBoardFragment);
-        });
+        adapter = new LessonAdapter(new ArrayList<>(), this);
+        binding.recyclerViewLessons.setAdapter(adapter);
     }
 
     private void setupFilterControls() {
 
-        binding.searchViewQuestions.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        binding.searchViewLessons.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 viewModel.setSearchQuery(query);
@@ -98,14 +90,14 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
             }
         });
 
-        List<String> categoryOptions = new ArrayList<>();
-        categoryOptions.add("All Categories"); 
-
+        List<String> categories = new ArrayList<>();
+        categories.add("All Categories");
         for (LessonCategory c : LessonCategory.values()) {
-            categoryOptions.add(c.name());
+            categories.add(c.name());
         }
 
-        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(requireContext(), R.layout.spiner_item, categoryOptions);
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(requireContext(),
+                R.layout.spiner_item, categories);
         categoryAdapter.setDropDownViewResource(R.layout.spiner_item);
         binding.spinnerCategoryFilter.setAdapter(categoryAdapter);
 
@@ -115,10 +107,9 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
                 if (position == 0) {
                     viewModel.setCategoryFilter(null);
                 } else {
-                    String selectedCategoryStr = parent.getItemAtPosition(position).toString();
                     try {
-                        LessonCategory selectedCategory = LessonCategory.valueOf(selectedCategoryStr);
-                        viewModel.setCategoryFilter(selectedCategory);
+                        LessonCategory selected = LessonCategory.valueOf(categories.get(position));
+                        viewModel.setCategoryFilter(selected);
                     } catch (IllegalArgumentException e) {
                         viewModel.setCategoryFilter(null);
                     }
@@ -132,10 +123,18 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
         });
     }
 
+    private void setupClickListeners() {
+        binding.btnAddLesson.setOnClickListener(v ->
+                navController.navigate(R.id.action_lessonListFragment_to_lessonDetailFragment));
+
+        binding.btnBack.setOnClickListener(v ->
+                navController.navigate(R.id.action_lessonListFragment_to_dashBoardFragment));
+    }
+
     private void observeViewModel() {
-        viewModel.getFilteredQuestions().observe(getViewLifecycleOwner(), questions -> {
-            if (questions != null) {
-                adapter.updateQuestions(questions);
+        viewModel.getFilteredLessons().observe(getViewLifecycleOwner(), lessons -> {
+            if (lessons != null) {
+                adapter.updateLessons(lessons);
             }
         });
 
@@ -147,11 +146,10 @@ public class QuestionListFragment extends Fragment implements QuestionAdapter.On
     }
 
     @Override
-    public void onItemClick(Question question) {
+    public void onItemClick(Lesson lesson) {
         Bundle bundle = new Bundle();
-        bundle.putString("quesId", question.getQuesId()); // Reverted
-
-        navController.navigate(R.id.action_questionListFragment_to_questionDetailFragment, bundle);
+        bundle.putString("lessonId", lesson.getLessonId());
+        navController.navigate(R.id.action_lessonListFragment_to_lessonDetailFragment, bundle);
     }
 
     @Override

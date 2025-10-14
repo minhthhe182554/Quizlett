@@ -1,18 +1,24 @@
 package com.hminq.quizlett.data.repository;
 
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.hminq.quizlett.data.remote.model.Difficulty;
+import com.hminq.quizlett.data.remote.model.LessonCategory;
 import com.hminq.quizlett.data.remote.model.Question;
 import com.hminq.quizlett.data.dto.request.AddQuestionRequest;
 import com.hminq.quizlett.data.dto.request.UpdateQuestionRequest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.inject.Inject;
 
 public class QuestionRepository {
@@ -25,7 +31,6 @@ public class QuestionRepository {
         this.questionReference = firebaseDatabase.getReference("questions");
     }
 
-    // Added userId parameter
     public void addQuestion(AddQuestionRequest request, String userId, OnQuestionAddedListener listener) {
         Log.d(TAG, "addQuestion called with request: " + request.getQuestionText() + " for userId: " + userId);
         if (userId == null || userId.isEmpty()) {
@@ -36,8 +41,7 @@ public class QuestionRepository {
         String quesId = questionReference.push().getKey();
         if (quesId != null) {
             Log.d(TAG, "Generated quesId: " + quesId);
-            // Added userId to Question constructor
-            Question question = new Question(quesId, request.getQuestionText(), request.getAnswerOptions(), request.getCorrectAnswerIndex(), request.getDifficulty(), userId);
+            Question question = new Question(quesId, request.getQuestionText(), request.getAnswerOptions(), request.getCorrectAnswerIndex(), request.getCategory(), userId);
             questionReference.child(quesId).setValue(question)
                     .addOnSuccessListener(aVoid -> {
                         Log.d(TAG, "addQuestion successful for quesId: " + quesId);
@@ -53,7 +57,6 @@ public class QuestionRepository {
         }
     }
 
-    // Added userId parameter
     public void updateQuestion(UpdateQuestionRequest request, String userId, OnQuestionUpdatedListener listener) {
         Log.d(TAG, "updateQuestion called for quesId: " + request.getQuesId() + " by userId: " + userId);
         if (userId == null || userId.isEmpty()) {
@@ -62,10 +65,7 @@ public class QuestionRepository {
             return;
         }
         if (request.getQuesId() != null) {
-            // Added userId to Question constructor
-            Question question = new Question(request.getQuesId(), request.getQuestionText(), request.getAnswerOptions(), request.getCorrectAnswerIndex(), request.getDifficulty(), userId);
-            // TODO: Optional - Add a check here to ensure the userId matches the original creator if only creators can update.
-            // For now, it updates the question with the passed userId.
+            Question question = new Question(request.getQuesId(), request.getQuestionText(), request.getAnswerOptions(), request.getCorrectAnswerIndex(), request.getCategory(), userId);
             questionReference.child(request.getQuesId()).setValue(question)
                     .addOnSuccessListener(aVoid -> {
                         Log.d(TAG, "updateQuestion successful for quesId: " + request.getQuesId());
@@ -117,17 +117,37 @@ public class QuestionRepository {
         });
     }
 
+    public void getRandomQuestionsByCategory(LessonCategory category, int count, OnQuestionsLoadedListener listener) {
+        questionReference.orderByChild("category").equalTo(category.name())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<Question> allQuestions = new ArrayList<>();
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            Question q = child.getValue(Question.class);
+                            if (q != null) allQuestions.add(q);
+                        }
+                        Collections.shuffle(allQuestions);
+                        List<Question> selected = allQuestions.stream().limit(count).collect(Collectors.toList());
+                        listener.onQuestionsLoaded(selected, null);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        listener.onQuestionsLoaded(null, error.getMessage());
+                    }
+                });
+    }
+
     public void getAllQuestions(String userId, OnQuestionsLoadedListener listener) {
         Log.d(TAG, "getAllQuestions called for userId: " + userId);
-        questionReference.addValueEventListener(new ValueEventListener() {
+        questionReference.orderByChild("userId").equalTo(userId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 List<Question> questions = new ArrayList<>();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Question question = snapshot.getValue(Question.class);
-                    if (question != null && userId.equals(question.getUserId())) {
-                        questions.add(question);
-                    }
+                    questions.add(question);
                 }
                 Log.d(TAG, "getAllQuestions successful, loaded " + questions.size() + " questions for userId " + userId);
                 listener.onQuestionsLoaded(questions, null);
@@ -141,9 +161,9 @@ public class QuestionRepository {
         });
     }
 
-    public void getQuestionsByDifficulty(Difficulty difficulty, String userId, OnQuestionsLoadedListener listener) {
-        Log.d(TAG, "getQuestionsByDifficulty called for difficulty: " + difficulty.name() + " and userId: " + userId);
-        questionReference.orderByChild("difficulty").equalTo(difficulty.name())
+    public void getQuestionsByCategory(LessonCategory category, String userId, OnQuestionsLoadedListener listener) {
+        Log.d(TAG, "getQuestionsByCategory called for category: " + category.name() + " and userId: " + userId);
+        questionReference.orderByChild("category").equalTo(category.name())
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -154,15 +174,15 @@ public class QuestionRepository {
                                 questions.add(question);
                             }
                         }
-                        Log.d(TAG, "getQuestionsByDifficulty successful for " + difficulty.name()
+                        Log.d(TAG, "getQuestionsByCategory successful for " + category.name()
                                 + " and userId " + userId + ", loaded " + questions.size() + " questions.");
                         listener.onQuestionsLoaded(questions, null);
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-                        Log.e(TAG, "getQuestionsByDifficulty onCancelled for difficulty: "
-                                + difficulty.name() + " and userId " + userId, databaseError.toException());
+                        Log.e(TAG, "getQuestionsByCategory onCancelled for category: "
+                                + category.name() + " and userId " + userId, databaseError.toException());
                         listener.onQuestionsLoaded(null, databaseError.getMessage());
                     }
                 });

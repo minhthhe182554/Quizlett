@@ -33,13 +33,40 @@
 
     <fragment
         android:id="@+id/lessonListFragment"
-        android:name="com.hminq.quizlett.ui.secondtab.lesson.LessonListFragment"
-        android:label="fragment_create_lesson"
+        android:name="com.hminq.quizlett.ui.secondtab.lesson.list.LessonListFragment"
+        android:label="fragment_lesson_list" 
         tools:layout="@layout/fragment_lesson_list" >
         <action
-            android:id="@+id/action_createLessonFragment_to_dashBoardFragment"
+            android:id="@+id/action_lessonListFragment_to_lessonDetailFragment"
+            app:destination="@id/lessonDetailFragment" />
+        <action
+            android:id="@+id/action_lessonListFragment_to_dashBoardFragment"
             app:destination="@id/dashBoardFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/lessonDetailFragment" 
+        android:name="com.hminq.quizlett.ui.secondtab.lesson.detail.LessonDetailFragment"
+        android:label="fragment_lesson_detail" 
+        tools:layout="@layout/fragment_lesson_detail">
+        <action
+            android:id="@+id/action_lessonDetailFragment_to_questionSelectionFragment"
+            app:destination="@id/questionSelectionFragment" />
+        <action
+            android:id="@+id/action_lessonDetailFragment_to_lessonListFragment"
+            app:destination="@id/lessonListFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/questionSelectionFragment"
+        android:name="com.hminq.quizlett.ui.secondtab.lesson.detail.QuestionSelectionFragment"
+        android:label="fragment_question_selection"
+        tools:layout="@layout/fragment_question_selection" >
+        <action
+            android:id="@+id/action_questionSelectionFragment_to_lessonDetailFragment"
+            app:destination="@id/lessonDetailFragment" />
+    </fragment>
+
     <fragment
         android:id="@+id/dashBoardFragment"
         android:name="com.hminq.quizlett.ui.secondtab.dashboard.DashBoardFragment"
@@ -49,7 +76,7 @@
             android:id="@+id/action_dashBoardFragment_to_questionListFragment"
             app:destination="@id/questionListFragment" />
         <action
-            android:id="@+id/action_dashBoardFragment_to_createLessonFragment"
+            android:id="@+id/action_dashBoardFragment_to_lessonListFragment"
             app:destination="@id/lessonListFragment" />
     </fragment>
 

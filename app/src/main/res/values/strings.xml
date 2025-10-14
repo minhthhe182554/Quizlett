@@ -36,16 +36,16 @@
         <item>Option 3</item>
         <item>Option 4</item>
     </string-array>
-    <string-array name="difficulty_array">
-        <item>EASY</item>
-        <item>MEDIUM</item>
-        <item>HARD</item>
+    <string-array name="lesson_category_array">
+        <item>Sciences</item>
+        <item>Humanities</item>
+        <item>Others</item>
     </string-array>
     <string name="question_text_placeholder">Question Text</string>
-    <string name="difficulty_placeholder">Difficulty: %s</string>
     <string name="answer_options_placeholder">Answer Options: %s</string>
     <string name="correct_answer_placeholder">Correct Answer: %s</string>
     <string name="question_list_title">Manage Questions</string>
+    <string name="ques_category_label">Category</string>
     <string name="question_detail_title">Edit your question</string>
     <string name="query_hint_search">Search...</string>
     <string name="question_text_label">Question Text</string>
@@ -56,13 +56,34 @@
     <string name="option_3_hint">Option 3</string>
     <string name="option_4_hint">Option 4</string>
     <string name="correct_answer_label">Correct Answer</string>
-    <string name="difficulty_label">Difficulty</string>
     <string name="save_question_button">Save</string>
     <string name="delete_question_button">Delete</string>
     <string name="fab_add_question_description">Add new question</string>
-    <string name="manage_questions_button_text">mannage question</string>
+    <string name="manage_questions_button_text">Manage question</string>
     <string name="top_lesson_title">Top lessons</string>
     <string name="english_lesson_title">English</string>
     <string name="chinese_lesson_title">Chinese</string>
     <string name="japanese_lesson_title">Japanese</string>
+    <string name="lesson_list_title">Manage Lessons</string>
+    <string name="lesson_text_placeholder">Lesson Title</string>
+    <string name="category_placeholder">Category: %s</string>
+    <string name="number_visit_placeholder">Number Of Visits: %s</string>
+    <string name="number_question_placeholder">Number Of Questions: %s</string>
+    <string name="last_visited_placeholder">Last Visited: %s</string>
+    <string name="fab_add_lesson_description">Add new lesson</string>
+    <string name="lesson_title_input">Enter Lesson Title</string>
+    <string name="lesson_detail">Lesson Detail</string>
+    <string name="manual_mode">Manual</string>
+    <string name="auto_mode">Auto</string>
+    <string name="num_of_ques">Number of Questions</string>
+    <string name="select_ques_btn">Select Questions</string>
+    <string name="save_lesson_btn">Save</string>
+    <string name="delete_lesson_btn">Delete</string>
+    <string name="done_btn">DONE</string>
+    <string name="lesson_title_label">Lesson Title</string>
+    <string name="lesson_ques_label">Questions</string>
+    <string name="lesson_numques_label">Number Question</string>
+    <string name="lesson_create_mode_label">Creation Mode</string>
+    <string name="lesson_category_label">Category</string>
+
 </resources>

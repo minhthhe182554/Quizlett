@@ -1,6 +1,6 @@
 package com.hminq.quizlett.data.dto.request;
 
-import com.hminq.quizlett.data.remote.model.Difficulty;
+import com.hminq.quizlett.data.remote.model.LessonCategory;
 
 import java.util.List;
 
@@ -9,17 +9,17 @@ public class UpdateQuestionRequest {
     private String questionText;
     private List<String> answerOptions;
     private int correctAnswerIndex;
-    private Difficulty difficulty;
+    private LessonCategory category;
 
     public UpdateQuestionRequest() {
     }
 
-    public UpdateQuestionRequest(String quesId, String questionText, List<String> answerOptions, int correctAnswerIndex, Difficulty difficulty) {
+    public UpdateQuestionRequest(String quesId, String questionText, List<String> answerOptions, int correctAnswerIndex, LessonCategory category) {
         this.quesId = quesId;
         this.questionText = questionText;
         this.answerOptions = answerOptions;
         this.correctAnswerIndex = correctAnswerIndex;
-        this.difficulty = difficulty;
+        this.category = category;
     }
 
     public String getQuesId() {
@@ -54,11 +54,11 @@ public class UpdateQuestionRequest {
         this.correctAnswerIndex = correctAnswerIndex;
     }
 
-    public Difficulty getDifficulty() {
-        return difficulty;
+    public LessonCategory getCategory() {
+        return category;
     }
 
-    public void setDifficulty(Difficulty difficulty) {
-        this.difficulty = difficulty;
+    public void setCategory(LessonCategory category) {
+        this.category = category;
     }
 }

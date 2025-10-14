@@ -16,7 +16,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.hminq.quizlett.R;
-import com.hminq.quizlett.data.remote.model.Difficulty;
+import com.hminq.quizlett.data.remote.model.LessonCategory;
 import com.hminq.quizlett.data.remote.model.Question;
 import com.hminq.quizlett.data.dto.request.AddQuestionRequest;
 import com.hminq.quizlett.data.dto.request.UpdateQuestionRequest;
@@ -90,14 +90,13 @@ public class QuestionDetailFragment extends Fragment {
         answerAdapter.setDropDownViewResource(R.layout.spiner_item);
         binding.spinnerCorrectAnswer.setAdapter(answerAdapter);
 
-
-        ArrayAdapter<CharSequence> difficultyAdapter = ArrayAdapter.createFromResource(
+        ArrayAdapter<CharSequence> categoryAdapter = ArrayAdapter.createFromResource(
                 requireContext(),
-                R.array.difficulty_array,
+                R.array.lesson_category_array, 
                 R.layout.spiner_item
         );
-        difficultyAdapter.setDropDownViewResource(R.layout.spiner_item);
-        binding.spinnerDifficulty.setAdapter(difficultyAdapter);
+        categoryAdapter.setDropDownViewResource(R.layout.spiner_item);
+        binding.spinnerCategory.setAdapter(categoryAdapter);
     }
 
     private void observeViewModel(View view) {
@@ -122,7 +121,7 @@ public class QuestionDetailFragment extends Fragment {
     }
 
     private void populateUi(Question question) {
-        binding.etQuestionText.setText(question.getQuestionText());
+        binding.etQuestionText.setText(question.getQuestionText()); // Reverted
         List<String> options = question.getAnswerOptions();
         if (options != null && options.size() == 4) {
             binding.etOption1.setText(options.get(0));
@@ -136,18 +135,17 @@ public class QuestionDetailFragment extends Fragment {
             binding.spinnerCorrectAnswer.setSelection(question.getCorrectAnswerIndex());
         }
 
-
-        String[] difficultyArray = getResources().getStringArray(R.array.difficulty_array);
-        int difficultyPosition = Arrays.asList(difficultyArray).indexOf(question.getDifficulty().name());
-        if (difficultyPosition != -1) {
-            binding.spinnerDifficulty.setSelection(difficultyPosition);
+        String[] categoryArray = getResources().getStringArray(R.array.lesson_category_array);
+        int categoryPosition = Arrays.asList(categoryArray).indexOf(question.getCategory().name());
+        if (categoryPosition != -1) {
+            binding.spinnerCategory.setSelection(categoryPosition);
         }
     }
 
     private void setupClickListeners() {
         binding.btnSaveQuestion.setOnClickListener(v -> saveQuestion());
         binding.btnDeleteQuestion.setOnClickListener(v -> deleteQuestion());
-        binding.btnBack.setOnClickListener(v -> navController.popBackStack()); // Added/Restored back button listener
+        binding.btnBack.setOnClickListener(v -> navController.popBackStack());
     }
 
     private void saveQuestion() {
@@ -158,15 +156,14 @@ public class QuestionDetailFragment extends Fragment {
         answerOptions.add(binding.etOption3.getText().toString().trim());
         answerOptions.add(binding.etOption4.getText().toString().trim());
         int correctAnswerIndex = binding.spinnerCorrectAnswer.getSelectedItemPosition();
-        Difficulty difficulty = Difficulty.valueOf(binding.spinnerDifficulty.getSelectedItem().toString());
+        LessonCategory category = LessonCategory.valueOf(binding.spinnerCategory.getSelectedItem().toString()); // Kept change
 
         if (quesId == null) {
             // Add new question
-            AddQuestionRequest request = new AddQuestionRequest(questionText, answerOptions, correctAnswerIndex, difficulty);
+            AddQuestionRequest request = new AddQuestionRequest(questionText, answerOptions, correctAnswerIndex, category);
             viewModel.addQuestion(request, currentUserId);
         } else {
-            // Update existing question
-            UpdateQuestionRequest request = new UpdateQuestionRequest(quesId, questionText, answerOptions, correctAnswerIndex, difficulty);
+            UpdateQuestionRequest request = new UpdateQuestionRequest(quesId, questionText, answerOptions, correctAnswerIndex, category);
             viewModel.updateQuestion(request, currentUserId);
         }
     }
