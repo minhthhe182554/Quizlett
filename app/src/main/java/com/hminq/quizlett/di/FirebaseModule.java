@@ -28,18 +28,6 @@ public class FirebaseModule {
         return FirebaseDatabase.getInstance();
     }
 
-//    @Provides
-//    @Singleton
-//    public DatabaseReference provideUserReference(FirebaseDatabase firebaseDatabase) {
-//        return firebaseDatabase.getReference("users");
-//    }
-//
-//    @Provides
-//    @Singleton
-//    public DatabaseReference provideQuestionReference(FirebaseDatabase firebaseDatabase) {
-//        return firebaseDatabase.getReference("questions");
-//    }
-
     @Provides
     @Singleton
     public FirebaseStorage provideFirebaseStorage() {

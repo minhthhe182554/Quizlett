@@ -1,26 +1,309 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.secondtab.dashboard.DashBoardFragment">
 
-        <Button
-            android:id="@+id/btnToQuestionManage"
-            android:layout_width="120dp"
-            android:layout_height="70dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="Question manage"/>
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guildline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5"/>
 
-        <Button
-            android:id="@+id/btnToLessonManage"
-            android:layout_width="120dp"
-            android:layout_height="70dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/topLayout"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="50dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tvUserFullname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="180dp"
+                android:text="Hung Minh"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                android:maxLines="2"
+                android:ellipsize="end"/>
+
+            <ImageView
+                android:id="@+id/ivUserImage"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                style="@style/RoundedSquareImageViewStyle"
+                android:src="@drawable/welcome_img"/>
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:constraint_referenced_ids="tvUserFullname, ivUserImage"
+                app:flow_horizontalStyle="spread_inside"
+                app:flow_wrapMode="chain"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/totalVisit"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="@drawable/input_field_bg"
+            app:layout_constraintTop_toBottomOf="@id/topLayout"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="30dp">
+
+            <TextView
+                android:id="@+id/totalVisitTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total visits count"
+                android:textColor="@color/light_grey"
+                android:textSize="20sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_margin="20dp"/>
+
+            <TextView
+                android:id="@+id/totalVisitCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10"
+                android:textColor="@color/white"
+                android:textSize="70sp"
+                app:layout_constraintTop_toBottomOf="@id/totalVisitTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_margin="20dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/totalLesson"
+            android:layout_width="0dp"
+            android:layout_height="220dp"
+            android:background="@drawable/input_field_bg"
+            app:layout_constraintTop_toBottomOf="@id/totalVisit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/guildline"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:id="@+id/totalLessonTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total lessons"
+                android:textColor="@color/light_grey"
+                android:textSize="15sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="20dp"/>
+
+            <TextView
+                android:id="@+id/totalLessonCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="20"
+                android:textColor="@color/white"
+                android:textSize="50sp"
+                app:layout_constraintTop_toBottomOf="@id/totalLessonTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="10dp"/>
+
+            <Button
+                android:id="@+id/btnToLessonManage"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:text="Manage"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/totalLessonCount"
+                style="@style/ConfirmButtonStyle"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="15dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/totalQuestion"
+            android:layout_width="0dp"
+            android:layout_height="220dp"
+            android:background="@drawable/input_field_bg"
+            app:layout_constraintTop_toBottomOf="@id/totalVisit"
+            app:layout_constraintStart_toEndOf="@id/guildline"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="Lesson manage"/>
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:id="@+id/totalQuestionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total questions"
+                android:textColor="@color/light_grey"
+                android:textSize="15sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="20dp"/>
+
+            <TextView
+                android:id="@+id/totalQuestionCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="15"
+                android:textColor="@color/white"
+                android:textSize="50sp"
+                app:layout_constraintTop_toBottomOf="@id/totalQuestionTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="10dp"/>
+            <Button
+                android:id="@+id/btnToQuestionManage"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:text="Manage"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                style="@style/ConfirmButtonStyle"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/totalQuestionCount"
+                android:layout_marginBottom="15dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/categories"
+            android:layout_width="0dp"
+            android:layout_height="150dp"
+            android:background="@drawable/input_field_bg"
+            app:layout_constraintTop_toBottomOf="@id/totalQuestion"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="20dp">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guildline2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5"/>
+
+            <TextView
+                android:id="@+id/categoryTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Categories"
+                android:textColor="@color/light_grey"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textSize="16sp"/>
+
+            <LinearLayout
+                android:id="@+id/categoryPercent"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                app:layout_constraintTop_toBottomOf="@id/categoryTitle"
+                android:layout_marginTop="10dp"
+                android:layout_marginHorizontal="20dp"
+                android:clipToPadding="false"
+                android:clipChildren="false"
+                android:weightSum="100"
+                android:background="@drawable/category_bg">
+
+                <View
+                    android:id="@+id/sciencePercent"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="45"
+                    android:background="@drawable/category_science_bg" />
+
+                <View
+                    android:id="@+id/humanitiesPercent"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="25"
+                    android:background="@drawable/category_humanities_bg" />
+
+                <View
+                    android:id="@+id/othersPercent"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="30"
+                    android:background="@drawable/category_others_bg" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/scienceColor"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:background="@color/deep_teal"
+                app:layout_constraintTop_toBottomOf="@id/categoryPercent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="15dp"/>
+
+            <TextView
+                android:id="@+id/scienceTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Science"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toEndOf="@id/scienceColor"
+                app:layout_constraintTop_toBottomOf="@id/categoryPercent"
+                android:layout_marginTop="12dp"
+                android:layout_marginStart="13dp"/>
+
+            <View
+                android:id="@+id/humanitiesColor"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:background="@color/sky_blue"
+                app:layout_constraintTop_toBottomOf="@id/scienceColor"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="15dp"/>
+
+            <TextView
+                android:id="@+id/humanitiesTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Humanities"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toEndOf="@id/humanitiesColor"
+                app:layout_constraintTop_toBottomOf="@id/scienceTitle"
+                android:layout_marginTop="6dp"
+                android:layout_marginStart="13dp"/>
+
+            <View
+                android:id="@+id/othersColor"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:background="@color/seafoam_green"
+                app:layout_constraintTop_toBottomOf="@id/categoryPercent"
+                app:layout_constraintStart_toEndOf="@id/guildline2"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="15dp"/>
+
+            <TextView
+                android:id="@+id/othersTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Others"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toEndOf="@id/othersColor"
+                app:layout_constraintTop_toBottomOf="@id/categoryPercent"
+                android:layout_marginTop="12dp"
+                android:layout_marginStart="13dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

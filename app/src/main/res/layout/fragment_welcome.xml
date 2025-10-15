@@ -16,7 +16,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="120dp"
-            android:background="@drawable/rounded_img"
+            android:background="@drawable/circle_bg"
             android:src="@drawable/welcome_img"
             android:clipToOutline="true"
             android:scaleType="centerCrop"

@@ -10,4 +10,7 @@
     <color name="primary_dark">#1A1D26</color>
     <color name="primary_btn_bg_color">#4255ff</color>
     <color name="blue_700">#1976D2</color>
+    <color name="deep_teal">#008080</color>
+    <color name="sky_blue">#87CEEB</color>
+    <color name="seafoam_green">#98FF98</color>
 </resources>

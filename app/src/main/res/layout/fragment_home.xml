@@ -18,11 +18,9 @@
                 android:id="@+id/profileImage"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:background="@drawable/rounded_img"
-                android:clipToOutline="true"
                 android:contentDescription="@string/profile_img_description"
-                android:scaleType="centerCrop"
-                android:src="@drawable/welcome_img" />
+                android:src="@drawable/welcome_img"
+                style="@style/CircleImageViewStyle"/>
 
             <androidx.appcompat.widget.SearchView
                 android:id="@+id/svLesson"

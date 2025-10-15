@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Inject;
 
 import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Single;
 
 public class LessonRepository {
 
@@ -261,6 +262,33 @@ public class LessonRepository {
             public void onCancelled(DatabaseError error) {
                 listener.onLessonsLoaded(null, error.getMessage());
             }
+        });
+    }
+
+    public Single<Integer> getTotalLessons(String uid) {
+        return Single.create(emitter -> {
+            // Create a query, choose all question with userId = uid
+            Query query = lessonReference.orderByChild("userId").equalTo(uid);
+
+            ValueEventListener valueEventListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    // count the dataSnapshot result
+                    int count = (int) dataSnapshot.getChildrenCount();
+
+                    if (!emitter.isDisposed()) { emitter.onSuccess(count);}
+                }
+
+                @Override
+                public void onCancelled(@androidx.annotation.NonNull DatabaseError databaseError) {
+                    emitter.tryOnError(databaseError.toException());
+                }
+            };
+
+            // execute query
+            query.addListenerForSingleValueEvent(valueEventListener);
+
+            emitter.setCancellable(() -> query.removeEventListener(valueEventListener));
         });
     }
 
