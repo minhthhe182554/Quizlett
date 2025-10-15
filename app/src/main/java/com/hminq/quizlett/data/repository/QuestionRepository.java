@@ -8,6 +8,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.hminq.quizlett.data.remote.model.LessonCategory;
 import com.hminq.quizlett.data.remote.model.Question;
@@ -20,6 +21,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+
+import io.reactivex.rxjava3.core.Single;
 
 public class QuestionRepository {
     private static final String TAG = "QUESTION_REPO";
@@ -186,6 +189,33 @@ public class QuestionRepository {
                         listener.onQuestionsLoaded(null, databaseError.getMessage());
                     }
                 });
+    }
+
+    public Single<Integer> getTotalQuestions(String uid) {
+        return Single.create(emitter -> {
+            // Create a query, choose all lesson with userId = uid
+            Query query = questionReference.orderByChild("userId").equalTo(uid);
+
+            ValueEventListener valueEventListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    // count the dataSnapshot result
+                    int count = (int) dataSnapshot.getChildrenCount();
+
+                    if (!emitter.isDisposed()) { emitter.onSuccess(count);}
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    emitter.tryOnError(databaseError.toException());
+                }
+            };
+
+            // execute query
+            query.addListenerForSingleValueEvent(valueEventListener);
+
+            emitter.setCancellable(() -> query.removeEventListener(valueEventListener));
+        });
     }
 
 
