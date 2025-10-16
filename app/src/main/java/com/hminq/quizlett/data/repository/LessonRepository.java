@@ -1,6 +1,9 @@
 package com.hminq.quizlett.data.repository;
 
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import com.google.firebase.database.*;
 import com.hminq.quizlett.data.dto.request.LessonRequest;
 import com.hminq.quizlett.data.remote.model.Lesson;
@@ -10,12 +13,12 @@ import com.hminq.quizlett.data.remote.model.Question;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
-
-import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Single;
 
 public class LessonRepository {
@@ -289,6 +292,105 @@ public class LessonRepository {
             query.addListenerForSingleValueEvent(valueEventListener);
 
             emitter.setCancellable(() -> query.removeEventListener(valueEventListener));
+        });
+    }
+
+    public Single<Integer> getTotalVisitCount(String uid) {
+        return Single.create(emitter -> {
+            // query to filter lesson by userId
+            Query query = lessonReference.orderByChild("userId").equalTo(uid);
+
+            ValueEventListener listener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (emitter.isDisposed()) {
+                        return;
+                    }
+
+                    int totalVisitCount = 0;
+                    if (snapshot.exists()) {
+                        // loop through every lesson
+                        for (DataSnapshot lessonSnapshot : snapshot.getChildren()) {
+                            Integer count = lessonSnapshot.child("visitCount").getValue(Integer.class);
+                            if (count != null) {
+                                totalVisitCount += count;
+                            }
+                        }
+                    }
+                    // emit value on success
+                    emitter.onSuccess(totalVisitCount);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    emitter.tryOnError(error.toException());
+                }
+            };
+
+            query.addListenerForSingleValueEvent(listener);
+
+            emitter.setCancellable(() -> query.removeEventListener(listener));
+        });
+    }
+
+    public Single<Map<String, Float>> getCategoryPercentage(String uid) {
+        return Single.create(emitter -> {
+            Query query = lessonReference.orderByChild("userId").equalTo(uid);
+
+            ValueEventListener listener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (emitter.isDisposed()) {
+                        return;
+                    }
+
+                    // create a HashMap with Category-Percentage key-value pair
+                    Map<String, Integer> categoryCounts = new HashMap<>();
+                    for (LessonCategory categoryEnum : LessonCategory.values()) {
+                        categoryCounts.put(categoryEnum.toString(), 0);
+                    }
+
+                    long totalLessons = snapshot.getChildrenCount();
+
+                    if (snapshot.exists()) {
+                        for (DataSnapshot lessonSnapshot : snapshot.getChildren()) {
+                            String categoryStr = lessonSnapshot.child("category").getValue(String.class);
+
+                            if (categoryStr != null && categoryCounts.containsKey(categoryStr)) {
+                                int currentCount = categoryCounts.get(categoryStr);
+                                categoryCounts.put(categoryStr, currentCount + 1);
+                            }
+                        }
+                    }
+
+                    // calculate percentage
+                    Map<String, Float> categoryPercentages = new HashMap<>();
+                    if (totalLessons > 0) {
+                        for (Map.Entry<String, Integer> entry : categoryCounts.entrySet()) {
+                            float percentage = ((float) entry.getValue() / totalLessons) * 100.0f;
+                            categoryPercentages.put(entry.getKey(), percentage);
+                        }
+                    } else {
+                        // if there is 0 lesson, set everything = 0%
+                        for (LessonCategory categoryEnum : LessonCategory.values()) {
+                            categoryPercentages.put(categoryEnum.toString(), 0.0f);
+                        }
+                    }
+
+                    emitter.onSuccess(categoryPercentages);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    if (emitter.isDisposed()) {
+                        return;
+                    }
+                    emitter.onError(error.toException());
+                }
+            };
+
+            query.addListenerForSingleValueEvent(listener);
+            emitter.setCancellable(() -> query.removeEventListener(listener));
         });
     }
 

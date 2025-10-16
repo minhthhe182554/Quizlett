@@ -1,20 +1,18 @@
 package com.hminq.quizlett.data.remote.model;
 
+import java.util.Map;
+
 public class DashboardData {
     private int visitCount;
     private int lessonCount;
     private int questionCount;
-    private int sciencePercentage; // 0-100
-    private int humanitiesPercentage; // 0-100
-    private int othersPercentage; // 0-100
+    private Map<String, Float> categoryPercentage;
 
-    public DashboardData(int visitCount, int lessonCount, int questionCount, int sciencePercentage, int humanitiesPercentage, int othersPercentage) {
+    public DashboardData(int visitCount, int lessonCount, int questionCount, Map<String, Float> categoryPercentage) {
         this.visitCount = visitCount;
         this.lessonCount = lessonCount;
         this.questionCount = questionCount;
-        this.sciencePercentage = sciencePercentage;
-        this.humanitiesPercentage = humanitiesPercentage;
-        this.othersPercentage = othersPercentage;
+        this.categoryPercentage = categoryPercentage;
     }
 
     public int getVisitCount() {
@@ -41,27 +39,11 @@ public class DashboardData {
         this.questionCount = questionCount;
     }
 
-    public int getSciencePercentage() {
-        return sciencePercentage;
+    public Map<String, Float> getCategoryPercentage() {
+        return categoryPercentage;
     }
 
-    public void setSciencePercentage(int sciencePercentage) {
-        this.sciencePercentage = sciencePercentage;
-    }
-
-    public int getHumanitiesPercentage() {
-        return humanitiesPercentage;
-    }
-
-    public void setHumanitiesPercentage(int humanitiesPercentage) {
-        this.humanitiesPercentage = humanitiesPercentage;
-    }
-
-    public int getOthersPercentage() {
-        return othersPercentage;
-    }
-
-    public void setOthersPercentage(int othersPercentage) {
-        this.othersPercentage = othersPercentage;
+    public void setCategoryPercentage(Map<String, Float> categoryPercentage) {
+        this.categoryPercentage = categoryPercentage;
     }
 }
