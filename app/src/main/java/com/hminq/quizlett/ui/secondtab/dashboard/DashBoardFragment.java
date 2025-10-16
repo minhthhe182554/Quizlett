@@ -1,7 +1,5 @@
 package com.hminq.quizlett.ui.secondtab.dashboard;
 
-import static com.hminq.quizlett.constants.AppMessage.WELCOME_BACK;
-
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
