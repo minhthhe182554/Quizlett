@@ -21,6 +21,7 @@ import com.hminq.quizlett.databinding.FragmentDashBoardBinding;
 import com.hminq.quizlett.ui.SharedViewModel;
 import com.hminq.quizlett.utils.ImageLoader;
 import com.hminq.quizlett.utils.Message;
+import com.hminq.quizlett.utils.PercentageBarHelper;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -76,6 +77,8 @@ public class DashBoardFragment extends Fragment {
             binding.totalVisitCount.setText(String.valueOf(dashboardData.getVisitCount()));
             binding.totalLessonCount.setText(String.valueOf(dashboardData.getLessonCount()));
             binding.totalQuestionCount.setText(String.valueOf(dashboardData.getQuestionCount()));
+
+            PercentageBarHelper.update(binding.sciencePercent, binding.humanitiesPercent, binding.othersPercent, dashboardData.getCategoryPercentage());
         });
 
         dashboardViewModel.getErrorLive().observe(getViewLifecycleOwner(), error -> {
