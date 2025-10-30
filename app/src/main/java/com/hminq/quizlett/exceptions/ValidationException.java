@@ -8,10 +8,13 @@ public class ValidationException extends Exception{
     }
 
     private final Field field;
-
     public ValidationException(Field field, String message) {
         super(message);
         this.field = field;
+    }
+    public ValidationException(String message) {
+        super(message);
+        this.field = null; // Gán null cho các lỗi chung
     }
 
     public Field getField() {

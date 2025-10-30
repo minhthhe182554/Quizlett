@@ -2,6 +2,7 @@ package com.hminq.quizlett.data.repository;
 
 import static com.hminq.quizlett.constants.UserConstant.ERROR_IMG_URL;
 
+import android.net.Uri;
 import android.util.Log;
 
 import com.google.firebase.auth.AuthCredential;
@@ -122,7 +123,6 @@ public class UserRepository {
     }
 
     public Completable resetPassword(String email) {
-        // validate input
         try {
             InputValidator.validateInput(email);
         } catch (ValidationException e) {
@@ -247,4 +247,118 @@ public class UserRepository {
                 }
         );
     }
+
+    public Completable uploadNewProfileImage(Uri imageUri) {
+        return Completable.create(emitter -> {
+            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+            if (firebaseUser == null) {
+                emitter.tryOnError(new IllegalStateException("No user logged in"));
+                return;
+            }
+
+            String uid = firebaseUser.getUid();
+            StorageReference photoRef = profileImageReference.child(uid + "/profile.jpg");
+
+            photoRef.putFile(imageUri)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        photoRef.getDownloadUrl()
+                                .addOnSuccessListener(downloadUri -> {
+                                    userReference.child(uid)
+                                            .child("profileImageUrl")
+                                            .setValue(downloadUri.toString())
+                                            .addOnSuccessListener(aVoid -> {
+                                                if (emitter.isDisposed()) return;
+                                                emitter.onComplete();
+                                            })
+                                            .addOnFailureListener(emitter::tryOnError);
+                                })
+                                .addOnFailureListener(emitter::tryOnError);
+                    })
+                    .addOnFailureListener(emitter::tryOnError);
+        });
+    }
+    public Completable updateLanguageSetting(String languageCode) {
+        return Completable.create(emitter -> {
+            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+            if (firebaseUser == null) {
+                emitter.tryOnError(new IllegalStateException("No user logged in"));
+                return;
+            }
+
+            userReference.child(firebaseUser.getUid())
+                    .child("userSetting")
+                    .child("language")
+                    .setValue(languageCode)
+                    .addOnSuccessListener(aVoid -> {
+                        if (emitter.isDisposed()) return;
+                        emitter.onComplete();
+                    })
+                    .addOnFailureListener(emitter::tryOnError);
+        });
+    }
+
+    public Single<User> getUserProfile() {
+        return Single.create(emitter -> {
+            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+
+            if (firebaseUser == null) {
+                emitter.tryOnError(new Exception("No user logged in"));
+                return;
+            }
+            userReference.child(firebaseUser.getUid())
+                    .get()
+                    .addOnSuccessListener(dataSnapshot -> {
+                        if (emitter.isDisposed()) return;
+
+                        User currentUser = dataSnapshot.getValue(User.class);
+
+                        if (currentUser == null) {
+                            emitter.tryOnError(new Exception("User not found in DB"));
+                        }
+                        else {
+                            emitter.onSuccess(currentUser);
+                        }
+                    })
+                    .addOnFailureListener(emitter::tryOnError);
+        });
+    }
+
+    public Completable updateFullname(String newFullname) {
+        return Completable.create(emitter -> {
+            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+            if (firebaseUser == null) {
+                emitter.tryOnError(new IllegalStateException("No user logged in"));
+                return;
+            }
+
+            userReference.child(firebaseUser.getUid())
+                    .child("fullname")
+                    .setValue(newFullname)
+                    .addOnSuccessListener(aVoid -> {
+                        if (emitter.isDisposed()) return;
+                        emitter.onComplete();
+                    })
+                    .addOnFailureListener(emitter::tryOnError);
+        });
+    }
+
+    public Completable updatePassword(String newPassword, String currentPassword) {
+        return reauthenticate(currentPassword)
+                .andThen(Completable.create(emitter -> {
+                    FirebaseUser user = firebaseAuth.getCurrentUser();
+                    if (user == null) {
+                        emitter.tryOnError(new IllegalStateException("No user logged in"));
+                        return;
+                    }
+
+                    user.updatePassword(newPassword)
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "Password updated successfully");
+                                if (emitter.isDisposed()) return;
+                                emitter.onComplete();
+                            })
+                            .addOnFailureListener(emitter::tryOnError);
+                }));
+    }
+
 }

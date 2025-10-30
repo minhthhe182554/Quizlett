@@ -2,16 +2,13 @@ package com.hminq.quizlett.data.remote.model;
 
 public class UserSetting {
     private Language language;
-    private boolean pushNotification;
 
     public UserSetting() {
-        this.language = Language.ENGLISH;  // default
-        this.pushNotification = false;
+        this.language = Language.ENGLISH;
     }
 
-    public UserSetting(Language language, boolean pushNotification) {
+    public UserSetting(Language language) {
         this.language = language;
-        this.pushNotification = pushNotification;
     }
 
     public Language getLanguage() {
@@ -22,12 +19,5 @@ public class UserSetting {
         this.language = language;
     }
 
-    public boolean isPushNotification() {
-        return pushNotification;
-    }
-
-    public void setPushNotification(boolean pushNotification) {
-        this.pushNotification = pushNotification;
-    }
 }
 
