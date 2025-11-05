@@ -79,7 +79,7 @@
     <string name="select_ques_btn">Select Questions</string>
     <string name="save_lesson_btn">Save</string>
     <string name="delete_lesson_btn">Delete</string>
-    <string name="done_btn">DONE</string>
+    <string name="done_btn">SAVE</string>
     <string name="lesson_title_label">Lesson Title</string>
     <string name="lesson_ques_label">Questions</string>
     <string name="lesson_numques_label">Number Question</string>
