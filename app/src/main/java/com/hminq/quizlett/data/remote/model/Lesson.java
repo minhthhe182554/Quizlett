@@ -1,8 +1,10 @@
 package com.hminq.quizlett.data.remote.model;
 
-import java.util.Date;
+import com.google.firebase.database.IgnoreExtraProperties;
+
 import java.util.List;
 
+@IgnoreExtraProperties
 public class Lesson {
     private String lessonId;
     private String title;
@@ -10,16 +12,14 @@ public class Lesson {
     private LessonCategory category;
     private int visitCount;
     private List<Question> questions;
-    private Date lastVisited;
 
     public Lesson() {}
 
-    public Lesson(String title, String userId, LessonCategory category, Date lastVisited) {
+    public Lesson(String title, String userId, LessonCategory category) {
         this.title = title;
         this.userId = userId;
         this.category = category;
         this.visitCount = 0;
-        this.lastVisited = lastVisited;
     }
 
     public String getLessonId() { return lessonId; }
@@ -39,7 +39,4 @@ public class Lesson {
 
     public List<Question> getQuestions() { return questions; }
     public void setQuestions(List<Question> questions) { this.questions = questions; }
-
-    public Date getLastVisited() { return lastVisited; }
-    public void setLastVisited(Date lastVisited) { this.lastVisited = lastVisited; }
 }
