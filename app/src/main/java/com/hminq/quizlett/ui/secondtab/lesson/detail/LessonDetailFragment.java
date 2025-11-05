@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
@@ -63,6 +64,17 @@ public class LessonDetailFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         setupSpinner();
+        binding.spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String categoryStr = parent.getItemAtPosition(position).toString();
+                LessonCategory category = LessonCategory.valueOf(categoryStr);
+                viewModel.fetchQuestionsByCategory(category, currentUserId);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
         setupRecyclerView();
         setupClickListeners();
 
@@ -225,6 +237,19 @@ public class LessonDetailFragment extends Fragment {
                         binding.etQuestionCount.setError("Must be greater than 0.");
                         return;
                     }
+
+                    List<Question> availableQuestions = viewModel.getQuestionsByCategory().getValue();
+                    if (availableQuestions == null ||  availableQuestions.isEmpty()) {
+                        binding.etQuestionCount.setError("No available questions in this category. Please choose another category.");
+                        return;
+                    }
+
+                    if (questionCount > availableQuestions.size()) {
+                        binding.etQuestionCount.setError("The number of questions (" + questionCount +
+                                ") exceeds available questions (" + availableQuestions.size() + ").");
+                        return;
+                    }
+
                     viewModel.createAutoLesson(title, category, currentUserId, questionCount);
                 } catch (NumberFormatException e) {
                     binding.etQuestionCount.setError("Invalid number.");

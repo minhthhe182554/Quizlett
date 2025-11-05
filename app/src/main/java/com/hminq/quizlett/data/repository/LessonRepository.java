@@ -77,7 +77,7 @@ public class LessonRepository {
     }
 
     public void createAutoLesson(String title, LessonCategory category, String userId, int questionCount, OnLessonAddedListener listener) {
-        getRandomQuestionsByCategory(category, questionCount, (questions, error) -> {
+        getRandomQuestionsByCategory(category,userId, questionCount, (questions, error) -> {
             if (error != null) {
                 listener.onLessonAdded(false, error);
                 return;
@@ -143,7 +143,7 @@ public class LessonRepository {
                         List<Question> allQuestions = new ArrayList<>();
                         for (DataSnapshot child : snapshot.getChildren()) {
                             Question q = child.getValue(Question.class);
-                            if (q != null) {
+                            if (q != null &&  q.getUserId().equals(userId)) {
                                 allQuestions.add(q);
                             }
                         }
