@@ -135,7 +135,7 @@ public class LessonRepository {
         }
     }
 
-    public void getRandomQuestionsByCategory(LessonCategory category, int count, OnQuestionsLoadedListener listener) {
+    public void getRandomQuestionsByCategory(LessonCategory category, String userId, int count, OnQuestionsLoadedListener listener) {
         questionReference.orderByChild("category").equalTo(category.name())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
