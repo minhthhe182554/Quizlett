@@ -95,7 +95,7 @@ public class HomeFragment extends Fragment {
         rvTopLessons.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
 
-        topLessonsAdapter = new HomeLessonAdapter(this::onLessonClick);
+        topLessonsAdapter = new HomeLessonAdapter(this::onLessonClick); //fix: Simplified
         rvTopLessons.setAdapter(topLessonsAdapter);
     }
 
@@ -213,7 +213,7 @@ public class HomeFragment extends Fragment {
             rvCategory.setLayoutManager(new LinearLayoutManager(getContext(),
                     LinearLayoutManager.HORIZONTAL, false));
 
-            HomeLessonAdapter adapter = new HomeLessonAdapter(this::onLessonClick);
+            HomeLessonAdapter adapter = new HomeLessonAdapter(this::onLessonClick); //fix: Simplified
             rvCategory.setAdapter(adapter);
             adapter.setLessons(lessons);
 
@@ -238,9 +238,10 @@ public class HomeFragment extends Fragment {
         Message.showShort(getView(), "Opening: " + lesson.getTitle());
 
         // TODO: Implement navigation to lesson detail
-        // Bundle bundle = new Bundle();
-        // bundle.putString("lessonId", lesson.getLessonId());
-        // navController.navigate(R.id.action_homeFragment_to_lessonDetailFragment, bundle);
+        Bundle lessonClickedData = new Bundle();
+
+        lessonClickedData.putSerializable("lesson", lesson);
+        navController.navigate(R.id.action_homeFragment_to_lessonDetailFragment3, lessonClickedData);
     }
 
     private void updateEmptyView(TextView emptyView, RecyclerView recyclerView, boolean isEmpty) {
