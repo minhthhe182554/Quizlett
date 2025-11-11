@@ -26,12 +26,14 @@ public class LessonRepository {
     private static final String TAG = "LESSON_REPO";
     private final DatabaseReference lessonReference;
     private final DatabaseReference questionReference;
+    private final DatabaseReference userReference;
 
     @Inject
     public LessonRepository(FirebaseDatabase firebaseDatabase) {
         Log.d(TAG, "LessonRepository initialized");
         this.lessonReference = firebaseDatabase.getReference("lessons");
         this.questionReference = firebaseDatabase.getReference("questions");
+        this.userReference = firebaseDatabase.getReference("users");
     }
 
     public void addLesson(LessonRequest request, String userId, OnLessonAddedListener listener) {
@@ -52,8 +54,8 @@ public class LessonRepository {
                 return;
             }
             if (questions.size() != questionIds.size()) {
-                 listener.onLessonAdded(false, "Could not load all requested questions.");
-                 return;
+                listener.onLessonAdded(false, "Could not load all requested questions.");
+                return;
             }
 
             String lessonId = lessonReference.push().getKey();
@@ -67,18 +69,25 @@ public class LessonRepository {
             lesson.setTitle(request.getTitle());
             lesson.setCategory(request.getCategory());
             lesson.setUserId(userId);
-            lesson.setLastVisited(new Date());
             lesson.setVisitCount(0);
             lesson.setQuestions(questions);
-
-            lessonReference.child(lessonId).setValue(lesson)
-                    .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
-                    .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
+            userReference.child(userId).child("profileImageUrl").get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
+                    String imageUrl = task.getResult().getValue(String.class);
+                    lesson.setCreatorImage(imageUrl);
+                    Log.d("Firebase", "Profile Image URL: " + imageUrl);
+                } else {
+                    Log.d("Firebase", "No profile image found or failed to fetch.");
+                }
+                lessonReference.child(lessonId).setValue(lesson)
+                        .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
+                        .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
+            });
         });
     }
 
     public void createAutoLesson(String title, LessonCategory category, String userId, int questionCount, OnLessonAddedListener listener) {
-        getRandomQuestionsByCategory(category, questionCount, (questions, error) -> {
+        getRandomQuestionsByCategory(category,userId, questionCount, (questions, error) -> {
             if (error != null) {
                 listener.onLessonAdded(false, error);
                 return;
@@ -95,13 +104,21 @@ public class LessonRepository {
             lesson.setTitle(title);
             lesson.setCategory(category);
             lesson.setUserId(userId);
-            lesson.setLastVisited(new Date());
             lesson.setVisitCount(0);
             lesson.setQuestions(questions);
 
-            lessonReference.child(lessonId).setValue(lesson)
-                    .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
-                    .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
+            userReference.child(userId).child("profileImageUrl").get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
+                    String imageUrl = task.getResult().getValue(String.class);
+                    lesson.setCreatorImage(imageUrl);
+                    Log.d("Firebase", "Profile Image URL: " + imageUrl);
+                } else {
+                    Log.d("Firebase", "No profile image found or failed to fetch.");
+                }
+                lessonReference.child(lessonId).setValue(lesson)
+                        .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
+                        .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
+            });
         });
     }
 
@@ -136,8 +153,8 @@ public class LessonRepository {
             });
         }
     }
-    
-    public void getRandomQuestionsByCategory(LessonCategory category, int count, OnQuestionsLoadedListener listener) {
+
+    public void getRandomQuestionsByCategory(LessonCategory category, String userId, int count, OnQuestionsLoadedListener listener) {
         questionReference.orderByChild("category").equalTo(category.name())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -145,7 +162,7 @@ public class LessonRepository {
                         List<Question> allQuestions = new ArrayList<>();
                         for (DataSnapshot child : snapshot.getChildren()) {
                             Question q = child.getValue(Question.class);
-                            if (q != null) {
+                            if (q != null &&  q.getUserId().equals(userId)) {
                                 allQuestions.add(q);
                             }
                         }
@@ -170,15 +187,54 @@ public class LessonRepository {
     public void getLessonById(String lessonId, OnLessonLoadedListener listener) {
         lessonReference.child(lessonId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Lesson lesson = snapshot.getValue(Lesson.class);
                 if (lesson != null) listener.onLessonLoaded(lesson, null);
                 else listener.onLessonLoaded(null, "Lesson not found.");
             }
 
             @Override
-            public void onCancelled(DatabaseError error) {
+            public void onCancelled(@NonNull DatabaseError error) {
                 listener.onLessonLoaded(null, error.getMessage());
+            }
+        });
+    }
+
+    public void getAllLessons(OnLessonsLoadedListener listener) {
+        lessonReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<Lesson> lessons = new ArrayList<>();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    Lesson lesson = child.getValue(Lesson.class);
+                    if (lesson != null) {
+                        lessons.add(lesson);
+                    }
+                }
+                listener.onLessonsLoaded(lessons, null);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                listener.onLessonsLoaded(null, error.getMessage());
+            }
+        });
+    }
+
+    public void updateVisitCount(String lessonId) {
+        lessonReference.child(lessonId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Lesson lesson = snapshot.getValue(Lesson.class);
+                if (lesson != null) {
+                    int newCount = lesson.getVisitCount() + 1;
+                    lessonReference.child(lessonId).child("visitCount").setValue(newCount);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Failed to update visit count: " + error.getMessage());
             }
         });
     }
@@ -186,17 +242,19 @@ public class LessonRepository {
     public void getAllLessonsByUser(String userId, OnLessonsLoadedListener listener) {
         lessonReference.orderByChild("userId").equalTo(userId).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 List<Lesson> lessons = new ArrayList<>();
                 for (DataSnapshot child : snapshot.getChildren()) {
                     Lesson lesson = child.getValue(Lesson.class);
-                    lessons.add(lesson);
+                    if (lesson != null) {
+                        lessons.add(lesson);
+                    }
                 }
                 listener.onLessonsLoaded(lessons, null);
             }
 
             @Override
-            public void onCancelled(DatabaseError error) {
+            public void onCancelled(@NonNull DatabaseError error) {
                 listener.onLessonsLoaded(null, error.getMessage());
             }
         });
@@ -224,7 +282,6 @@ public class LessonRepository {
                     existingLesson.setTitle(request.getTitle());
                     existingLesson.setCategory(request.getCategory());
                     existingLesson.setQuestions(questions);
-                    existingLesson.setLastVisited(new Date());
 
                     lessonReference.child(lessonId).setValue(existingLesson)
                             .addOnSuccessListener(aVoid -> listener.onLessonUpdated(true, null))
@@ -249,7 +306,7 @@ public class LessonRepository {
         Query query = lessonReference.orderByChild("userId").equalTo(userId);
         query.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 List<Lesson> lessons = new ArrayList<>();
                 for (DataSnapshot child : snapshot.getChildren()) {
                     Lesson lesson = child.getValue(Lesson.class);
@@ -257,12 +314,11 @@ public class LessonRepository {
                         lessons.add(lesson);
                     }
                 }
-                lessons.sort((l1, l2) -> l2.getLastVisited().compareTo(l1.getLastVisited()));
                 listener.onLessonsLoaded(lessons, null);
             }
 
             @Override
-            public void onCancelled(DatabaseError error) {
+            public void onCancelled(@NonNull DatabaseError error) {
                 listener.onLessonsLoaded(null, error.getMessage());
             }
         });
@@ -270,25 +326,26 @@ public class LessonRepository {
 
     public Single<Integer> getTotalLessons(String uid) {
         return Single.create(emitter -> {
-            // Create a query, choose all question with userId = uid
             Query query = lessonReference.orderByChild("userId").equalTo(uid);
 
             ValueEventListener valueEventListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    // count the dataSnapshot result
                     int count = (int) dataSnapshot.getChildrenCount();
 
-                    if (!emitter.isDisposed()) { emitter.onSuccess(count);}
+                    if (!emitter.isDisposed()) {
+                        emitter.onSuccess(count);
+                    }
                 }
 
                 @Override
-                public void onCancelled(@androidx.annotation.NonNull DatabaseError databaseError) {
-                    emitter.tryOnError(databaseError.toException());
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    if (!emitter.isDisposed()) {
+                        emitter.onError(databaseError.toException());
+                    }
                 }
             };
 
-            // execute query
             query.addListenerForSingleValueEvent(valueEventListener);
 
             emitter.setCancellable(() -> query.removeEventListener(valueEventListener));
@@ -297,7 +354,6 @@ public class LessonRepository {
 
     public Single<Integer> getTotalVisitCount(String uid) {
         return Single.create(emitter -> {
-            // query to filter lesson by userId
             Query query = lessonReference.orderByChild("userId").equalTo(uid);
 
             ValueEventListener listener = new ValueEventListener() {
@@ -309,7 +365,6 @@ public class LessonRepository {
 
                     int totalVisitCount = 0;
                     if (snapshot.exists()) {
-                        // loop through every lesson
                         for (DataSnapshot lessonSnapshot : snapshot.getChildren()) {
                             Integer count = lessonSnapshot.child("visitCount").getValue(Integer.class);
                             if (count != null) {
@@ -317,13 +372,14 @@ public class LessonRepository {
                             }
                         }
                     }
-                    // emit value on success
                     emitter.onSuccess(totalVisitCount);
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    emitter.tryOnError(error.toException());
+                    if (!emitter.isDisposed()) {
+                        emitter.onError(error.toException());
+                    }
                 }
             };
 
@@ -344,7 +400,6 @@ public class LessonRepository {
                         return;
                     }
 
-                    // create a HashMap with Category-Percentage key-value pair
                     Map<String, Integer> categoryCounts = new HashMap<>();
                     for (LessonCategory categoryEnum : LessonCategory.values()) {
                         categoryCounts.put(categoryEnum.toString(), 0);
@@ -363,7 +418,6 @@ public class LessonRepository {
                         }
                     }
 
-                    // calculate percentage
                     Map<String, Float> categoryPercentages = new HashMap<>();
                     if (totalLessons > 0) {
                         for (Map.Entry<String, Integer> entry : categoryCounts.entrySet()) {
@@ -371,7 +425,6 @@ public class LessonRepository {
                             categoryPercentages.put(entry.getKey(), percentage);
                         }
                     } else {
-                        // if there is 0 lesson, set everything = 0%
                         for (LessonCategory categoryEnum : LessonCategory.values()) {
                             categoryPercentages.put(categoryEnum.toString(), 0.0f);
                         }
@@ -382,10 +435,9 @@ public class LessonRepository {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    if (emitter.isDisposed()) {
-                        return;
+                    if (!emitter.isDisposed()) {
+                        emitter.onError(error.toException());
                     }
-                    emitter.onError(error.toException());
                 }
             };
 

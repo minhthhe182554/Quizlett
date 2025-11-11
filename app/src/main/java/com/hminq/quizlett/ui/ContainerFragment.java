@@ -50,6 +50,7 @@ public class ContainerFragment extends Fragment {
         viewPager = binding.viewPager;
         tabLayout = binding.tabLayout;
 
+        viewPager.setUserInputEnabled(false);
         viewPagerAdapter = new ViewPagerAdapter(this);
         viewPager.setAdapter(viewPagerAdapter);
 

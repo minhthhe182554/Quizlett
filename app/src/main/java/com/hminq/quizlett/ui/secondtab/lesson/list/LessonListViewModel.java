@@ -9,7 +9,6 @@ import com.hminq.quizlett.data.remote.model.LessonCategory;
 import com.hminq.quizlett.data.repository.LessonRepository;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,13 +81,8 @@ public class LessonListViewModel extends ViewModel {
                     .collect(Collectors.toList());
         }
 
-
-        filtered.sort((l1, l2) -> {
-            if (l1.getLastVisited() == null && l2.getLastVisited() == null) return 0;
-            if (l1.getLastVisited() == null) return 1;
-            if (l2.getLastVisited() == null) return -1;
-            return l2.getLastVisited().compareTo(l1.getLastVisited());
-        });
+        // Sort by visitCount (descending - most visited first)
+        filtered.sort((l1, l2) -> Integer.compare(l2.getVisitCount(), l1.getVisitCount()));
 
         _filteredLessons.setValue(filtered);
     }
