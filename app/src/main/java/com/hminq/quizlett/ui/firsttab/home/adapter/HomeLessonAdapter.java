@@ -58,7 +58,7 @@ public class HomeLessonAdapter extends RecyclerView.Adapter<HomeLessonAdapter.Le
     @Override
     public void onBindViewHolder(@NonNull LessonViewHolder holder, int position) {
         Lesson lesson = lessons.get(position);
-        holder.bind(lesson, listener);
+        holder.bind(lesson, listener); //fix: Simplified
     }
 
     @Override
@@ -98,8 +98,6 @@ public class HomeLessonAdapter extends RecyclerView.Adapter<HomeLessonAdapter.Le
                 }
             });
 
-            //fix: Load creator profile image from creatorImage URL loaded by ViewModel
-            // creatorImage đã được load bất đồng bộ trong HomeViewModel
             ImageLoader.loadImage(ivProfileImage, lesson.getCreatorImage());
         }
     }
