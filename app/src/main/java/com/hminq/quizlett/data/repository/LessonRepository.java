@@ -71,7 +71,7 @@ public class LessonRepository {
             lesson.setUserId(userId);
             lesson.setVisitCount(0);
             lesson.setQuestions(questions);
-            userReference.child(userId).child("creatorImage").get().addOnCompleteListener(task -> {
+            userReference.child(userId).child("profileImageUrl").get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
                     String imageUrl = task.getResult().getValue(String.class);
                     lesson.setCreatorImage(imageUrl);
@@ -107,7 +107,7 @@ public class LessonRepository {
             lesson.setVisitCount(0);
             lesson.setQuestions(questions);
 
-            userReference.child(userId).child("creatorImage").get().addOnCompleteListener(task -> {
+            userReference.child(userId).child("profileImageUrl").get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
                     String imageUrl = task.getResult().getValue(String.class);
                     lesson.setCreatorImage(imageUrl);
