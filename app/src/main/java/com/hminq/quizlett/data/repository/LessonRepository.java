@@ -26,12 +26,14 @@ public class LessonRepository {
     private static final String TAG = "LESSON_REPO";
     private final DatabaseReference lessonReference;
     private final DatabaseReference questionReference;
+    private final DatabaseReference userReference;
 
     @Inject
     public LessonRepository(FirebaseDatabase firebaseDatabase) {
         Log.d(TAG, "LessonRepository initialized");
         this.lessonReference = firebaseDatabase.getReference("lessons");
         this.questionReference = firebaseDatabase.getReference("questions");
+        this.userReference = firebaseDatabase.getReference("users");
     }
 
     public void addLesson(LessonRequest request, String userId, OnLessonAddedListener listener) {
@@ -69,10 +71,18 @@ public class LessonRepository {
             lesson.setUserId(userId);
             lesson.setVisitCount(0);
             lesson.setQuestions(questions);
-
-            lessonReference.child(lessonId).setValue(lesson)
-                    .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
-                    .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
+            userReference.child(userId).child("profileImageUrl").get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
+                    String imageUrl = task.getResult().getValue(String.class);
+                    lesson.setCreatorImage(imageUrl);
+                    Log.d("Firebase", "Profile Image URL: " + imageUrl);
+                } else {
+                    Log.d("Firebase", "No profile image found or failed to fetch.");
+                }
+                lessonReference.child(lessonId).setValue(lesson)
+                        .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
+                        .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
+            });
         });
     }
 
@@ -97,9 +107,18 @@ public class LessonRepository {
             lesson.setVisitCount(0);
             lesson.setQuestions(questions);
 
-            lessonReference.child(lessonId).setValue(lesson)
-                    .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
-                    .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
+            userReference.child(userId).child("profileImageUrl").get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
+                    String imageUrl = task.getResult().getValue(String.class);
+                    lesson.setCreatorImage(imageUrl);
+                    Log.d("Firebase", "Profile Image URL: " + imageUrl);
+                } else {
+                    Log.d("Firebase", "No profile image found or failed to fetch.");
+                }
+                lessonReference.child(lessonId).setValue(lesson)
+                        .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
+                        .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
+            });
         });
     }
 
