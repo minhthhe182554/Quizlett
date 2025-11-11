@@ -42,19 +42,16 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class HomeFragment extends Fragment {
     private static final String TAG = "FRAGMENT_HOME";
-
     private FragmentHomeBinding binding;
     private SharedViewModel sharedViewModel;
     private HomeViewModel homeViewModel;
     private NavController navController;
-
     private ImageView ivProfileImg;
     private SearchView svSearch;
     private ProgressBar progressBar;
     private RecyclerView rvTopLessons;
     private TextView tvTopLessonsEmpty;
     private LinearLayout categoryContainer;
-
     private HomeLessonAdapter topLessonsAdapter;
     private Map<LessonCategory, HomeLessonAdapter> categoryAdapters;
     private Map<LessonCategory, RecyclerView> categoryRecyclerViews;

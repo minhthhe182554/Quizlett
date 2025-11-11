@@ -12,7 +12,7 @@
         android:text="Category Name"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@android:color/black"
+        android:textColor="@color/white"
         android:layout_marginBottom="12dp" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:text="No lessons in this category"
         android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@color/light_grey"
         android:gravity="center"
         android:padding="24dp"
         android:visibility="gone" />
