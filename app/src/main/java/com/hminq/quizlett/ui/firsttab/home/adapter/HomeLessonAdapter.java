@@ -3,6 +3,7 @@ package com.hminq.quizlett.ui.firsttab.home.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.hminq.quizlett.R;
 import com.hminq.quizlett.data.remote.model.Lesson;
+import com.hminq.quizlett.utils.ImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,12 +70,14 @@ public class HomeLessonAdapter extends RecyclerView.Adapter<HomeLessonAdapter.Le
         private final TextView tvLessonTitle;
         private final TextView tvQuestionCount;
         private final TextView tvCategory;
+        private final ImageView ivProfileImage;
 
         public LessonViewHolder(@NonNull View itemView) {
             super(itemView);
             tvLessonTitle = itemView.findViewById(R.id.tvLessonTitle);
             tvQuestionCount = itemView.findViewById(R.id.tvQuestionCount);
             tvCategory = itemView.findViewById(R.id.tvCategoryBadge);
+            ivProfileImage = itemView.findViewById(R.id.profile_image);
         }
 
         public void bind(Lesson lesson, OnLessonClickListener listener) {
@@ -93,6 +97,10 @@ public class HomeLessonAdapter extends RecyclerView.Adapter<HomeLessonAdapter.Le
                     listener.onLessonClick(lesson);
                 }
             });
+
+            //fix: Load creator profile image from creatorImage URL loaded by ViewModel
+            // creatorImage đã được load bất đồng bộ trong HomeViewModel
+            ImageLoader.loadImage(ivProfileImage, lesson.getCreatorImage());
         }
     }
 }
