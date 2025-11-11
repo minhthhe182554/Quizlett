@@ -27,11 +27,15 @@ public class LessonRepository {
     private final DatabaseReference lessonReference;
     private final DatabaseReference questionReference;
 
+    private final DatabaseReference userReference;
+
+
     @Inject
     public LessonRepository(FirebaseDatabase firebaseDatabase) {
         Log.d(TAG, "LessonRepository initialized");
         this.lessonReference = firebaseDatabase.getReference("lessons");
         this.questionReference = firebaseDatabase.getReference("questions");
+        this.userReference = firebaseDatabase.getReference("users");
     }
 
     public void addLesson(LessonRequest request, String userId, OnLessonAddedListener listener) {
@@ -67,6 +71,17 @@ public class LessonRepository {
             lesson.setTitle(request.getTitle());
             lesson.setCategory(request.getCategory());
             lesson.setUserId(userId);
+            userReference.child(userId).child("profileImageUrl").get().addOnSuccessListener(snapshot -> {
+                if (snapshot.exists()) {
+                    String imageUrl = snapshot.getValue(String.class);
+                    lesson.setImageUrl(imageUrl);
+                    Log.d("Firebase", "Profile Image URL: " + imageUrl);
+                } else {
+                    Log.d("Firebase", "No profile image found");
+                }
+            }).addOnFailureListener(e -> {
+                Log.e("Firebase", "Failed to get profile image", e);
+            });
             lesson.setVisitCount(0);
             lesson.setQuestions(questions);
 
@@ -94,6 +109,17 @@ public class LessonRepository {
             lesson.setTitle(title);
             lesson.setCategory(category);
             lesson.setUserId(userId);
+            userReference.child(userId).child("profileImageUrl").get().addOnSuccessListener(snapshot -> {
+                if (snapshot.exists()) {
+                    String imageUrl = snapshot.getValue(String.class);
+                    lesson.setImageUrl(imageUrl);
+                    Log.d("Firebase", "Profile Image URL: " + imageUrl);
+                } else {
+                    Log.d("Firebase", "No profile image found");
+                }
+            }).addOnFailureListener(e -> {
+                Log.e("Firebase", "Failed to get profile image", e);
+            });
             lesson.setVisitCount(0);
             lesson.setQuestions(questions);
 

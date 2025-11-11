@@ -11,14 +11,17 @@ public class Lesson {
     private String userId;
     private LessonCategory category;
     private int visitCount;
+
+    private String imageUrl;
     private List<Question> questions;
 
     public Lesson() {}
 
-    public Lesson(String title, String userId, LessonCategory category) {
+    public Lesson(String title, String userId, LessonCategory category, String imgUrl) {
         this.title = title;
         this.userId = userId;
         this.category = category;
+        this.imageUrl = imgUrl;
         this.visitCount = 0;
     }
 
@@ -39,4 +42,12 @@ public class Lesson {
 
     public List<Question> getQuestions() { return questions; }
     public void setQuestions(List<Question> questions) { this.questions = questions; }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }
