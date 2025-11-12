@@ -2,10 +2,11 @@ package com.hminq.quizlett.data.remote.model;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.io.Serializable;
 import java.util.List;
 
 @IgnoreExtraProperties
-public class Lesson {
+public class Lesson implements Serializable {
     private String lessonId;
     private String title;
     private String userId;
