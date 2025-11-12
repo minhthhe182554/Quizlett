@@ -1,10 +1,13 @@
 package com.hminq.quizlett.data.repository;
 
+import static com.hminq.quizlett.constants.UserConstant.ERROR_IMG_URL;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.google.firebase.database.*;
+import com.google.firebase.storage.StorageReference;
 import com.hminq.quizlett.data.dto.request.LessonRequest;
 import com.hminq.quizlett.data.remote.model.Lesson;
 import com.hminq.quizlett.data.remote.model.LessonCategory;
@@ -27,13 +30,15 @@ public class LessonRepository {
     private final DatabaseReference lessonReference;
     private final DatabaseReference questionReference;
     private final DatabaseReference userReference;
+    private final StorageReference profileImageReference;
 
     @Inject
-    public LessonRepository(FirebaseDatabase firebaseDatabase) {
+    public LessonRepository(FirebaseDatabase firebaseDatabase, StorageReference profileImageReference) { //fix
         Log.d(TAG, "LessonRepository initialized");
         this.lessonReference = firebaseDatabase.getReference("lessons");
         this.questionReference = firebaseDatabase.getReference("questions");
         this.userReference = firebaseDatabase.getReference("users");
+        this.profileImageReference = profileImageReference; //fix
     }
 
     public void addLesson(LessonRequest request, String userId, OnLessonAddedListener listener) {
@@ -71,17 +76,38 @@ public class LessonRepository {
             lesson.setUserId(userId);
             lesson.setVisitCount(0);
             lesson.setQuestions(questions);
+
+            //fix: Get Storage path then convert to download URL
             userReference.child(userId).child("profileImageUrl").get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
-                    String imageUrl = task.getResult().getValue(String.class);
-                    lesson.setCreatorImage(imageUrl);
-                    Log.d("Firebase", "Profile Image URL: " + imageUrl);
+                    String storagePath = task.getResult().getValue(String.class);
+
+                    // Convert path to download URL
+                    StorageReference imageRef = profileImageReference.child(storagePath);
+                    imageRef.getDownloadUrl()
+                            .addOnSuccessListener(uri -> {
+                                String downloadUrl = uri.toString();
+                                lesson.setCreatorImage(downloadUrl);
+                                Log.d(TAG, "Got download URL: " + downloadUrl);
+
+                                lessonReference.child(lessonId).setValue(lesson)
+                                        .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
+                                        .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.w(TAG, "Failed to get URL, saving without image");
+                                lesson.setCreatorImage(null);
+                                lessonReference.child(lessonId).setValue(lesson)
+                                        .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
+                                        .addOnFailureListener(err -> listener.onLessonAdded(false, err.getMessage()));
+                            });
                 } else {
-                    Log.d("Firebase", "No profile image found or failed to fetch.");
+                    Log.d(TAG, "No profile image path found");
+                    lesson.setCreatorImage(null);
+                    lessonReference.child(lessonId).setValue(lesson)
+                            .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
+                            .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
                 }
-                lessonReference.child(lessonId).setValue(lesson)
-                        .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
-                        .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
             });
         });
     }
@@ -107,17 +133,37 @@ public class LessonRepository {
             lesson.setVisitCount(0);
             lesson.setQuestions(questions);
 
+            //Get Storage path then convert to download URL
             userReference.child(userId).child("profileImageUrl").get().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
-                    String imageUrl = task.getResult().getValue(String.class);
-                    lesson.setCreatorImage(imageUrl);
-                    Log.d("Firebase", "Profile Image URL: " + imageUrl);
+                    String storagePath = task.getResult().getValue(String.class);
+
+                    // Convert path to download URL
+                    StorageReference imageRef = profileImageReference.child(storagePath);
+                    imageRef.getDownloadUrl()
+                            .addOnSuccessListener(uri -> {
+                                String downloadUrl = uri.toString();
+                                lesson.setCreatorImage(downloadUrl);
+                                Log.d(TAG, "Got download URL: " + downloadUrl);
+
+                                lessonReference.child(lessonId).setValue(lesson)
+                                        .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
+                                        .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.w(TAG, "⚠️ Failed to get URL, saving auto lesson without image");
+                                lesson.setCreatorImage(null);
+                                lessonReference.child(lessonId).setValue(lesson)
+                                        .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
+                                        .addOnFailureListener(err -> listener.onLessonAdded(false, err.getMessage()));
+                            });
                 } else {
-                    Log.d("Firebase", "No profile image found or failed to fetch.");
+                    Log.d(TAG, "No profile image path found for auto lesson");
+                    lesson.setCreatorImage(null);
+                    lessonReference.child(lessonId).setValue(lesson)
+                            .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
+                            .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
                 }
-                lessonReference.child(lessonId).setValue(lesson)
-                        .addOnSuccessListener(aVoid -> listener.onLessonAdded(true, null))
-                        .addOnFailureListener(e -> listener.onLessonAdded(false, e.getMessage()));
             });
         });
     }
@@ -199,7 +245,6 @@ public class LessonRepository {
             }
         });
     }
-
     public void getAllLessons(OnLessonsLoadedListener listener) {
         lessonReference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -446,6 +491,48 @@ public class LessonRepository {
         });
     }
 
+    //fix: Load creator image download URL from Storage path
+    /**
+     * Convert creator image path to download URL
+     * Duplicate logic from UserRepository.getUserProfileImageUrl()
+     * @param creatorImagePath Storage path (e.g. "userId" or "default/default_profile_image.jpg")
+     * @return Download URL or null if path is null/empty
+     */
+    public void loadCreatorImageUrl(String creatorImagePath, OnImageUrlLoadedListener listener) {
+        if (creatorImagePath == null || creatorImagePath.isEmpty()) {
+            listener.onImageUrlLoaded(null, "Creator image path is null or empty");
+            return;
+        }
+
+        // If already a full URL, return directly
+        if (creatorImagePath.startsWith("http")) {
+            listener.onImageUrlLoaded(creatorImagePath, null);
+            return;
+        }
+
+        // Convert Storage path to download URL
+        StorageReference imageRef = profileImageReference.child(creatorImagePath);
+        imageRef.getDownloadUrl()
+                .addOnSuccessListener(uri -> {
+                    String downloadUrl = uri.toString();
+                    Log.d(TAG, "✅ Loaded creator image URL: " + downloadUrl);
+                    listener.onImageUrlLoaded(downloadUrl, null);
+                })
+                .addOnFailureListener(e -> {
+                    // Fallback to error image
+                    Log.w(TAG, "⚠️ Failed to load creator image, using error image: " + e.getMessage());
+                    StorageReference errorImageRef = profileImageReference.child(ERROR_IMG_URL);
+                    errorImageRef.getDownloadUrl()
+                            .addOnSuccessListener(defaultUri -> {
+                                listener.onImageUrlLoaded(defaultUri.toString(), null);
+                            })
+                            .addOnFailureListener(errorEx -> {
+                                Log.e(TAG, "❌ Failed to load error image: " + errorEx.getMessage());
+                                listener.onImageUrlLoaded(null, errorEx.getMessage());
+                            });
+                });
+    }
+
     // Listener interfaces
     public interface OnLessonAddedListener { void onLessonAdded(boolean success, String errorMessage); }
     public interface OnLessonLoadedListener { void onLessonLoaded(Lesson lesson, String errorMessage); }
@@ -453,4 +540,5 @@ public class LessonRepository {
     public interface OnLessonUpdatedListener { void onLessonUpdated(boolean success, String errorMessage); }
     public interface OnLessonDeletedListener { void onLessonDeleted(boolean success, String errorMessage); }
     public interface OnQuestionsLoadedListener { void onQuestionsLoaded(List<Question> questions, String errorMessage); }
+    public interface OnImageUrlLoadedListener { void onImageUrlLoaded(String imageUrl, String errorMessage); } //fix
 }
