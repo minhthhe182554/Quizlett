@@ -1,0 +1,92 @@
+<resources>
+    <string name="app_name">Quizlett</string>
+    <string name="title_activity_main">Hoạt Động Chính</string>
+    <string name="hello_blank_fragment">Xin chào fragment trống</string>
+    <string name="welcome_img_description">Hình ảnh chào mừng</string>
+    <string name="profile_img_description">Ảnh hồ sơ người dùng</string>
+    <string name="welcome_title">Cách học tốt nhất\nĐăng ký miễn phí</string>
+    <string name="welcome_btn_text">ĐĂNG KÝ BẰNG EMAIL</string>
+    <string name="signUn_btn_text">ĐĂNG KÝ</string>
+    <string name="have_an_account">Đã có tài khoản ?</string>
+    <string name="link_to_signIn">Đăng nhập</string>
+    <string name="already_had_account">Đã có tài khoản</string>
+    <string name="dont_have_account">Chưa có tài khoản ?</string>
+    <string name="sign_up_title">Tạo tài khoản mới</string>
+    <string name="sign_in_title">Chào mừng trở lại</string>
+    <string name="signIn_btn_text">ĐĂNG NHẬP</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Mật khẩu</string>
+    <string name="fullname_hint">Họ và Tên</string>
+    <string name="forgot_password">Quên mật khẩu ?</string>
+    <string name="enter_email">Nhập email của bạn</string>
+    <string name="reset_password">Đặt lại mật khẩu</string>
+    <string name="email_sent_success">Kiểm tra email để xem hướng dẫn đặt lại mật khẩu</string>
+    <string name="email_sent_error">Lỗi khi gửi email đặt lại mật khẩu</string>
+    <string name="signIn_error">Lỗi khi đăng nhập</string>
+    <string name="signUp_error">Lỗi khi đăng ký</string>
+    <string name="signUp_success">Đăng ký thành công</string>
+    <string name="welcome_back">Chào mừng trở lại</string>
+    <string name="btn_signout_text">ĐĂNG XUẤT</string>
+    <string name="btn_delete_account_text">XÓA TÀI KHOẢN</string>
+    <string name="signout_error">Lỗi khi đăng xuất</string>
+    <string name="delete_account_error">Lỗi khi xóa tài khoản</string>
+    <string-array name="answer_options_array">
+        <item>Lựa chọn 1</item>
+        <item>Lựa chọn 2</item>
+        <item>Lựa chọn 3</item>
+        <item>Lựa chọn 4</item>
+    </string-array>
+    <string-array name="lesson_category_array">
+        <item>Khoa học</item>
+        <item>Nhân văn</item>
+        <item>Khác</item>
+    </string-array>
+    <string-array name="language_options_array">
+        <item>English</item>
+        <item>Tiếng Việt</item>
+    </string-array>
+    <string name="question_text_placeholder">Nội dung Câu hỏi</string>
+    <string name="answer_options_placeholder">Các Lựa chọn Đáp án: %s</string>
+    <string name="correct_answer_placeholder">Đáp án Đúng: %s</string>
+    <string name="question_list_title">Quản lý Câu hỏi</string>
+    <string name="ques_category_label">Danh mục</string>
+    <string name="question_detail_title">Chỉnh sửa Câu hỏi của bạn</string>
+    <string name="query_hint_search">Tìm kiếm...</string>
+    <string name="question_text_label">Nội dung Câu hỏi</string>
+    <string name="enter_question_text_hint">Nhập nội dung câu hỏi</string>
+    <string name="answer_options_label">Các Lựa chọn Đáp án</string>
+    <string name="option_1_hint">Lựa chọn 1</string>
+    <string name="option_2_hint">Lựa chọn 2</string>
+    <string name="option_3_hint">Lựa chọn 3</string>
+    <string name="option_4_hint">Lựa chọn 4</string>
+    <string name="correct_answer_label">Đáp án Đúng</string>
+    <string name="save_question_button">Lưu</string>
+    <string name="delete_question_button">Xóa</string>
+    <string name="fab_add_question_description">Thêm câu hỏi mới</string>
+    <string name="manage_questions_button_text">Quản lý câu hỏi</string>
+    <string name="top_lesson_title">Bài học nổi bật</string>
+    <string name="english_lesson_title">Tiếng Anh</string>
+    <string name="chinese_lesson_title">Tiếng Trung</string>
+    <string name="japanese_lesson_title">Tiếng Nhật</string>
+    <string name="lesson_list_title">Quản lý Bài học</string>
+    <string name="lesson_text_placeholder">Tiêu đề Bài học</string>
+    <string name="category_placeholder">Danh mục: %s</string>
+    <string name="number_visit_placeholder">Số lần Truy cập: %s</string>
+    <string name="number_question_placeholder">Số lượng Câu hỏi: %s</string>
+    <string name="last_visited_placeholder">Lần truy cập cuối: %s</string>
+    <string name="fab_add_lesson_description">Thêm bài học mới</string>
+    <string name="lesson_title_input">Nhập Tiêu đề Bài học</string>
+    <string name="lesson_detail">Chi tiết Bài học</string>
+    <string name="manual_mode">Thủ công</string>
+    <string name="auto_mode">Tự động</string>
+    <string name="num_of_ques">Số lượng Câu hỏi</string>
+    <string name="select_ques_btn">Chọn Câu hỏi</string>
+    <string name="save_lesson_btn">Lưu</string>
+    <string name="delete_lesson_btn">Xóa</string>
+    <string name="done_btn">LƯU</string>
+    <string name="lesson_title_label">Tiêu đề Bài học</string>
+    <string name="lesson_ques_label">Câu hỏi</string>
+    <string name="lesson_numques_label">Số lượng Câu hỏi</string>
+    <string name="lesson_create_mode_label">Chế độ Tạo</string>
+    <string name="lesson_category_label">Danh mục</string>
+</resources>
