@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_homeFragment_to_settingFragment"
             app:destination="@id/settingFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_lessonDetailFragment3"
+            app:destination="@id/lessonDetailFragment3" />
     </fragment>
     <fragment
         android:id="@+id/settingFragment"
@@ -23,4 +26,9 @@
             android:id="@+id/action_settingFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/lessonDetailFragment3"
+        android:name="com.hminq.quizlett.ui.firsttab.home.LessonDetailFragment"
+        android:label="LessonDetailFragment"
+        tools:layout="@layout/fragment_lesson_detail2"/>
 </navigation>

@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="#F5F5F5">
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:layout_marginTop="30dp">
 
         <!-- Header with Profile Image -->
         <RelativeLayout
@@ -38,7 +39,7 @@
                 android:text="Home"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black" />
+                android:textColor="@color/white" />
 
         </RelativeLayout>
 
@@ -75,7 +76,7 @@
                 android:text="Top lessons"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="#1F2937"
+                android:textColor="@color/white"
                 android:layout_marginBottom="4dp" />
 
             <TextView
@@ -83,7 +84,7 @@
                 android:layout_height="wrap_content"
                 android:text="Try out these flashcard sets"
                 android:textSize="14sp"
-                android:textColor="#6B7280"
+                android:textColor="@color/light_grey"
                 android:layout_marginBottom="16dp" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -100,7 +101,7 @@
                 android:layout_height="wrap_content"
                 android:text="No lessons available"
                 android:textSize="14sp"
-                android:textColor="#9CA3AF"
+                android:textColor="@color/white"
                 android:gravity="center"
                 android:padding="32dp"
                 android:visibility="gone" />
@@ -120,7 +121,7 @@
             android:layout_height="wrap_content"
             android:text="Scroll down to see more :)"
             android:textSize="13sp"
-            android:textColor="#9CA3AF"
+            android:textColor="@color/light_grey"
             android:gravity="center"
             android:padding="24dp"
             android:layout_marginTop="16dp" />

@@ -85,5 +85,6 @@
     <string name="lesson_numques_label">Number Question</string>
     <string name="lesson_create_mode_label">Creation Mode</string>
     <string name="lesson_category_label">Category</string>
+    <string name="create_test">TEST</string>
 
 </resources>

@@ -9,6 +9,7 @@ public class Lesson {
     private String lessonId;
     private String title;
     private String userId;
+    private String creatorImage;
     private LessonCategory category;
     private int visitCount;
     private List<Question> questions;
@@ -39,4 +40,12 @@ public class Lesson {
 
     public List<Question> getQuestions() { return questions; }
     public void setQuestions(List<Question> questions) { this.questions = questions; }
+
+    public String getCreatorImage() {
+        return creatorImage;
+    }
+
+    public void setCreatorImage(String creatorImage) {
+        this.creatorImage = creatorImage;
+    }
 }
