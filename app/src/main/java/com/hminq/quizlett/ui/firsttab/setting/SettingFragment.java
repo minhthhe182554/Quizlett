@@ -4,6 +4,7 @@ import static com.hminq.quizlett.constants.AppMessage.DELETE_ACCOUNT_ERROR;
 import static com.hminq.quizlett.constants.AppMessage.SIGNOUT_ERROR;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -18,15 +19,15 @@ import androidx.navigation.fragment.NavHostFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.hminq.quizlett.R;
+import com.hminq.quizlett.data.remote.model.Language;
 import com.hminq.quizlett.databinding.FragmentSettingBinding;
 import com.hminq.quizlett.ui.SharedViewModel;
 import com.hminq.quizlett.utils.Message;
@@ -39,10 +40,8 @@ public class SettingFragment extends Fragment {
     private SharedViewModel sharedViewModel;
     private SettingViewModel settingViewModel;
     private NavController navController;
-    private Button btnBack, btnSignOut, btnDeleteAccount;
-    private ImageView userAvatar;
-    private TextView profileDisplayName, profileFullName, profileEmail, profilePassword;
-    private Spinner spinnerLanguage;
+
+
     private ActivityResultLauncher<String> imagePickerLauncher;
 
     public SettingFragment() {}
@@ -68,12 +67,22 @@ public class SettingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // Inflate the layout for this fragment
         binding = FragmentSettingBinding.inflate(inflater, container, false);
-        bindViews();
+        // Đã XÓA: bindViews();
 
-        // get NavController
         navController = NavHostFragment.findNavController(this);
+
+        Context context = getContext();
+        if (context != null) {
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                    context,
+                    R.array.language_options_array,
+                    android.R.layout.simple_spinner_item
+            );
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            binding.spinnerLanguage.setAdapter(adapter);
+        }
+
         return binding.getRoot();
     }
 
@@ -81,11 +90,9 @@ public class SettingFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        btnBack.setOnClickListener(l -> navController.popBackStack());
-
-        btnSignOut.setOnClickListener(l -> sharedViewModel.signOut());
-//        btnDeleteAccount.setOnClickListener(l -> sharedViewModel.deleteAccount());
-        btnDeleteAccount.setOnClickListener(l -> {
+        binding.btnBack.setOnClickListener(l -> navController.popBackStack());
+        binding.btnSignOut.setOnClickListener(l -> sharedViewModel.signOut());
+        binding.btnDelete.setOnClickListener(l -> {
             Message.showShort(view, "Đừng bấm vào chưa làm xong");
         });
 
@@ -98,12 +105,12 @@ public class SettingFragment extends Fragment {
         });
 
         settingViewModel.getProfileImageUrl().observe(getViewLifecycleOwner(), imageUrl -> {
-            if (imageUrl != null && userAvatar != null) {
+            if (imageUrl != null && binding.userAvatar != null) {
                 Glide.with(this)
                         .load(imageUrl)
                         .placeholder(R.drawable.welcome_img)
                         .error(R.drawable.welcome_img)
-                        .into(userAvatar);
+                        .into(binding.userAvatar);
             }
         });
 
@@ -111,22 +118,76 @@ public class SettingFragment extends Fragment {
             imagePickerLauncher.launch("image/*");
         });
 
-        profileFullName.setOnClickListener(l -> {
-            String currentValue = profileFullName.getText().toString();
+        binding.profileFullName.setOnClickListener(l -> {
+            String currentValue = binding.profileFullName.getText().toString();
             showUpdateDialog("Full name", "fullname", currentValue, false);
         });
 
-        profilePassword.setOnClickListener(l -> {
+        binding.profilePassword.setOnClickListener(l -> {
             showUpdateDialog("New Password", "password", "", true);
         });
 
         settingViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
-                profileDisplayName.setText(user.getFullname());
+                binding.profileDisplayName.setText(user.getFullname());
+                binding.profileFullName.setText(user.getFullname());
+                binding.profileEmail.setText(user.getEmail());
 
-                profileFullName.setText(user.getFullname());
-                profileEmail.setText(user.getEmail());
-                profilePassword.setText(user.getPassword());
+                binding.profilePassword.setText("********");
+
+                String currentLanguageCode = user.getUserSetting() != null && user.getUserSetting().getLanguage() != null ?
+                        user.getUserSetting().getLanguage().getCode() : "en";
+
+                int selectionIndex = Language.getArrayIndex(currentLanguageCode);
+
+                binding.spinnerLanguage.setOnItemSelectedListener(null);
+                binding.spinnerLanguage.setSelection(selectionIndex);
+                binding.spinnerLanguage.post(this::setupLanguageSpinnerListener);
+            }
+        });
+
+        settingViewModel.getUpdateLanguageResult().observe(getViewLifecycleOwner(), success -> {
+            if (success != null) {
+                if (success) {
+                    Message.showShort(view, "Cài đặt ngôn ngữ được lưu thành công! Đang khởi động lại...");
+
+                    requireActivity().recreate();
+
+                } else {
+                    Message.showShort(view, "Lỗi khi lưu cài đặt ngôn ngữ.");
+                }
+            }
+        });
+    }
+
+    private void setupLanguageSpinnerListener() {
+        binding.spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                String selectedLanguageCode;
+
+                if (position == 0) {
+                    selectedLanguageCode = "en";
+                } else if (position == 1) {
+                    selectedLanguageCode = "vi";
+                } else {
+                    return;
+                }
+
+                String currentCode = settingViewModel.getCurrentUser().getValue() != null &&
+                        settingViewModel.getCurrentUser().getValue().getUserSetting() != null &&
+                        settingViewModel.getCurrentUser().getValue().getUserSetting().getLanguage() != null ?
+                        settingViewModel.getCurrentUser().getValue().getUserSetting().getLanguage().getCode() : "en";
+
+                if (!selectedLanguageCode.equals(currentCode)) {
+                    settingViewModel.updateLanguageSetting(selectedLanguageCode);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
     }
@@ -136,19 +197,7 @@ public class SettingFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-    private void bindViews() {
-        btnBack = binding.btnBack;
-        btnSignOut = binding.btnSignOut;
-        btnDeleteAccount = binding.btnDelete;
 
-        userAvatar = binding.userAvatar;
-        profileDisplayName = binding.profileDisplayName;
-        profileFullName = binding.profileFullName;
-        profileEmail = binding.profileEmail;
-        profilePassword = binding.profilePassword;
-
-        spinnerLanguage = binding.spinnerLanguage;
-    }
 
     private void showUpdateDialog(String dialogTitle, String fieldName, String currentValue, boolean requiresCurrentPassword) {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
@@ -171,7 +220,7 @@ public class SettingFragment extends Fragment {
             currentPasswordEditText.setHint("Current Password (Required)");
 
             if (fieldName.equals("password")) {
-                inputEditText.setText(""); // Chưa hiển thị ******
+                inputEditText.setText("");
                 inputEditText.setHint("Enter new password");
                 inputEditText.setInputType(android.text.InputType.TYPE_CLASS_TEXT |
                         android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
