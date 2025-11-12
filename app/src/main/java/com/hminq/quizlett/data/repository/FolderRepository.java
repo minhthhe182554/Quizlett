@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser; // 💡 Cần import FirebaseUser
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,7 +35,6 @@ public class FolderRepository {
     public FolderRepository(FirebaseAuth firebaseAuth,
                             FirebaseDatabase firebaseDatabase) {
         this.firebaseAuth = firebaseAuth;
-        // Tham chiếu đến node "folders"
         this.foldersReference = firebaseDatabase.getReference("folders");
     }
 
@@ -50,8 +50,10 @@ public class FolderRepository {
 
         return Completable.create(emitter -> {
             String userId = getCurrentUserId();
-            if (userId == null) {
-                emitter.tryOnError(new IllegalStateException("User not logged in. Cannot create folder."));
+            String userName = getCurrentUserName();
+
+            if (userId == null || userName == null) {
+                emitter.tryOnError(new IllegalStateException("User not logged in or name unavailable. Cannot create folder."));
                 return;
             }
 
@@ -62,7 +64,7 @@ public class FolderRepository {
                 return;
             }
 
-            Folder newFolder = new Folder(folderName, userId, new Date());
+            Folder newFolder = new Folder(folderName, userId, userName, new Date());
             newFolder.setFolderId(folderId);
 
             foldersReference.child(folderId).setValue(newFolder)
@@ -115,5 +117,19 @@ public class FolderRepository {
 
     private String getCurrentUserId() {
         return firebaseAuth.getCurrentUser() != null ? firebaseAuth.getCurrentUser().getUid() : null;
+    }
+
+    private String getCurrentUserName() {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user != null) {
+            if (user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
+                return user.getDisplayName();
+            }
+            if (user.getEmail() != null) {
+                return user.getEmail().split("@")[0];
+            }
+            return "User_" + user.getUid().substring(0, 5);
+        }
+        return null;
     }
 }
