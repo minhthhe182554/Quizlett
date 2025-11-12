@@ -31,10 +31,6 @@ public class SettingViewModel extends ViewModel {
         return currentUser;
     }
 
-    private final MutableLiveData<Boolean> isPushNotificationEnabled = new MutableLiveData<>();
-    public LiveData<Boolean> getIsPushNotificationEnabled() {
-        return isPushNotificationEnabled;
-    }
     private final MutableLiveData<Language> currentLanguage = new MutableLiveData<>();
     public LiveData<Language> getCurrentLanguage() {
         return currentLanguage;
@@ -52,6 +48,17 @@ public class SettingViewModel extends ViewModel {
     public LiveData<String> getProfileImageUrl() {
         return profileImageUrl;
     }
+
+    // LiveData mới để theo dõi kết quả cập nhật ngôn ngữ
+    private final MutableLiveData<Boolean> updateLanguageResult = new MutableLiveData<>();
+
+    // --- PHƯƠNG THỨC THÊM VÀO ---
+    public LiveData<Boolean> getUpdateLanguageResult() {
+        return updateLanguageResult;
+    }
+    // ----------------------------
+
+
     @Inject
     public SettingViewModel(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -66,11 +73,11 @@ public class SettingViewModel extends ViewModel {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(user -> {
-                                    currentUser.setValue(user);
-                                    loadUserImage(user);
-                                }, throwable -> {
+                            currentUser.setValue(user);
+                            loadUserImage(user);
+                        }, throwable -> {
 
-                                })
+                        })
         );
     }
 
@@ -90,6 +97,27 @@ public class SettingViewModel extends ViewModel {
                         })
         );
     }
+
+    // Phương thức để cập nhật cài đặt ngôn ngữ (Đã đúng)
+    public void updateLanguageSetting(String languageCode) {
+        updateLanguageResult.setValue(null);
+        // Chuyển String code thành Enum Language
+        Language languageEnum = Language.fromCode(languageCode);
+
+        disposables.add(
+                userRepository.updateLanguageSetting(languageEnum)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(() -> {
+                            updateLanguageResult.setValue(true);
+                            loadUserProfile();
+                        }, throwable -> {
+                            Log.e(TAG, "Error updating language setting: " + throwable.getMessage());
+                            updateLanguageResult.setValue(false);
+                        })
+        );
+    }
+
     public void updateProfileField(String fieldName, String newValue, String currentPassword) {
         Completable updateCompletable;
 
@@ -98,6 +126,7 @@ public class SettingViewModel extends ViewModel {
                 updateCompletable = userRepository.updateFullname(newValue);
                 break;
             case "email":
+                // Cần triển khai logic update email
                 return;
             case "password":
                 if (currentPassword == null || currentPassword.isEmpty()) {
@@ -126,14 +155,6 @@ public class SettingViewModel extends ViewModel {
         updateProfileField(fieldName, newValue, null);
     }
 
-//    private void loadPreferences() {
-//        User.UserSetting settings = userRepository.getCurrentSettings();
-//
-//        isPushNotificationEnabled.setValue(settings.isPushNotificationEnabled());
-//
-//        currentLanguage.setValue(settings.getLanguage());
-//    }
-
     private void loadUserImage(User user) {
         disposables.add(
                 userRepository.loadProfileImage(user)
@@ -151,6 +172,8 @@ public class SettingViewModel extends ViewModel {
     public void setAppLanguage(Language language) {
         currentLanguage.setValue(language);
     }
+
+
 
     public void signOut() {
         disposables.add(
