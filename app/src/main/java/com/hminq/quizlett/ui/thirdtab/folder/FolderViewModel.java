@@ -12,11 +12,19 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-
+@HiltViewModel
 public class FolderViewModel extends ViewModel {
+
+    public enum CreationResult {
+        LOADING,
+        SUCCESS,
+        INVALID_INPUT,
+        IDLE, ERROR
+    }
 
     private final FolderRepository repository;
     private final CompositeDisposable disposables = new CompositeDisposable();
@@ -26,6 +34,7 @@ public class FolderViewModel extends ViewModel {
 
     private final MutableLiveData<List<Folder>> _folders = new MutableLiveData<>();
     public LiveData<List<Folder>> folders = _folders;
+
     private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>(false);
     public LiveData<Boolean> isLoading = _isLoading;
 
@@ -82,12 +91,5 @@ public class FolderViewModel extends ViewModel {
     protected void onCleared() {
         super.onCleared();
         disposables.clear();
-    }
-
-    public enum CreationResult {
-        LOADING,
-        SUCCESS,
-        INVALID_INPUT,
-        ERROR
     }
 }
