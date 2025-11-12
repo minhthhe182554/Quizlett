@@ -9,6 +9,7 @@ public class Folder {
     private String folderId;
     private String name;
     private String userId;
+    private String userName;
     private Date createdAt;
 
     private List<Lesson> lessons;
@@ -17,10 +18,11 @@ public class Folder {
         this.lessons = new ArrayList<>();
     }
 
-    public Folder(String name, String userId, Date createdAt) {
+    public Folder(String name, String userId, String userName, Date createdAt) {
         this();
         this.name = name;
         this.userId = userId;
+        this.userName = userName;
         this.createdAt = createdAt;
     }
 
@@ -32,6 +34,9 @@ public class Folder {
 
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
+
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; } 
 
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
