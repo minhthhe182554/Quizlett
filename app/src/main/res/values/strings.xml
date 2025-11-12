@@ -41,6 +41,10 @@
         <item>Humanities</item>
         <item>Others</item>
     </string-array>
+    <string-array name="language_options_array">
+        <item>English</item>
+        <item>Tiếng Việt</item>
+    </string-array>
     <string name="question_text_placeholder">Question Text</string>
     <string name="answer_options_placeholder">Answer Options: %s</string>
     <string name="correct_answer_placeholder">Correct Answer: %s</string>
@@ -88,3 +92,4 @@
     <string name="create_test">TEST</string>
 
 </resources>
+

@@ -7,7 +7,17 @@
 
     <fragment
         android:id="@+id/storageFragment"
-        android:name="com.hminq.quizlett.ui.thirdtab.storage.StorageFragment"
-        android:label="fragment_storage"
-        tools:layout="@layout/fragment_storage" />
+        android:name="com.hminq.quizlett.ui.thirdtab.ThirdTabFragment"
+        android:label="fragment_third_tab"
+        tools:layout="@layout/fragment_third_tab">
+
+<!--        <action-->
+<!--            android:id="@+id/action_storageFragment_to_addNewFolderFragment"-->
+<!--            app:destination="@id/addNewFolderFragment"-->
+<!--            app:enterAnim="@anim/nav_default_enter_anim"    app:exitAnim="@anim/nav_default_exit_anim"      app:popEnterAnim="@anim/nav_default_pop_enter_anim"-->
+<!--            app:popExitAnim="@anim/nav_default_pop_exit_anim" />-->
+
+    </fragment>
+
+
 </navigation>

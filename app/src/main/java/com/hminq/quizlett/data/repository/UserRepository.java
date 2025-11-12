@@ -2,10 +2,13 @@ package com.hminq.quizlett.data.repository;
 
 import static com.hminq.quizlett.constants.UserConstant.ERROR_IMG_URL;
 
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
 
+import com.bumptech.glide.load.engine.Resource;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -18,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.hminq.quizlett.data.remote.model.User;
+import com.hminq.quizlett.data.remote.model.Language; // Import Language Enum
 import com.hminq.quizlett.exceptions.ValidationException;
 import com.hminq.quizlett.utils.InputValidator;
 
@@ -31,6 +35,8 @@ public class UserRepository {
     private final FirebaseAuth firebaseAuth;
     private final DatabaseReference userReference;
     private final StorageReference profileImageReference;
+    private final MutableLiveData<Resource<User>> currentUserResource = new MutableLiveData<>();
+
 
     @Inject
     public UserRepository(FirebaseAuth firebaseAuth,
@@ -39,13 +45,14 @@ public class UserRepository {
         this.firebaseAuth = firebaseAuth;
         this.userReference = firebaseDatabase.getReference("users");
         this.profileImageReference = profileImageReference;
+
     }
+
 
     public Single<User> getCurrentUser() {
         return Single.create(emitter -> {
             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
-            // change to tryOnError to avoid exception when observer is cleared
             if (firebaseUser == null) {
                 emitter.tryOnError(new Exception("No user logged in"));
 
@@ -53,25 +60,25 @@ public class UserRepository {
             }
 
             userReference.child(firebaseUser.getUid())
-                        .get()
-                        .addOnSuccessListener(dataSnapshot -> {
-                            if (emitter.isDisposed()) return;
+                    .get()
+                    .addOnSuccessListener(dataSnapshot -> {
+                        if (emitter.isDisposed()) return;
 
-                            User currentUser = dataSnapshot.getValue(User.class);
+                        User currentUser = dataSnapshot.getValue(User.class);
 
-                            if (currentUser == null) {
-                                emitter.tryOnError(new Exception("User not found in DB"));
-                            }
-                            else {
-                                emitter.onSuccess(currentUser);
-                            }
-                        })
-                        .addOnFailureListener(emitter::tryOnError);
+                        if (currentUser == null) {
+                            emitter.tryOnError(new Exception("User not found in DB"));
+                        }
+                        else {
+                            emitter.onSuccess(currentUser);
+                        }
+                    })
+                    .addOnFailureListener(emitter::tryOnError);
         });
     }
 
     public Single<AuthResult> signIn(String email, String password) {
-        // validate inputs
+
         try {
             InputValidator.validateInput(email, password);
         } catch (ValidationException e) {
@@ -79,20 +86,20 @@ public class UserRepository {
         }
 
         return Single.create(emitter ->
-        firebaseAuth
-                .signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener(authResult -> {
-                    if (emitter.isDisposed()) return;
+                firebaseAuth
+                        .signInWithEmailAndPassword(email, password)
+                        .addOnSuccessListener(authResult -> {
+                            if (emitter.isDisposed()) return;
 
-                    Log.d(TAG, "sign in successful");
-                    emitter.onSuccess(authResult);
-                })
-                .addOnFailureListener(emitter::tryOnError)
+                            Log.d(TAG, "sign in successful");
+                            emitter.onSuccess(authResult);
+                        })
+                        .addOnFailureListener(emitter::tryOnError)
         );
     }
 
     public Single<AuthResult> signUp(String email, String password, String fullname) {
-        // validate inputs
+
         try {
             InputValidator.validateInput(email, password, fullname);
         } catch (ValidationException e) {
@@ -101,33 +108,30 @@ public class UserRepository {
 
         return Single.create(
                 emitter ->
-                firebaseAuth
-                        .createUserWithEmailAndPassword(email, password)
-                        .addOnSuccessListener(
-                                authResult -> {
-                                    // get uid from FirebaseAuth
-                                    String newUid = authResult.getUser().getUid();
+                        firebaseAuth
+                                .createUserWithEmailAndPassword(email, password)
+                                .addOnSuccessListener(
+                                        authResult -> {
+                                            String newUid = authResult.getUser().getUid();
 
-                                    // map userInfo for Firebase Database
-                                    User newUser = new User(newUid, email, password, fullname);
-                                    Log.d(TAG, "Create new user: " + newUser);
+                                            User newUser = new User(newUid, email, password, fullname);
+                                            Log.d(TAG, "Create new user: " + newUser);
 
-                                    userReference.child(newUid)
-                                            .setValue(newUser)
-                                            .addOnSuccessListener(unused -> {
-                                                if (emitter.isDisposed()) return;
+                                            userReference.child(newUid)
+                                                    .setValue(newUser)
+                                                    .addOnSuccessListener(unused -> {
+                                                        if (emitter.isDisposed()) return;
 
-                                                emitter.onSuccess(authResult);
-                                            })
-                                            .addOnFailureListener(emitter::tryOnError);
-                                }
-                        )
-                        .addOnFailureListener(emitter::tryOnError)
+                                                        emitter.onSuccess(authResult);
+                                                    })
+                                                    .addOnFailureListener(emitter::tryOnError);
+                                        }
+                                )
+                                .addOnFailureListener(emitter::tryOnError)
         );
     }
 
     public Completable resetPassword(String email) {
-        // validate input
         try {
             InputValidator.validateInput(email);
         } catch (ValidationException e) {
@@ -165,17 +169,14 @@ public class UserRepository {
 
             String uid = firebaseUser.getUid();
 
-            // 1: Delete from Auth first
             firebaseUser.delete()
                     .addOnSuccessListener(unused -> {
                         Log.d(TAG, "User account deleted from Auth");
 
-                        // 2: Delete from Database (cleanup)
                         userReference.child(uid).removeValue()
                                 .addOnSuccessListener(aVoid -> {
                                     Log.d(TAG, "User data deleted from Database");
 
-                                    // 3: Delete profile image
                                     deleteProfileImage(uid);
 
                                     if (emitter.isDisposed()) return;
@@ -183,16 +184,14 @@ public class UserRepository {
                                 })
                                 .addOnFailureListener(e -> {
                                     Log.e(TAG, "Database deletion failed: " + e.getMessage());
-                                    // Auth already deleted, but log the error
-                                    // Database cleanup can be done later via Cloud Functions
                                     if (emitter.isDisposed()) return;
-                                    emitter.onComplete(); // Still complete since Auth is deleted
+                                    emitter.onComplete();
                                 });
                     })
                     .addOnFailureListener(authError -> {
                         Log.e(TAG, "Auth deletion failed: " + authError.getMessage());
 
-                        emitter.tryOnError(authError); // Nothing deleted yet
+                        emitter.tryOnError(authError);
                     });
         });
     }
@@ -228,8 +227,16 @@ public class UserRepository {
 
         return Single.create(
                 emitter -> {
-                    if (user.getProfileImageUrl() == null) {
-                        emitter.tryOnError(new Exception("Profile image path is null"));
+                    // Cập nhật: Kiểm tra nếu profileImageUrl là null hoặc rỗng
+                    if (user.getProfileImageUrl() == null || user.getProfileImageUrl().isEmpty()) {
+                        // Tải ảnh lỗi (hoặc ảnh mặc định) nếu không có đường dẫn ảnh hồ sơ
+                        StorageReference errorImageRef = profileImageReference.child(ERROR_IMG_URL);
+                        errorImageRef.getDownloadUrl()
+                                .addOnSuccessListener(defaultUri -> {
+                                    if (emitter.isDisposed()) return;
+                                    emitter.onSuccess(defaultUri.toString());
+                                })
+                                .addOnFailureListener(emitter::tryOnError);
                         return;
                     }
 
@@ -252,6 +259,129 @@ public class UserRepository {
                 }
         );
     }
+
+    public Completable uploadNewProfileImage(Uri imageUri) {
+        return Completable.create(emitter -> {
+            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+            if (firebaseUser == null) {
+                emitter.tryOnError(new IllegalStateException("No user logged in"));
+                return;
+            }
+
+            String uid = firebaseUser.getUid();
+            // Lưu ảnh theo UID của user
+            StorageReference photoRef = profileImageReference.child(uid + "/profile.jpg");
+
+            photoRef.putFile(imageUri)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        photoRef.getDownloadUrl()
+                                .addOnSuccessListener(downloadUri -> {
+                                    // Cập nhật đường dẫn ảnh mới vào Firebase Realtime Database
+                                    userReference.child(uid)
+                                            .child("profileImageUrl")
+                                            .setValue(uid + "/profile.jpg") // Lưu đường dẫn storage relative, không phải URL
+                                            .addOnSuccessListener(aVoid -> {
+                                                if (emitter.isDisposed()) return;
+                                                emitter.onComplete();
+                                            })
+                                            .addOnFailureListener(emitter::tryOnError);
+                                })
+                                .addOnFailureListener(emitter::tryOnError);
+                    })
+                    .addOnFailureListener(emitter::tryOnError);
+        });
+    }
+
+    /**
+     * Updates the user's language setting in Firebase Realtime Database.
+     * @param language The Language Enum value to set.
+     * @return Completable indicating success or failure.
+     */
+    public Completable updateLanguageSetting(Language language) {
+        return Completable.create(emitter -> {
+            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+            if (firebaseUser == null) {
+                emitter.tryOnError(new IllegalStateException("No user logged in"));
+                return;
+            }
+
+            // Lưu giá trị Enum dưới dạng String (VD: "ENGLISH", "VIETNAMESE")
+            userReference.child(firebaseUser.getUid())
+                    .child("userSetting")
+                    .child("language")
+                    .setValue(language.name()) // Sử dụng .name() để lưu String
+                    .addOnSuccessListener(aVoid -> {
+                        if (emitter.isDisposed()) return;
+                        emitter.onComplete();
+                    })
+                    .addOnFailureListener(emitter::tryOnError);
+        });
+    }
+
+    public Single<User> getUserProfile() {
+        return Single.create(emitter -> {
+            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+
+            if (firebaseUser == null) {
+                emitter.tryOnError(new Exception("No user logged in"));
+                return;
+            }
+            userReference.child(firebaseUser.getUid())
+                    .get()
+                    .addOnSuccessListener(dataSnapshot -> {
+                        if (emitter.isDisposed()) return;
+
+                        User currentUser = dataSnapshot.getValue(User.class);
+
+                        if (currentUser == null) {
+                            emitter.tryOnError(new Exception("User not found in DB"));
+                        }
+                        else {
+                            emitter.onSuccess(currentUser);
+                        }
+                    })
+                    .addOnFailureListener(emitter::tryOnError);
+        });
+    }
+
+    public Completable updateFullname(String newFullname) {
+        return Completable.create(emitter -> {
+            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+            if (firebaseUser == null) {
+                emitter.tryOnError(new IllegalStateException("No user logged in"));
+                return;
+            }
+
+            userReference.child(firebaseUser.getUid())
+                    .child("fullname")
+                    .setValue(newFullname)
+                    .addOnSuccessListener(aVoid -> {
+                        if (emitter.isDisposed()) return;
+                        emitter.onComplete();
+                    })
+                    .addOnFailureListener(emitter::tryOnError);
+        });
+    }
+
+    public Completable updatePassword(String newPassword, String currentPassword) {
+        return reauthenticate(currentPassword)
+                .andThen(Completable.create(emitter -> {
+                    FirebaseUser user = firebaseAuth.getCurrentUser();
+                    if (user == null) {
+                        emitter.tryOnError(new IllegalStateException("No user logged in"));
+                        return;
+                    }
+
+                    user.updatePassword(newPassword)
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "Password updated successfully");
+                                if (emitter.isDisposed()) return;
+                                emitter.onComplete();
+                            })
+                            .addOnFailureListener(emitter::tryOnError);
+                }));
+    }
+
 
     //fix: Get user by ID using RxJava Single (async)
     /**
@@ -306,34 +436,10 @@ public class UserRepository {
         // First get user data to find profileImageUrl path, then load image from Storage
         return getUserById(userId)
                 .flatMap(user -> {
-                    String profilePath = user.getProfileImageUrl();
-                    if (profilePath == null || profilePath.isEmpty()) {
-                        // No profile image set, use userId as default path
-                        profilePath = userId;
-                    }
-
-                    final String finalProfilePath = profilePath;
-                    StorageReference imageRef = profileImageReference.child(finalProfilePath);
-
-                    //fix: Load image URL from Firebase Storage with error fallback
-                    return Single.create(imageEmitter -> {
-                        imageRef.getDownloadUrl()
-                                .addOnSuccessListener(uri -> {
-                                    if (imageEmitter.isDisposed()) return;
-                                    imageEmitter.onSuccess(uri.toString());
-                                })
-                                .addOnFailureListener(e -> {
-                                    // Fallback to error picture
-                                    Log.w(TAG, "Failed to load profile image for path: " + finalProfilePath + ", using error image");
-                                    StorageReference errorImageRef = profileImageReference.child(ERROR_IMG_URL);
-                                    errorImageRef.getDownloadUrl()
-                                            .addOnSuccessListener(defaultUri -> {
-                                                if (imageEmitter.isDisposed()) return;
-                                                imageEmitter.onSuccess(defaultUri.toString());
-                                            })
-                                            .addOnFailureListener(imageEmitter::tryOnError);
-                                });
-                    });
+                    // SỬA LỖI: LoadProfileImage đã được cập nhật logic kiểm tra đường dẫn, nên ta chỉ cần gọi nó
+                    return loadProfileImage(user);
                 });
     }
+
+
 }
