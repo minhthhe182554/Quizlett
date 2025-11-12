@@ -28,7 +28,17 @@
     </fragment>
     <fragment
         android:id="@+id/lessonDetailFragment3"
-        android:name="com.hminq.quizlett.ui.firsttab.home.LessonDetailFragment"
+        android:name="com.hminq.quizlett.ui.firsttab.detail.LessonDetailFragment"
         android:label="LessonDetailFragment"
-        tools:layout="@layout/fragment_lesson_detail2"/>
+        tools:layout="@layout/fragment_lesson_detail2"
+        >
+        <argument
+            android:name="lesson"
+            app:argType="com.hminq.quizlett.data.remote.model.Lesson"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_lessonDetailFragment3_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
 </navigation>
