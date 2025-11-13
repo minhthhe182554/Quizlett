@@ -12,6 +12,7 @@
         android:id="@+id/btnClose"
         android:layout_width="32dp"
         android:layout_height="32dp"
+        android:layout_marginTop="24dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Close"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
@@ -19,7 +20,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@android:color/white" />
 
-    <!-- Tiến trình -->
     <TextView
         android:id="@+id/tvProgress"
         android:layout_width="0dp"
@@ -71,13 +71,13 @@
     <!-- Biểu đồ tròn -->
     <ProgressBar
         android:id="@+id/results_pie_chart"
-        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginTop="8dp"
         android:indeterminate="false"
         android:max="100"
         android:progress="87"
+        android:progressDrawable="@drawable/pie_chart"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvYourResults" />
 
@@ -184,7 +184,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnNewTest" />
 
-    <!-- Vùng chứa các câu trả lời sai (ĐÃ SỬA: Chia từng ô) -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -195,69 +194,10 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
+            android:id="@+id/llIncorrectAnswersContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Incorrect Answer 1 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/input_field_bg_rec"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Một cộng một ="
-                    android:textColor="@android:color/white" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="your answer: 3"
-                    android:textColor="#E0E0E0" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Correct answer: 3"
-                    android:textColor="#E0E0E0" />
-            </LinearLayout>
-
-            <!-- Incorrect Answer 2 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/input_field_bg_rec"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hai nhân hai ="
-                    android:textColor="@android:color/white" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="your answer: 5"
-                    android:textColor="#E0E0E0" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Correct answer: 4"
-                    android:textColor="#E0E0E0" />
-            </LinearLayout>
-        </LinearLayout>
+            android:orientation="vertical" />
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
