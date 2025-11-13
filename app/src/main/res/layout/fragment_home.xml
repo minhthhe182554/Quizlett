@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:layout_marginTop="30dp">
+        android:layout_marginTop="40dp">
 
         <!-- Header with Profile Image -->
         <RelativeLayout
@@ -26,7 +26,7 @@
                 android:layout_height="48dp"
                 android:layout_alignParentEnd="true"
                 android:src="@drawable/ic_launcher_foreground"
-                android:background="@drawable/circle_background"
+                style="@style/CircleImageViewStyle"
                 android:scaleType="centerCrop"
                 android:clickable="true"
                 android:focusable="true" />
@@ -52,7 +52,7 @@
             android:background="@drawable/search_view_background"
             android:elevation="2dp"
             app:iconifiedByDefault="false"
-            app:queryHint="Search lessons..." />
+            app:queryHint="@string/search_lesson"/>
 
         <!-- Loading Indicator -->
         <ProgressBar

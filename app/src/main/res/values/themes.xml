@@ -5,4 +5,9 @@
         <item name="fontFamily">@font/project_font</item>
         <item name="android:windowBackground">@color/dark_blue</item>
     </style>
+
+    <style name="NumberPickerStyle">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
+    </style>
 </resources>
