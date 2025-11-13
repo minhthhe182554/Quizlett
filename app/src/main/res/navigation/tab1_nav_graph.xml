@@ -40,23 +40,5 @@
             android:id="@+id/action_lessonDetailFragment3_to_homeFragment"
             app:destination="@id/homeFragment"
             app:popUpToInclusive="true"/>
-        <action
-            android:id="@+id/action_lessonDetailFragment3_to_createTestFragment"
-            app:destination="@id/createTestFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/createTestFragment"
-        android:name="com.hminq.quizlett.ui.firsttab.test.CreateTestFragment"
-        android:label="fragment_create_test"
-        tools:layout="@layout/fragment_create_test">
-        <action
-            android:id="@+id/action_createTestFragment_to_lessonDetailFragment3"
-            app:destination="@id/lessonDetailFragment3"
-            app:popUpToInclusive="true"/>
-
-        <argument
-            android:name="create_lesson"
-            app:argType="com.hminq.quizlett.data.remote.model.Lesson"
-            app:nullable="true" />
     </fragment>
 </navigation>
