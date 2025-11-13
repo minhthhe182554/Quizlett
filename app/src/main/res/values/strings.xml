@@ -97,10 +97,11 @@
     <string name="tf_hint">Choose between True &amp; False</string>
     <string name="start_test">START TEST</string>
     <string name="search_lesson">Search lessons...</string>
+    <string name="my_folders">My Folders</string>
+    <string name="add_folder">Add Folder</string>
+    <string name="folder_name_cannot_be_empty">Folder name cannot be empty</string>
+    <string name="create_folder_dialog_title">Create New Folder</string>
+    <string name="folder_detail">Folder Detail</string>
 
-    <string-array name="test_methods">
-        <item>T/F</item>
-        <item>Multiple choice</item>
-    </string-array>
 </resources>
 

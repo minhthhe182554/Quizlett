@@ -112,4 +112,14 @@
             app:destination="@id/testFragment"
             app:popUpTo="@id/lessonDetailFragment3" />
     </fragment>
+    <fragment
+        android:id="@+id/thirdTabFragment"
+        android:name="com.hminq.quizlett.ui.thirdtab.ThirdTabFragment"
+        android:label="ThirdTabFragment"
+        tools:layout="@layout/fragment_third_tab">
+        <argument
+            android:name="lessonToSave"
+            app:argType="com.hminq.quizlett.data.remote.model.Lesson"
+            app:nullable="true" />
+    </fragment>
 </navigation>

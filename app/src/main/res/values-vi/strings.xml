@@ -89,4 +89,9 @@
     <string name="lesson_numques_label">Số lượng Câu hỏi</string>
     <string name="lesson_create_mode_label">Chế độ Tạo</string>
     <string name="lesson_category_label">Danh mục</string>
+    <string name="my_folders">Thư mục của tôi</string>
+    <string name="add_folder">Thêm thư mục</string>
+    <string name="folder_name_cannot_be_empty">Tên thư mục không được để trống</string>
+    <string name="create_folder_dialog_title">Tạo thư mục mới</string>
+    <string name="folder_detail">Chi tiết thư mục</string>
 </resources>

@@ -119,10 +119,13 @@ public class LessonDetailFragment extends Fragment {
             navController.popBackStack();
         });
 
-        // TODO: Add button
+
         binding.btnAdd.setOnClickListener(v -> {
-            // TODO: Implement add to collection functionality
-            Toast.makeText(getContext(), "TODO: Add to collection", Toast.LENGTH_SHORT).show();
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("lessonToSave", clickedLesson);
+            navController.navigate(R.id.thirdTabFragment, bundle);
+
+            Toast.makeText(getContext(), "Chuyển sang tab lưu Lesson...", Toast.LENGTH_SHORT).show();
         });
 
         // TODO: Test button
@@ -137,7 +140,6 @@ public class LessonDetailFragment extends Fragment {
     }
 
     private void observeViewModel() {
-        // Observe creator info
         detailViewModel.getCreator().observe(getViewLifecycleOwner(), user -> {
             if (user != null && user.getFullname() != null) {
                 binding.tvCreatorName.setText(user.getFullname());

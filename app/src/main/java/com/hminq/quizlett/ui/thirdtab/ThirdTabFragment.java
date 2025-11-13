@@ -9,6 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,11 +21,13 @@ import android.widget.Toast;
 
 import com.hminq.quizlett.R;
 import com.hminq.quizlett.data.remote.model.Folder;
+import com.hminq.quizlett.data.remote.model.Lesson;
 import com.hminq.quizlett.databinding.DialogCreateFolderBinding;
 import com.hminq.quizlett.databinding.FragmentThirdTabBinding;
 import com.hminq.quizlett.databinding.ItemFolderBinding;
 import com.hminq.quizlett.ui.thirdtab.folder.FolderViewModel;
 import com.hminq.quizlett.ui.thirdtab.folder.FolderViewModel.CreationResult;
+import androidx.navigation.Navigation;
 
 import java.util.List;
 
@@ -33,11 +37,16 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class ThirdTabFragment extends Fragment {
 
     private static final String FRAGMENT_TAG = "ThirdTabFragment";
+    public static final String LESSON_TO_SAVE_KEY = "lessonToSave";
 
     private FragmentThirdTabBinding binding;
     private AlertDialog createFolderDialog;
     private DialogCreateFolderBinding dialogBinding;
     private FolderViewModel viewModel;
+    private NavController navController;
+
+    private Lesson lessonToSave = null;
+    private boolean isSavingMode = false;
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -60,6 +69,13 @@ public class ThirdTabFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            lessonToSave = (Lesson) getArguments().getSerializable(LESSON_TO_SAVE_KEY);
+
+            if (lessonToSave != null) {
+                isSavingMode = true;
+                Log.d(FRAGMENT_TAG, "Nhận được Lesson để lưu: " + lessonToSave.getTitle());
+            }
+
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
@@ -78,8 +94,34 @@ public class ThirdTabFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        try {
+            navController = Navigation.findNavController(view);
+            Log.d(FRAGMENT_TAG, "NavController được tìm thấy bằng Navigation.findNavController(view)");
+        } catch (IllegalStateException e) {
+            Log.e(FRAGMENT_TAG, "Lỗi khi tìm NavController bằng view, thử dùng NavHostFragment.findNavController(this).", e);
+            try {
+                navController = NavHostFragment.findNavController(this);
+                Log.d(FRAGMENT_TAG, "NavController được tìm thấy bằng NavHostFragment.findNavController(this)");
+            } catch (Exception ex) {
+                Log.e(FRAGMENT_TAG, "Không thể tìm thấy NavController nào.", ex);
+            }
+        }
 
         viewModel = new ViewModelProvider(this).get(FolderViewModel.class);
+
+        if (isSavingMode) {
+            binding.tvHeader.setText("Select Folder");
+            binding.btnBack.setVisibility(View.VISIBLE);
+            binding.btnBack.setOnClickListener(v -> {
+                if (navController != null) {
+                    navController.popBackStack();
+                }
+            });
+        } else {
+            binding.tvHeader.setText(R.string.my_folders);
+
+        }
+
         if (binding.progressBar != null) {
             binding.progressBar.setVisibility(View.GONE);
         }
@@ -92,11 +134,28 @@ public class ThirdTabFragment extends Fragment {
         }
 
         observeCreationResult();
-
         observeFoldersList();
-
         observeLoadingState();
+        observeSaveLessonResult();
     }
+
+    private void observeSaveLessonResult() {
+        viewModel.getSaveLessonResult().observe(getViewLifecycleOwner(), isSuccess -> {
+            if (isSuccess != null) {
+                if (isSuccess) {
+                    Toast.makeText(requireContext(), "Lưu Lesson thành công!", Toast.LENGTH_SHORT).show();
+
+                    if (navController != null) {
+                        navController.popBackStack();
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Lỗi khi lưu Lesson. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                }
+                viewModel.resetSaveLessonResult();
+            }
+        });
+    }
+
 
     private void observeLoadingState() {
         viewModel.isLoading.observe(getViewLifecycleOwner(), isLoading -> {
@@ -124,18 +183,6 @@ public class ThirdTabFragment extends Fragment {
         LinearLayout foldersContainer = binding.foldersListContainer;
         if (foldersContainer == null) return;
         foldersContainer.removeAllViews();
-//
-//        if (folders.isEmpty()) {
-//            // 💡 Logic hiển thị thông báo "Chưa có folder nào"
-//            if (binding. != null) {
-//                binding.emptyTextView.setVisibility(View.VISIBLE);
-//            }
-//            return;
-//        } else {
-//            if (binding.emptyTextView != null) {
-//                binding.emptyTextView.setVisibility(View.GONE);
-//            }
-//        }
 
         for (Folder folder : folders) {
             ItemFolderBinding itemBinding = ItemFolderBinding.inflate(getLayoutInflater(), foldersContainer, false);
@@ -145,7 +192,26 @@ public class ThirdTabFragment extends Fragment {
             itemBinding.userName.setText(folder.getUserName());
 
             itemBinding.getRoot().setOnClickListener(v -> {
-                Toast.makeText(requireContext(), "Mở folder: " + folder.getName(), Toast.LENGTH_SHORT).show();
+                if (isSavingMode) {
+                    Log.d(FRAGMENT_TAG, "Đang lưu Lesson '" + lessonToSave.getTitle() + "' vào Folder: " + folder.getName());
+                    if (lessonToSave != null) {
+                        viewModel.saveLessonToFolder(lessonToSave, folder.getFolderId());
+                    }
+                } else {
+                    Log.d(FRAGMENT_TAG, "Chuyển sang trang Folder Detail cho folder ID: " + folder.getFolderId());
+
+                    ThirdTabFragmentDirections.ActionThirdTabFragmentToFolderDetailFragment action =
+                            ThirdTabFragmentDirections.actionThirdTabFragmentToFolderDetailFragment(
+                                    folder.getFolderId()
+                            );
+
+                    if (navController != null) {
+                        navController.navigate(action);
+                    } else {
+                        Log.e(FRAGMENT_TAG, "NavController is null, cannot navigate!");
+                    }
+                }
+
             });
 
             foldersContainer.addView(itemBinding.getRoot());
@@ -201,9 +267,9 @@ public class ThirdTabFragment extends Fragment {
                     break;
                 default:
             }
-
         });
     }
+
     private void handleDialogLoadingState(boolean isLoading) {
         if (dialogBinding != null) {
             // Vô hiệu hóa nút tạo

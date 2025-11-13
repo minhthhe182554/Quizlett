@@ -3,6 +3,8 @@ plugins {
     // Hilt for DI
     alias(libs.plugins.hilt.android)
     id 'com.google.gms.google-services'
+
+    alias(libs.plugins.navigation.safeargs.java)
 }
 
 android {
@@ -57,6 +59,7 @@ dependencies {
     implementation libs.activity
     implementation libs.constraintlayout
     implementation libs.fragment
+    implementation libs.firebase.firestore
     androidTestImplementation platform(libs.compose.bom)
     androidTestImplementation libs.ui.test.junit4
     annotationProcessor libs.hilt.compiler

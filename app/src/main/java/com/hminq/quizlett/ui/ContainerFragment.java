@@ -44,7 +44,6 @@ public class ContainerFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         binding = FragmentContainerBinding.inflate(inflater, container, false);
 
         viewPager = binding.viewPager;
@@ -58,7 +57,7 @@ public class ContainerFragment extends Fragment {
             //set tab icon
             switch (position) {
                 case 0:
-                    tab.setIcon(TAB1_ICON); // tab1 always selected by default
+                    tab.setIcon(TAB1_ICON);
                     break;
                 case 1:
                     tab.setIcon(TAB2_ICON);

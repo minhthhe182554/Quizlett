@@ -1,23 +1,43 @@
-<?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/tab3_nav_graph"
-    app:startDestination="@id/storageFragment">
+    app:startDestination="@id/thirdTabFragment">
 
     <fragment
-        android:id="@+id/storageFragment"
+        android:id="@+id/thirdTabFragment"
         android:name="com.hminq.quizlett.ui.thirdtab.ThirdTabFragment"
-        android:label="fragment_third_tab"
+        android:label="Tab Thư mục"
         tools:layout="@layout/fragment_third_tab">
 
-<!--        <action-->
-<!--            android:id="@+id/action_storageFragment_to_addNewFolderFragment"-->
-<!--            app:destination="@id/addNewFolderFragment"-->
-<!--            app:enterAnim="@anim/nav_default_enter_anim"    app:exitAnim="@anim/nav_default_exit_anim"      app:popEnterAnim="@anim/nav_default_pop_enter_anim"-->
-<!--            app:popExitAnim="@anim/nav_default_pop_exit_anim" />-->
-
+        <action
+            android:id="@+id/action_thirdTabFragment_to_folderDetailFragment"
+            app:destination="@id/folderDetailFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/folderDetailFragment"
+        android:name="com.hminq.quizlett.ui.thirdtab.detail.FolderDetailFragment"
+        android:label="Folder Detail"
+        tools:layout="@layout/fragment_folder_detail">
 
+        <argument
+            android:name="folder_id"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_folderDetailFragment_to_lessonDetailFragment"
+            app:destination="@id/lessonDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/lessonDetailFragment"
+        android:name="com.hminq.quizlett.ui.firsttab.detail.LessonDetailFragment"
+        android:label="Lesson Detail"
+        tools:layout="@layout/fragment_lesson_detail2">
+
+        <argument
+            android:name="lesson_id"
+            app:argType="string" />
+    </fragment>
 </navigation>
