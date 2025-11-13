@@ -2,6 +2,7 @@ package com.hminq.quizlett.ui.firsttab.home;
 
 import static com.hminq.quizlett.constants.AppMessage.WELCOME_BACK;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -17,6 +19,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -237,7 +240,7 @@ public class HomeFragment extends Fragment {
         Log.d(TAG, "Clicked lesson: " + lesson.getTitle());
         Message.showShort(getView(), "Opening: " + lesson.getTitle());
 
-        // TODO: Implement navigation to lesson detail
+        // navigation to lesson detail
         Bundle lessonClickedData = new Bundle();
 
         lessonClickedData.putSerializable("lesson", lesson);
@@ -255,7 +258,22 @@ public class HomeFragment extends Fragment {
         // These views already exist in your original layout
         ivProfileImg = binding.profileImage;
         svSearch = binding.svLesson;
+        //set hint text color
+        EditText searchEditText = svSearch.findViewById(androidx.appcompat.R.id.search_src_text);
+        if (searchEditText != null) {
+            searchEditText.setHintTextColor(Color.parseColor("#80FFFFFF"));
+        }
 
+        // set icon color
+        ImageView searchIcon = svSearch.findViewById(androidx.appcompat.R.id.search_mag_icon);
+
+        if (searchIcon != null) {
+            Log.d(TAG, "ICON IS NOT NULL");
+            searchIcon.setColorFilter(
+                    Color.parseColor("#80FFFFFF"),
+                    android.graphics.PorterDuff.Mode.SRC_IN
+            );
+        }
         // New views for lesson display
         progressBar = binding.progressBar;
         rvTopLessons = binding.rvTopLessons;

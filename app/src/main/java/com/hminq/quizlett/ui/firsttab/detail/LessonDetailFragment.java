@@ -21,6 +21,7 @@ import com.hminq.quizlett.data.remote.model.Lesson;
 import com.hminq.quizlett.databinding.FragmentLessonDetail2Binding;
 import com.hminq.quizlett.ui.firsttab.detail.adapter.QuestionDetailAdapter;
 import com.hminq.quizlett.utils.ImageLoader;
+import com.hminq.quizlett.utils.Message;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -39,6 +40,8 @@ public class LessonDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        navController = NavHostFragment.findNavController(this);
+
         if (getArguments() != null) {
             clickedLesson = getArguments().getSerializable("lesson", Lesson.class);
         }
@@ -46,10 +49,13 @@ public class LessonDetailFragment extends Fragment {
         if (clickedLesson != null) {
             Log.d(TAG, "Clicked lesson id: " + clickedLesson.getLessonId());
         }
+        else {
+            navController.popBackStack(); //navigate back to Home
+        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentLessonDetail2Binding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -121,8 +127,12 @@ public class LessonDetailFragment extends Fragment {
 
         // TODO: Test button
         binding.btnTest.setOnClickListener(v -> {
-            // TODO: Navigate to test screen
             Toast.makeText(getContext(), "TODO: Start test", Toast.LENGTH_SHORT).show();
+            // navigation to lesson detail
+            Bundle createTestLesson = new Bundle();
+
+            createTestLesson.putSerializable("create_lesson", clickedLesson);
+            navController.navigate(R.id.action_lessonDetailFragment3_to_createTestFragment, createTestLesson);
         });
     }
 

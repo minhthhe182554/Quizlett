@@ -37,6 +37,6 @@ public class FirebaseModule {
     @Provides
     @Singleton
     public StorageReference provideProfileImgRef(FirebaseStorage firebaseStorage) {
-        return firebaseStorage.getReference().child("profile-image");
+        return firebaseStorage.getReference().child("profile_image");
     }
 }

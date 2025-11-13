@@ -36,4 +36,14 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">20dp</item>
     </style>
+
+    <style name="CustomSearchViewStyle" parent="Widget.AppCompat.SearchView">
+
+        <item name="android:textColorPrimary">@color/white</item>
+
+        <item name="android:textColorHint">@color/light_grey</item>
+
+        <item name="android:textColorSecondary">@color/white</item>
+
+    </style>
 </resources>

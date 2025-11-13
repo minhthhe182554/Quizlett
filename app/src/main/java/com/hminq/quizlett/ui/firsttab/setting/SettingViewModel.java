@@ -84,8 +84,12 @@ public class SettingViewModel extends ViewModel {
     public void updateProfileImage(Uri imageUri) {
         updateStatus.setValue("Uploading new profile image...");
 
+        String previousPath = currentUser.getValue() != null
+                ? currentUser.getValue().getProfileImageUrl()
+                : null;
+
         disposables.add(
-                userRepository.uploadNewProfileImage(imageUri)
+                userRepository.uploadNewProfileImage(imageUri, previousPath)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(() -> {
