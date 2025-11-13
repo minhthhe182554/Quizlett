@@ -131,8 +131,8 @@ public class LessonDetailFragment extends Fragment {
             // navigation to lesson detail
             Bundle createTestLesson = new Bundle();
 
-            createTestLesson.putSerializable("create_lesson", clickedLesson);
-            navController.navigate(R.id.action_lessonDetailFragment3_to_createTestFragment, createTestLesson);
+            createTestLesson.putSerializable("lesson", clickedLesson);
+            navController.navigate(R.id.action_lessonDetailFragment3_to_testFragment, createTestLesson);
         });
     }
 
