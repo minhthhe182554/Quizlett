@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.hminq.quizlett.R;
 import com.hminq.quizlett.data.remote.model.Lesson;
 import com.hminq.quizlett.databinding.FragmentLessonDetail2Binding;
+import com.hminq.quizlett.ui.MainTabViewModel;
 import com.hminq.quizlett.ui.firsttab.detail.adapter.QuestionDetailAdapter;
 import com.hminq.quizlett.utils.ImageLoader;
 import com.hminq.quizlett.utils.Message;
@@ -33,6 +34,7 @@ public class LessonDetailFragment extends Fragment {
     private NavController navController;
     private QuestionDetailAdapter questionAdapter;
     private DetailViewModel detailViewModel;
+    private MainTabViewModel mainTabViewModel;
 
     public LessonDetailFragment() {}
 
@@ -41,6 +43,7 @@ public class LessonDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         navController = NavHostFragment.findNavController(this);
+        mainTabViewModel = new ViewModelProvider(requireActivity()).get(MainTabViewModel.class);
 
         if (getArguments() != null) {
             clickedLesson = getArguments().getSerializable("lesson", Lesson.class);
@@ -87,15 +90,18 @@ public class LessonDetailFragment extends Fragment {
 
         // Set category
         if (clickedLesson.getCategory() != null) {
-            binding.tvCategory.setText(clickedLesson.getCategory().name());
+            binding.tvCategory.setText(clickedLesson.getCategory().getLocalizedName(getContext()));
         } else {
-            binding.tvCategory.setText("Others");
+            binding.tvCategory.setText(getString(R.string.category_others));
         }
 // Set question count
         int questionCount = clickedLesson.getQuestions() != null
                 ? clickedLesson.getQuestions().size()
                 : 0;
-        binding.tvQuestionCount.setText(questionCount + " Questions");
+        String questionsText = questionCount == 1
+                ? getString(R.string.question_singular, questionCount)
+                : getString(R.string.questions_count, questionCount);
+        binding.tvQuestionCount.setText(questionsText);
 
         // Load creator image (already have URL)
         if (clickedLesson.getCreatorImage() != null) {
@@ -121,11 +127,8 @@ public class LessonDetailFragment extends Fragment {
 
 
         binding.btnAdd.setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("lessonToSave", clickedLesson);
-            navController.navigate(R.id.thirdTabFragment, bundle);
-
-            Toast.makeText(getContext(), "Chuyển sang tab lưu Lesson...", Toast.LENGTH_SHORT).show();
+            mainTabViewModel.requestSaveLessonToFolder(clickedLesson);
+            Toast.makeText(getContext(), R.string.navigate_to_save_lesson, Toast.LENGTH_SHORT).show();
         });
 
         // TODO: Test button

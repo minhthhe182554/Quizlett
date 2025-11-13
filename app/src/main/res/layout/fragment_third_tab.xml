@@ -9,28 +9,26 @@
         tools:context=".ui.thirdtab.ThirdTabFragment"
         >
 
-        <androidx.appcompat.widget.AppCompatImageButton
+        <Button
             android:id="@+id/btnBack"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="45dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/back_ic"
-            android:visibility="gone"
+            android:layout_marginTop="65dp"
+            android:background="@drawable/back_ic"
+            app:backgroundTint="@null"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="#FFFFFF"
-            tools:visibility="visible"/>
+            android:rotation="180"/>
 
         <TextView
             android:id="@+id/tv_header"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="70dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:text="My Library"
+            android:text="@string/my_library"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold"

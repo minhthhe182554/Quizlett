@@ -41,6 +41,9 @@
         <item>Nhân văn</item>
         <item>Khác</item>
     </string-array>
+    <string name="category_sciences">Khoa học</string>
+    <string name="category_humanities">Nhân văn</string>
+    <string name="category_others">Khác</string>
     <string-array name="language_options_array">
         <item>English</item>
         <item>Tiếng Việt</item>
@@ -48,6 +51,7 @@
     <string name="question_text_placeholder">Nội dung Câu hỏi</string>
     <string name="answer_options_placeholder">Các Lựa chọn Đáp án: %s</string>
     <string name="correct_answer_placeholder">Đáp án Đúng: %s</string>
+    <string name="correct_answer_not_set">Đáp án đúng chưa được đặt</string>
     <string name="question_list_title">Quản lý Câu hỏi</string>
     <string name="ques_category_label">Danh mục</string>
     <string name="question_detail_title">Chỉnh sửa Câu hỏi của bạn</string>
@@ -64,7 +68,11 @@
     <string name="delete_question_button">Xóa</string>
     <string name="fab_add_question_description">Thêm câu hỏi mới</string>
     <string name="manage_questions_button_text">Quản lý câu hỏi</string>
+    <string name="home_title">Trang chủ</string>
     <string name="top_lesson_title">Bài học nổi bật</string>
+    <string name="try_flashcard_sets">Hãy thử các bộ thẻ ghi nhớ này</string>
+    <string name="questions_count">%d câu hỏi</string>
+    <string name="question_singular">%d câu hỏi</string>
     <string name="english_lesson_title">Tiếng Anh</string>
     <string name="chinese_lesson_title">Tiếng Trung</string>
     <string name="japanese_lesson_title">Tiếng Nhật</string>
@@ -89,9 +97,43 @@
     <string name="lesson_numques_label">Số lượng Câu hỏi</string>
     <string name="lesson_create_mode_label">Chế độ Tạo</string>
     <string name="lesson_category_label">Danh mục</string>
+    <string name="create_test">BÀI KIỂM TRA</string>
+    <string name="setup_test">Thiết lập bài kiểm tra của bạn</string>
+    <string name="question_count">Số lượng câu hỏi</string>
+    <string name="test_method">Phương thức kiểm tra</string>
+    <string name="multiple_choice_hint">Chọn 1 đáp án đúng trong 4</string>
+    <string name="tf_hint">Chọn Đúng hoặc Sai</string>
+    <string name="start_test">BẮT ĐẦU KIỂM TRA</string>
+    <string name="search_lesson">Tìm kiếm bài học...</string>
     <string name="my_folders">Thư mục của tôi</string>
+    <string name="my_library">Thư viện của tôi</string>
+    <string name="select_folder">Chọn thư mục</string>
     <string name="add_folder">Thêm thư mục</string>
     <string name="folder_name_cannot_be_empty">Tên thư mục không được để trống</string>
     <string name="create_folder_dialog_title">Tạo thư mục mới</string>
     <string name="folder_detail">Chi tiết thư mục</string>
+    <string name="folder_deleted_success">Đã xóa thư mục thành công</string>
+    <string name="delete_folder_title">Xóa thư mục</string>
+    <string name="delete_folder_message">Bạn có chắc muốn xóa thư mục này không? Các bài học sẽ không bị xóa.</string>
+    <string name="delete_button">Xóa</string>
+    <string name="cancel_button">Hủy</string>
+    <string name="items_suffix">mục</string>
+    <string name="save_lesson_success">Lưu bài học thành công!</string>
+    <string name="save_lesson_error">Lỗi khi lưu bài học. Vui lòng thử lại.</string>
+    <string name="navigate_to_save_lesson">Chuyển sang tab lưu bài học...</string>
+    <string name="language_saved_success">Cài đặt ngôn ngữ được lưu thành công! Đang khởi động lại...</string>
+    <string name="language_saved_error">Lỗi khi lưu cài đặt ngôn ngữ.</string>
+    <string name="do_not_click_yet">Đừng bấm vào, chưa làm xong</string>
+    <string name="value_cannot_empty">Giá trị không được để trống!</string>
+    <string name="current_password_required">Cần mật khẩu hiện tại để bảo mật!</string>
+    <string name="operation_successful">Thao tác thành công!</string>
+    <string name="error_getting_data">Lỗi khi lấy dữ liệu.</string>
+    <string name="error_loading_lessons">Lỗi tải bài học: %s</string>
+    <string name="opening_lesson">Đang mở: %s</string>
+    <string name="result_your_answer">Câu trả lời của bạn: %1$s</string>
+    <string name="result_correct_answer">Đáp án đúng: %1$s</string>
+    <string name="close">Đóng</string>
+    <string name="tf_answer_hint">Đáp án: %1$s</string>
+    <string name="tf_truth_label_true">Đúng (Đáp án: %1$s)</string>
+    <string name="tf_truth_label_false">Sai (Đúng: %1$s)</string>
 </resources>

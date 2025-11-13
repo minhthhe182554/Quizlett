@@ -80,7 +80,7 @@ public class DashBoardFragment extends Fragment {
         });
 
         dashboardViewModel.getErrorLive().observe(getViewLifecycleOwner(), error -> {
-            Message.showShort(view, "Error when getting data.");
+            Message.showShort(view, getString(R.string.error_getting_data));
         });
     }
 }

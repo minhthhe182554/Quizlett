@@ -25,6 +25,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import android.util.Log;
+
 import com.bumptech.glide.Glide;
 import com.hminq.quizlett.R;
 import com.hminq.quizlett.data.remote.model.Language;
@@ -36,6 +38,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class SettingFragment extends Fragment {
+    private static final String TAG = "SETTING_FRAGMENT";
     private FragmentSettingBinding binding;
     private SharedViewModel sharedViewModel;
     private SettingViewModel settingViewModel;
@@ -91,7 +94,7 @@ public class SettingFragment extends Fragment {
         binding.btnBack.setOnClickListener(l -> navController.popBackStack());
         binding.btnSignOut.setOnClickListener(l -> sharedViewModel.signOut());
         binding.btnDelete.setOnClickListener(l -> {
-            Message.showShort(view, "Đừng bấm vào chưa làm xong");
+            Message.showShort(view, getString(R.string.do_not_click_yet));
         });
 
         sharedViewModel.getSignOutErrorLiveData().observe(getViewLifecycleOwner(), error -> {
@@ -147,12 +150,12 @@ public class SettingFragment extends Fragment {
         settingViewModel.getUpdateLanguageResult().observe(getViewLifecycleOwner(), success -> {
             if (success != null) {
                 if (success) {
-                    Message.showShort(view, "Cài đặt ngôn ngữ được lưu thành công! Đang khởi động lại...");
+                    Message.showShort(view, getString(R.string.language_saved_success));
 
                     requireActivity().recreate();
 
                 } else {
-                    Message.showShort(view, "Lỗi khi lưu cài đặt ngôn ngữ.");
+                    Message.showShort(view, getString(R.string.language_saved_error));
                 }
             }
         });
@@ -160,6 +163,14 @@ public class SettingFragment extends Fragment {
         settingViewModel.getUpdateStatus().observe(getViewLifecycleOwner(), status -> {
             if (status != null) {
                 Message.showShort(view, status);
+            }
+        });
+        
+        settingViewModel.getImageUploadSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                Log.d(TAG, "Image upload success, triggering SharedViewModel reload");
+                // Reload SharedViewModel để update ảnh trong các fragment khác
+                sharedViewModel.getCurrentUser();
             }
         });
     }
@@ -246,12 +257,12 @@ public class SettingFragment extends Fragment {
             String currentPassword = currentPasswordEditText.getText().toString().trim();
 
             if (newValue.isEmpty()) {
-                Message.showShort(v, "Value cannot be empty!");
+                Message.showShort(v, getString(R.string.value_cannot_empty));
                 return;
             }
 
             if (requiresCurrentPassword && currentPassword.isEmpty()) {
-                Message.showShort(v, "Current password is required for security!");
+                Message.showShort(v, getString(R.string.current_password_required));
                 return;
             }
 

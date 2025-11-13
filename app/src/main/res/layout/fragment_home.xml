@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:text="Home"
+                android:text="@string/home_title"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="@color/white" />
@@ -73,7 +73,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Top lessons"
+                android:text="@string/top_lesson_title"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@color/white"
@@ -82,7 +82,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Try out these flashcard sets"
+                android:text="@string/try_flashcard_sets"
                 android:textSize="14sp"
                 android:textColor="@color/light_grey"
                 android:layout_marginBottom="16dp" />

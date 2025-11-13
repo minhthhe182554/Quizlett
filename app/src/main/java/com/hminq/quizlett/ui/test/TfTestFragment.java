@@ -21,6 +21,7 @@ import com.hminq.quizlett.databinding.FragmentTfBinding;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class TfTestFragment extends Fragment {
 
@@ -33,6 +34,8 @@ public class TfTestFragment extends Fragment {
     private int correctAnswers = 0;
     private int incorrectAnswers = 0;
     private ArrayList<IncorrectAnswer> incorrectAnswerList = new ArrayList<>();
+    private final List<String> displayedAnswers = new ArrayList<>();
+    private final List<Boolean> answerTruthValues = new ArrayList<>();
 
     public TfTestFragment() {
         // Required empty public constructor
@@ -73,10 +76,57 @@ public class TfTestFragment extends Fragment {
         List<Question> allQuestions = new ArrayList<>(lesson.getQuestions());
         Collections.shuffle(allQuestions);
         if (questionCount > 0 && allQuestions.size() > questionCount) {
-            testQuestions = allQuestions.subList(0, questionCount);
+            testQuestions = new ArrayList<>(allQuestions.subList(0, questionCount));
         } else {
             testQuestions = allQuestions;
         }
+
+        buildStatementsForQuestions();
+    }
+
+    private void buildStatementsForQuestions() {
+        displayedAnswers.clear();
+        answerTruthValues.clear();
+        Random random = new Random();
+
+        for (Question question : testQuestions) {
+            String correctAnswer = resolveCorrectAnswer(question);
+            String answerToDisplay = correctAnswer;
+            boolean isStatementTrue = true;
+
+            List<String> options = question.getAnswerOptions();
+            if (options != null && options.size() > 1) {
+                List<String> wrongAnswers = new ArrayList<>();
+                for (int i = 0; i < options.size(); i++) {
+                    if (i == question.getCorrectAnswerIndex()) {
+                        continue;
+                    }
+                    String option = options.get(i);
+                    if (option != null && !option.trim().isEmpty()) {
+                        wrongAnswers.add(option);
+                    }
+                }
+
+                if (!wrongAnswers.isEmpty()) {
+                    isStatementTrue = random.nextBoolean();
+                    if (!isStatementTrue) {
+                        answerToDisplay = wrongAnswers.get(random.nextInt(wrongAnswers.size()));
+                    }
+                }
+            }
+
+            displayedAnswers.add(answerToDisplay);
+            answerTruthValues.add(isStatementTrue);
+        }
+    }
+
+    private String resolveCorrectAnswer(Question question) {
+        List<String> options = question.getAnswerOptions();
+        int correctIndex = question.getCorrectAnswerIndex();
+        if (options != null && correctIndex >= 0 && correctIndex < options.size()) {
+            return options.get(correctIndex);
+        }
+        return "";
     }
 
     private void displayCurrentQuestion() {
@@ -86,6 +136,9 @@ public class TfTestFragment extends Fragment {
             binding.tvQuestionProgress.setText((currentQuestionIndex + 1) + "/" + testQuestions.size());
             binding.questionProgressBar.setMax(testQuestions.size());
             binding.questionProgressBar.setProgress(currentQuestionIndex + 1);
+            if (currentQuestionIndex < displayedAnswers.size()) {
+                binding.tvAnswerHint.setText(getString(R.string.tf_answer_hint, displayedAnswers.get(currentQuestionIndex)));
+            }
         } else {
             finishTest();
         }
@@ -94,31 +147,36 @@ public class TfTestFragment extends Fragment {
     private void setupListeners() {
         binding.btnClose.setOnClickListener(v -> navController.popBackStack());
 
-        binding.btnTrue.setOnClickListener(v -> {
-            handleAnswer(true);
-        });
-
-        binding.btnFalse.setOnClickListener(v -> {
-            handleAnswer(false);
-        });
+        binding.btnTrue.setOnClickListener(v -> handleAnswer(true));
+        binding.btnFalse.setOnClickListener(v -> handleAnswer(false));
     }
 
     private void handleAnswer(boolean isTrueSelected) {
         Question currentQuestion = testQuestions.get(currentQuestionIndex);
-        String correctAnswer = currentQuestion.getAnswerOptions().get(currentQuestion.getCorrectAnswerIndex());
-        boolean isCorrectAnswerTrue = correctAnswer.equalsIgnoreCase("True");
+        boolean isStatementTrue = answerTruthValues.get(currentQuestionIndex);
+        String displayedAnswer = displayedAnswers.get(currentQuestionIndex);
+        String correctAnswer = resolveCorrectAnswer(currentQuestion);
 
-        if (isTrueSelected == isCorrectAnswerTrue) {
+        if (isTrueSelected == isStatementTrue) {
             correctAnswers++;
-            Toast.makeText(getContext(), "Correct!", Toast.LENGTH_SHORT).show();
         } else {
             incorrectAnswers++;
-            incorrectAnswerList.add(new IncorrectAnswer(currentQuestion.getQuestionText(), String.valueOf(isTrueSelected), correctAnswer));
-            Toast.makeText(getContext(), "Wrong! The correct answer was " + correctAnswer, Toast.LENGTH_SHORT).show();
+            incorrectAnswerList.add(new IncorrectAnswer(
+                    currentQuestion.getQuestionText(),
+                    formatSelectionLabel(isTrueSelected, displayedAnswer, correctAnswer),
+                    formatSelectionLabel(isStatementTrue, displayedAnswer, correctAnswer)));
         }
 
         currentQuestionIndex++;
         displayCurrentQuestion();
+    }
+
+    private String formatSelectionLabel(boolean isTrueSelection, String displayedAnswer, String correctAnswer) {
+        if (isTrueSelection) {
+            return getString(R.string.tf_truth_label_true, displayedAnswer);
+        } else {
+            return getString(R.string.tf_truth_label_false, correctAnswer);
+        }
     }
 
     private void finishTest() {
@@ -126,6 +184,7 @@ public class TfTestFragment extends Fragment {
         bundle.putInt("correctAnswers", correctAnswers);
         bundle.putInt("incorrectAnswers", incorrectAnswers);
         bundle.putSerializable("incorrectAnswerList", incorrectAnswerList);
+        bundle.putSerializable("lesson", lesson);
         navController.navigate(R.id.action_tfTestFragment_to_resultFragment, bundle);
     }
 
@@ -135,3 +194,5 @@ public class TfTestFragment extends Fragment {
         binding = null;
     }
 }
+
+

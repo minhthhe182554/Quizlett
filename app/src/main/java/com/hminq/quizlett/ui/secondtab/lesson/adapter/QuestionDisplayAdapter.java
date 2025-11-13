@@ -59,16 +59,18 @@ public class QuestionDisplayAdapter extends RecyclerView.Adapter<QuestionDisplay
 
         void bind(Question question) {
             tvQuestionText.setText(question.getQuestionText());
-            tvCategory.setText(question.getCategory().name());
+            tvCategory.setText(question.getCategory().getLocalizedName(itemView.getContext()));
 
 
-            tvAnswerOptions.setText("Answer Options: " + question.getAnswerOptions().toString());
+            tvAnswerOptions.setText(itemView.getContext().getString(
+                    R.string.answer_options_placeholder, question.getAnswerOptions().toString()));
 
             int correctIndex = question.getCorrectAnswerIndex();
             if (correctIndex >= 0 && correctIndex < question.getAnswerOptions().size()) {
-                tvCorrectAnswer.setText("Correct Answer: " + question.getAnswerOptions().get(question.getCorrectAnswerIndex()));
+                tvCorrectAnswer.setText(itemView.getContext().getString(
+                        R.string.correct_answer_placeholder, question.getAnswerOptions().get(question.getCorrectAnswerIndex())));
             } else {
-                tvCorrectAnswer.setText("Correct answer not set");
+                tvCorrectAnswer.setText(itemView.getContext().getString(R.string.correct_answer_not_set));
             }
         }
     }

@@ -1,7 +1,5 @@
 package com.hminq.quizlett.ui.thirdtab;
 
-import static com.google.firebase.appcheck.internal.util.Logger.TAG;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -25,6 +23,7 @@ import com.hminq.quizlett.data.remote.model.Lesson;
 import com.hminq.quizlett.databinding.DialogCreateFolderBinding;
 import com.hminq.quizlett.databinding.FragmentThirdTabBinding;
 import com.hminq.quizlett.databinding.ItemFolderBinding;
+import com.hminq.quizlett.ui.MainTabViewModel;
 import com.hminq.quizlett.ui.thirdtab.folder.FolderViewModel;
 import com.hminq.quizlett.ui.thirdtab.folder.FolderViewModel.CreationResult;
 import androidx.navigation.Navigation;
@@ -37,47 +36,41 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class ThirdTabFragment extends Fragment {
 
     private static final String FRAGMENT_TAG = "ThirdTabFragment";
-    public static final String LESSON_TO_SAVE_KEY = "lessonToSave";
+
+    private static final String ARG_LESSON_TO_SAVE = "lessonToSave";
 
     private FragmentThirdTabBinding binding;
     private AlertDialog createFolderDialog;
     private DialogCreateFolderBinding dialogBinding;
     private FolderViewModel viewModel;
     private NavController navController;
+    private MainTabViewModel mainTabViewModel;
 
     private Lesson lessonToSave = null;
     private boolean isSavingMode = false;
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private String mParam1;
-    private String mParam2;
-
     public ThirdTabFragment() {
-    }
-
-    public static ThirdTabFragment newInstance(String param1, String param2) {
-        ThirdTabFragment fragment = new ThirdTabFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mainTabViewModel = new ViewModelProvider(requireActivity()).get(MainTabViewModel.class);
+
         if (getArguments() != null) {
-            lessonToSave = (Lesson) getArguments().getSerializable(LESSON_TO_SAVE_KEY);
-
-            if (lessonToSave != null) {
+            Lesson lessonFromArgs = (Lesson) getArguments().getSerializable(ARG_LESSON_TO_SAVE);
+            if (lessonFromArgs != null) {
+                lessonToSave = lessonFromArgs;
                 isSavingMode = true;
-                Log.d(FRAGMENT_TAG, "Nhận được Lesson để lưu: " + lessonToSave.getTitle());
+                Log.d(FRAGMENT_TAG, "Nhận Lesson từ arguments: " + lessonToSave.getTitle());
             }
+        }
 
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+        Lesson pendingLesson = mainTabViewModel.getLessonToSave().getValue();
+        if (pendingLesson != null) {
+            lessonToSave = pendingLesson;
+            isSavingMode = true;
+            Log.d(FRAGMENT_TAG, "Khởi tạo ở chế độ lưu với Lesson từ ViewModel: " + lessonToSave.getTitle());
         }
     }
 
@@ -108,19 +101,8 @@ public class ThirdTabFragment extends Fragment {
         }
 
         viewModel = new ViewModelProvider(this).get(FolderViewModel.class);
-
-        if (isSavingMode) {
-            binding.tvHeader.setText("Select Folder");
-            binding.btnBack.setVisibility(View.VISIBLE);
-            binding.btnBack.setOnClickListener(v -> {
-                if (navController != null) {
-                    navController.popBackStack();
-                }
-            });
-        } else {
-            binding.tvHeader.setText(R.string.my_folders);
-
-        }
+        applySavingModeUi();
+        mainTabViewModel.getLessonToSave().observe(getViewLifecycleOwner(), this::handleLessonToSave);
 
         if (binding.progressBar != null) {
             binding.progressBar.setVisibility(View.GONE);
@@ -139,21 +121,66 @@ public class ThirdTabFragment extends Fragment {
         observeSaveLessonResult();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Reload folders when returning from FolderDetailFragment (e.g. after deletion)
+        Log.d(FRAGMENT_TAG, "onResume: Reloading folders list");
+        if (viewModel != null) {
+            viewModel.loadFolders();
+        }
+    }
+
     private void observeSaveLessonResult() {
         viewModel.getSaveLessonResult().observe(getViewLifecycleOwner(), isSuccess -> {
             if (isSuccess != null) {
                 if (isSuccess) {
-                    Toast.makeText(requireContext(), "Lưu Lesson thành công!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), R.string.save_lesson_success, Toast.LENGTH_SHORT).show();
 
-                    if (navController != null) {
-                        navController.popBackStack();
-                    }
+                    mainTabViewModel.clearLessonToSave();
+                    mainTabViewModel.requestOpenTab(MainTabViewModel.TAB_INDEX_FIRST);
                 } else {
-                    Toast.makeText(requireContext(), "Lỗi khi lưu Lesson. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireContext(), R.string.save_lesson_error, Toast.LENGTH_LONG).show();
                 }
                 viewModel.resetSaveLessonResult();
             }
         });
+    }
+
+    private void handleLessonToSave(@Nullable Lesson lesson) {
+        if (lesson != null) {
+            lessonToSave = lesson;
+            isSavingMode = true;
+            Log.d(FRAGMENT_TAG, "Chuyển sang chế độ lưu với lesson: " + lesson.getTitle());
+        } else {
+            lessonToSave = null;
+            isSavingMode = false;
+            Log.d(FRAGMENT_TAG, "Thoát chế độ lưu thư mục.");
+        }
+        applySavingModeUi();
+    }
+
+    private void applySavingModeUi() {
+        if (binding == null) {
+            return;
+        }
+
+        // Always show back button
+        binding.btnBack.setVisibility(View.VISIBLE);
+
+        if (isSavingMode) {
+            binding.tvHeader.setText(R.string.select_folder);
+            binding.btnBack.setOnClickListener(v -> {
+                mainTabViewModel.clearLessonToSave();
+                mainTabViewModel.requestOpenTab(MainTabViewModel.TAB_INDEX_FIRST);
+            });
+        } else {
+            binding.tvHeader.setText(R.string.my_library);
+            binding.btnBack.setOnClickListener(v -> {
+                // Navigate back or go to home tab
+                mainTabViewModel.requestOpenTab(MainTabViewModel.TAB_INDEX_FIRST);
+            });
+        }
     }
 
 
@@ -188,8 +215,7 @@ public class ThirdTabFragment extends Fragment {
             ItemFolderBinding itemBinding = ItemFolderBinding.inflate(getLayoutInflater(), foldersContainer, false);
 
             itemBinding.folderName.setText(folder.getName());
-            itemBinding.itemCount.setText(folder.getLessonCount() + " mục");
-            itemBinding.userName.setText(folder.getUserName());
+            itemBinding.itemCount.setText(folder.getLessonCount() + " " + getString(R.string.items_suffix));
 
             itemBinding.getRoot().setOnClickListener(v -> {
                 if (isSavingMode) {

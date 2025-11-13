@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ResultPieChartView">
+        <attr name="rpcv_correctColor" format="color" />
+        <attr name="rpcv_incorrectColor" format="color" />
+        <attr name="rpcv_trackColor" format="color" />
+    </declare-styleable>
+</resources>
+

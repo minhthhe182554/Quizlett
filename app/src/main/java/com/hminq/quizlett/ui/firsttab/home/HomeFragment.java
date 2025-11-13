@@ -31,6 +31,7 @@ import com.hminq.quizlett.R;
 import com.hminq.quizlett.data.remote.model.Lesson;
 import com.hminq.quizlett.data.remote.model.LessonCategory;
 import com.hminq.quizlett.databinding.FragmentHomeBinding;
+import com.hminq.quizlett.ui.MainTabViewModel;
 import com.hminq.quizlett.ui.SharedViewModel;
 import com.hminq.quizlett.ui.firsttab.home.adapter.HomeLessonAdapter;
 import com.hminq.quizlett.utils.ImageLoader;
@@ -48,6 +49,7 @@ public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
     private SharedViewModel sharedViewModel;
     private HomeViewModel homeViewModel;
+    private MainTabViewModel mainTabViewModel;
     private NavController navController;
     private ImageView ivProfileImg;
     private SearchView svSearch;
@@ -66,6 +68,7 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        mainTabViewModel = new ViewModelProvider(requireActivity()).get(MainTabViewModel.class);
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         navController = NavHostFragment.findNavController(this);
 
@@ -89,6 +92,7 @@ public class HomeFragment extends Fragment {
         setupSearchView();
         observeSharedViewModel(view);
         observeHomeViewModel();
+        observeMainTabViewModel();
 
         // Load ALL lessons from all users
         homeViewModel.loadAllLessons();
@@ -98,7 +102,7 @@ public class HomeFragment extends Fragment {
         rvTopLessons.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
 
-        topLessonsAdapter = new HomeLessonAdapter(this::onLessonClick); //fix: Simplified
+        topLessonsAdapter = new HomeLessonAdapter(this::onLessonClick);
         rvTopLessons.setAdapter(topLessonsAdapter);
     }
 
@@ -178,8 +182,22 @@ public class HomeFragment extends Fragment {
         homeViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
                 Log.e(TAG, "Error: " + error);
-                Message.showShort(getView(), "Error loading lessons: " + error);
+                Message.showShort(getView(), getString(R.string.error_loading_lessons, error));
                 homeViewModel.clearError();
+            }
+        });
+    }
+
+    private void observeMainTabViewModel() {
+        mainTabViewModel.getLessonToView().observe(getViewLifecycleOwner(), lesson -> {
+            if (lesson != null) {
+                Log.d(TAG, "Received request to view lesson from another tab: " + lesson.getTitle());
+                
+                // Navigate to lesson detail
+                onLessonClick(lesson);
+                
+                // Clear the request after handling
+                mainTabViewModel.clearLessonToView();
             }
         });
     }
@@ -210,13 +228,13 @@ public class HomeFragment extends Fragment {
             TextView tvEmptyCategory = sectionView.findViewById(R.id.tvEmptyCategory);
 
             // Set category title
-            tvCategoryTitle.setText(category.name());
+            tvCategoryTitle.setText(category.getLocalizedName(getContext()));
 
             // Setup RecyclerView
             rvCategory.setLayoutManager(new LinearLayoutManager(getContext(),
                     LinearLayoutManager.HORIZONTAL, false));
 
-            HomeLessonAdapter adapter = new HomeLessonAdapter(this::onLessonClick); //fix: Simplified
+            HomeLessonAdapter adapter = new HomeLessonAdapter(this::onLessonClick);
             rvCategory.setAdapter(adapter);
             adapter.setLessons(lessons);
 
@@ -238,7 +256,7 @@ public class HomeFragment extends Fragment {
 
         // Navigate to lesson detail
         Log.d(TAG, "Clicked lesson: " + lesson.getTitle());
-        Message.showShort(getView(), "Opening: " + lesson.getTitle());
+        Message.showShort(getView(), getString(R.string.opening_lesson, lesson.getTitle()));
 
         // navigation to lesson detail
         Bundle lessonClickedData = new Bundle();
