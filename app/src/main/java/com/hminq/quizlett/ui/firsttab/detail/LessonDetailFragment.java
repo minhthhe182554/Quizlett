@@ -121,8 +121,9 @@ public class LessonDetailFragment extends Fragment {
 
         // TODO: Test button
         binding.btnTest.setOnClickListener(v -> {
-            // TODO: Navigate to test screen
-            Toast.makeText(getContext(), "TODO: Start test", Toast.LENGTH_SHORT).show();
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("lesson", clickedLesson);
+            navController.navigate(R.id.action_lessonDetailFragment3_to_testFragment, bundle);
         });
     }
 
