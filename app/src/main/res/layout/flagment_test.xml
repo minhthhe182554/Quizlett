@@ -8,14 +8,16 @@
     android:background="#2E3248">
 
     <!-- Top bar -->
+
     <ImageView
         android:id="@+id/close_button"
         android:layout_width="24dp"
         android:layout_height="24dp"
+        android:layout_marginTop="24dp"
+        android:contentDescription="Close"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="Close"
         app:tint="@android:color/white" />
 
     <TextView
@@ -25,23 +27,26 @@
         android:text="Lesson title"
         android:textAlignment="center"
         android:textAppearance="?attr/textAppearanceHeadline6"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="@id/close_button"
         app:layout_constraintEnd_toStartOf="@+id/document_icon"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@id/close_button"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/close_button"
-        android:textColor="@android:color/white" />
+        app:layout_constraintVertical_bias="1.0" />
 
+    <!-- Set up your test title -->
     <ImageView
         android:id="@+id/document_icon"
         android:layout_width="24dp"
         android:layout_height="24dp"
+        android:layout_marginTop="24dp"
+        android:contentDescription="Document"
         android:src="@android:drawable/ic_menu_agenda"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="Document"
         app:tint="@android:color/white" />
 
-    <!-- Set up your test title -->
     <TextView
         android:id="@+id/setup_title"
         android:layout_width="wrap_content"
@@ -138,8 +143,8 @@
             android:layout_height="wrap_content"
             android:inputType="none"
             android:text="Combo-box"
-            tools:ignore="LabelFor"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            tools:ignore="LabelFor" />
     </com.google.android.material.textfield.TextInputLayout>
 
 

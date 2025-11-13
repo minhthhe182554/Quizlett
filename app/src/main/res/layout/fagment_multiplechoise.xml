@@ -8,10 +8,14 @@
     android:padding="16dp">
 
     <!-- Nút đóng (X) -->
+
+    <!-- Tiến trình câu hỏi -->
+
     <ImageButton
         android:id="@+id/btnClose"
         android:layout_width="32dp"
         android:layout_height="32dp"
+        android:layout_marginTop="20dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Close"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
@@ -19,7 +23,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@android:color/white" />
 
-    <!-- Tiến trình câu hỏi -->
     <TextView
         android:id="@+id/tvQuestionProgress"
         android:layout_width="0dp"
