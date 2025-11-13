@@ -40,8 +40,6 @@ public class SettingFragment extends Fragment {
     private SharedViewModel sharedViewModel;
     private SettingViewModel settingViewModel;
     private NavController navController;
-
-
     private ActivityResultLauncher<String> imagePickerLauncher;
 
     public SettingFragment() {}
@@ -156,6 +154,12 @@ public class SettingFragment extends Fragment {
                 } else {
                     Message.showShort(view, "Lỗi khi lưu cài đặt ngôn ngữ.");
                 }
+            }
+        });
+
+        settingViewModel.getUpdateStatus().observe(getViewLifecycleOwner(), status -> {
+            if (status != null) {
+                Message.showShort(view, status);
             }
         });
     }

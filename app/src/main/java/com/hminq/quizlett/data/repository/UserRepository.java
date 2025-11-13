@@ -260,7 +260,7 @@ public class UserRepository {
         );
     }
 
-    public Completable uploadNewProfileImage(Uri imageUri) {
+    public Completable uploadNewProfileImage(Uri imageUri, String previousPath) {
         return Completable.create(emitter -> {
             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
             if (firebaseUser == null) {
@@ -269,27 +269,65 @@ public class UserRepository {
             }
 
             String uid = firebaseUser.getUid();
-            // Lưu ảnh theo UID của user
-            StorageReference photoRef = profileImageReference.child(uid + "/profile.jpg");
+            String storagePath = buildProfileImagePath(uid, imageUri);
+            StorageReference photoRef = profileImageReference.child(storagePath);
 
             photoRef.putFile(imageUri)
                     .addOnSuccessListener(taskSnapshot -> {
-                        photoRef.getDownloadUrl()
-                                .addOnSuccessListener(downloadUri -> {
-                                    // Cập nhật đường dẫn ảnh mới vào Firebase Realtime Database
-                                    userReference.child(uid)
-                                            .child("profileImageUrl")
-                                            .setValue(uid + "/profile.jpg") // Lưu đường dẫn storage relative, không phải URL
-                                            .addOnSuccessListener(aVoid -> {
-                                                if (emitter.isDisposed()) return;
-                                                emitter.onComplete();
-                                            })
-                                            .addOnFailureListener(emitter::tryOnError);
+                        userReference.child(uid)
+                                .child("profileImageUrl")
+                                .setValue(storagePath)
+                                .addOnSuccessListener(aVoid -> {
+                                    deletePreviousProfileImage(previousPath);
+                                    if (!emitter.isDisposed()) {
+                                        emitter.onComplete();
+                                    }
                                 })
-                                .addOnFailureListener(emitter::tryOnError);
+                                .addOnFailureListener(error -> {
+                                    if (!emitter.isDisposed()) {
+                                        emitter.tryOnError(error);
+                                    }
+                                });
                     })
-                    .addOnFailureListener(emitter::tryOnError);
+                    .addOnFailureListener(error -> {
+                        if (!emitter.isDisposed()) {
+                            emitter.tryOnError(error);
+                        }
+                    });
         });
+    }
+
+    private String buildProfileImagePath(String uid, Uri imageUri) {
+        String fileName = "profile_" + System.currentTimeMillis();
+        String lastSegment = imageUri.getLastPathSegment();
+
+        if (lastSegment != null) {
+            String cleanSegment = lastSegment.substring(lastSegment.lastIndexOf('/') + 1);
+            if (cleanSegment.contains(".")) {
+                String extension = cleanSegment.substring(cleanSegment.lastIndexOf('.'));
+                if (extension.length() <= 6) {
+                    fileName += extension;
+                } else {
+                    fileName += ".jpg";
+                }
+            } else {
+                fileName += ".jpg";
+            }
+        } else {
+            fileName += ".jpg";
+        }
+
+        return uid + "/" + fileName;
+    }
+
+    private void deletePreviousProfileImage(String previousPath) {
+        if (previousPath == null || previousPath.isEmpty() || previousPath.startsWith("default/")) {
+            return;
+        }
+
+        profileImageReference.child(previousPath)
+                .delete()
+                .addOnFailureListener(e -> Log.w(TAG, "Failed to delete previous profile image: " + e.getMessage()));
     }
 
     /**
