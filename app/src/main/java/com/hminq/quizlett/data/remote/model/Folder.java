@@ -12,10 +12,12 @@ public class Folder {
     private String userName;
     private Date createdAt;
 
-    private List<Lesson> lessons;
+    private List<String> lessonIds;
+
+    private int lessonCount;
 
     public Folder() {
-        this.lessons = new ArrayList<>();
+        this.lessonIds = new ArrayList<>();
     }
 
     public Folder(String name, String userId, String userName, Date createdAt) {
@@ -24,6 +26,7 @@ public class Folder {
         this.userId = userId;
         this.userName = userName;
         this.createdAt = createdAt;
+        this.lessonCount = 0;
     }
 
     public String getFolderId() { return folderId; }
@@ -36,22 +39,38 @@ public class Folder {
     public void setUserId(String userId) { this.userId = userId; }
 
     public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; } 
+    public void setUserName(String userName) { this.userName = userName; }
 
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
 
-    public List<Lesson> getLessons() { return lessons; }
-    public void setLessons(List<Lesson> lessons) {
-        this.lessons = lessons;
+    public List<String> getLessonIds() { return lessonIds; }
+
+    public void setLessonIds(List<String> lessonIds) {
+        this.lessonIds = lessonIds;
     }
+
     public int getLessonCount() {
-        return (lessons != null) ? lessons.size() : 0;
+        return lessonCount;
     }
-    public void addLesson(Lesson lesson) {
-        if (this.lessons == null) {
-            this.lessons = new ArrayList<>();
+
+    public void setLessonCount(int lessonCount) {
+        this.lessonCount = lessonCount;
+    }
+
+    public void addLessonId(String lessonId) {
+        if (this.lessonIds == null) {
+            this.lessonIds = new ArrayList<>();
+            this.lessonIds.add(lessonId);
         }
-        this.lessons.add(lesson);
+        if (!this.lessonIds.contains(lessonId)) {
+            this.lessonIds.add(lessonId);
+            this.lessonCount = this.lessonIds.size();
+        }
     }
+
+    public boolean containsLessonId(String lessonId) {
+        return this.lessonIds != null && this.lessonIds.contains(lessonId);
+    }
+
 }

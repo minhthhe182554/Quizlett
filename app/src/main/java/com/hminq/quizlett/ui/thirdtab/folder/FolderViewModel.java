@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.hminq.quizlett.data.remote.model.Folder;
+import com.hminq.quizlett.data.remote.model.Lesson;
 import com.hminq.quizlett.data.repository.FolderRepository;
 import com.hminq.quizlett.exceptions.ValidationException;
 
@@ -38,10 +39,42 @@ public class FolderViewModel extends ViewModel {
     private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>(false);
     public LiveData<Boolean> isLoading = _isLoading;
 
+    private final MutableLiveData<Boolean> _saveLessonResult = new MutableLiveData<>();
+    public LiveData<Boolean> getSaveLessonResult() {
+        return _saveLessonResult;
+    }
+
+
     @Inject
     public FolderViewModel(FolderRepository repository) {
         this.repository = repository;
         loadFolders();
+    }
+
+    public void saveLessonToFolder(Lesson lesson, String folderId) {
+        _isLoading.setValue(true);
+
+        disposables.add(
+                repository.addLessonToFolder(lesson, folderId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                () -> {
+                                    _isLoading.setValue(false);
+                                    _saveLessonResult.setValue(true);
+                                    loadFolders();
+                                },
+                                throwable -> {
+                                    _isLoading.setValue(false);
+                                    _saveLessonResult.setValue(false);
+                                    throwable.printStackTrace();
+                                }
+                        )
+        );
+    }
+
+    public void resetSaveLessonResult() {
+        _saveLessonResult.setValue(null);
     }
 
     public void createFolder(String folderName) {

@@ -49,14 +49,11 @@ public class SettingViewModel extends ViewModel {
         return profileImageUrl;
     }
 
-    // LiveData mới để theo dõi kết quả cập nhật ngôn ngữ
     private final MutableLiveData<Boolean> updateLanguageResult = new MutableLiveData<>();
 
-    // --- PHƯƠNG THỨC THÊM VÀO ---
     public LiveData<Boolean> getUpdateLanguageResult() {
         return updateLanguageResult;
     }
-    // ----------------------------
 
 
     @Inject
@@ -102,10 +99,8 @@ public class SettingViewModel extends ViewModel {
         );
     }
 
-    // Phương thức để cập nhật cài đặt ngôn ngữ (Đã đúng)
     public void updateLanguageSetting(String languageCode) {
         updateLanguageResult.setValue(null);
-        // Chuyển String code thành Enum Language
         Language languageEnum = Language.fromCode(languageCode);
 
         disposables.add(
@@ -130,7 +125,6 @@ public class SettingViewModel extends ViewModel {
                 updateCompletable = userRepository.updateFullname(newValue);
                 break;
             case "email":
-                // Cần triển khai logic update email
                 return;
             case "password":
                 if (currentPassword == null || currentPassword.isEmpty()) {

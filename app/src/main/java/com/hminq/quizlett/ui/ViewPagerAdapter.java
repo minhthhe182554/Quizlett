@@ -6,6 +6,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.hminq.quizlett.ui.firsttab.FirstTabFragment;
 import com.hminq.quizlett.ui.secondtab.SecondTabFragment;
+import com.hminq.quizlett.ui.thirdtab.Tab3HostFragment;
 import com.hminq.quizlett.ui.thirdtab.ThirdTabFragment;
 
 public class ViewPagerAdapter extends FragmentStateAdapter  {
@@ -24,7 +25,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter  {
             case 1:
                 return new SecondTabFragment();
             case 2:
-                return new ThirdTabFragment();
+                return new Tab3HostFragment();
             default:
                 throw new IllegalArgumentException("Invalid tab position: " + position);
         }

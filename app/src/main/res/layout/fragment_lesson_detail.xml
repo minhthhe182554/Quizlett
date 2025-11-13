@@ -11,7 +11,6 @@
         android:paddingTop="40dp"
         android:paddingBottom="30dp"
         tools:context=".ui.lesson.detail.LessonDetailFragment">
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/topLayout"
             android:layout_width="match_parent"
@@ -43,6 +42,7 @@
                 app:layout_constraintTop_toTopOf="@id/btnBack"
                 app:layout_constraintVertical_bias="0.0" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/contentLayout"

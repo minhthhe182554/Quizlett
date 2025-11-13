@@ -66,7 +66,7 @@ public class SettingFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         binding = FragmentSettingBinding.inflate(inflater, container, false);
-        // Đã XÓA: bindViews();
+
 
         navController = NavHostFragment.findNavController(this);
 
@@ -131,7 +131,7 @@ public class SettingFragment extends Fragment {
                 binding.profileFullName.setText(user.getFullname());
                 binding.profileEmail.setText(user.getEmail());
 
-                binding.profilePassword.setText("********");
+                binding.profilePassword.setText(user.getPassword());
 
                 String currentLanguageCode = user.getUserSetting() != null && user.getUserSetting().getLanguage() != null ?
                         user.getUserSetting().getLanguage().getCode() : "en";
