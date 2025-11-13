@@ -37,7 +37,8 @@
         tools:layout="@layout/fragment_lesson_detail2">
 
         <argument
-            android:name="lesson_id"
-            app:argType="string" />
+            android:name="lesson"
+            app:argType="com.hminq.quizlett.data.remote.model.Lesson" />
+
     </fragment>
 </navigation>

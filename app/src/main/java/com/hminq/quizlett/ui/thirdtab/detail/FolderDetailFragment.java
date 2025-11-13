@@ -47,16 +47,7 @@ public class FolderDetailFragment extends Fragment implements LessonAdapter.OnIt
 
         folderId = FolderDetailFragmentArgs.fromBundle(getArguments()).getFolderId();
 
-        Log.d("DEBUG_NAV", "Đã nhận được ID: " + folderId);
-
-        if (getArguments() != null) {
-            folderId = getArguments().getString(ARG_FOLDER_ID);
-        }
-
-        if (folderId == null) {
-            Log.e(TAG, "Error: Folder ID not found.");
-            folderId = "mock_folder_id";
-        }
+        Log.d("DEBUG_NAV", "Đã nhận được ID thật: " + folderId);
 
         viewModel = new ViewModelProvider(this).get(FolderDetailViewModel.class);
     }
@@ -64,6 +55,7 @@ public class FolderDetailFragment extends Fragment implements LessonAdapter.OnIt
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        viewModel = new ViewModelProvider(this).get(FolderDetailViewModel.class);
 
         try {
             navController = NavHostFragment.findNavController(this);
@@ -122,18 +114,22 @@ public class FolderDetailFragment extends Fragment implements LessonAdapter.OnIt
     public void onItemClick(Lesson lesson) {
         Log.d(TAG, "Lesson clicked: " + lesson.getTitle() + " (ID: " + lesson.getLessonId() + ")");
 
+        if (lesson.getLessonId() == null || lesson.getLessonId().isEmpty()) {
+            Log.e(TAG, "LỖI: Lesson ID bị null, không thể điều hướng.");
+            Toast.makeText(getContext(), "Lỗi: Dữ liệu bài học không hợp lệ.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (navController != null) {
-            Bundle bundle = new Bundle();
-            bundle.putString("lesson_id", lesson.getLessonId());
-
+            FolderDetailFragmentDirections.ActionFolderDetailFragmentToLessonDetailFragment action =
+                    FolderDetailFragmentDirections.actionFolderDetailFragmentToLessonDetailFragment(lesson);
             try {
-                navController.navigate(R.id.lessonDetailFragment, bundle);
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Navigation Error: Destination R.id.lessonDetailFragment not found.", e);
-                Toast.makeText(getContext(), "Error: Lesson detail page not found.", Toast.LENGTH_LONG).show();
+                navController.navigate(action);
+            } catch (Exception e) {
+                Log.e(TAG, "Lỗi khi điều hướng đến LessonDetailFragment", e);
             }
+
         } else {
-            Toast.makeText(getContext(), "Error: Navigation system not ready.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Lỗi: Hệ thống điều hướng chưa sẵn sàng.", Toast.LENGTH_SHORT).show();
         }
     }
 }
