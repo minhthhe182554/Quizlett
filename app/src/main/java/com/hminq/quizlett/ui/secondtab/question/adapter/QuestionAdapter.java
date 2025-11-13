@@ -67,9 +67,11 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
 
         public void bind(Question question, OnItemClickListener listener) {
             tvQuestionText.setText(question.getQuestionText());
-            tvCategory.setText(question.getCategory().name().toUpperCase());
-            tvAnswerOptions.setText("Answer Options: " + question.getAnswerOptions().toString());
-            tvCorrectAnswer.setText("Correct Answer: " + question.getAnswerOptions().get(question.getCorrectAnswerIndex()));
+            tvCategory.setText(question.getCategory().getLocalizedName(itemView.getContext()).toUpperCase());
+            tvAnswerOptions.setText(itemView.getContext().getString(
+                    R.string.answer_options_placeholder, question.getAnswerOptions().toString()));
+            tvCorrectAnswer.setText(itemView.getContext().getString(
+                    R.string.correct_answer_placeholder, question.getAnswerOptions().get(question.getCorrectAnswerIndex())));
             itemView.setOnClickListener(v -> listener.onItemClick(question));
         }
     }

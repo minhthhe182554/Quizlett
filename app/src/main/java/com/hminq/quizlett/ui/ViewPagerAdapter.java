@@ -7,7 +7,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.hminq.quizlett.ui.firsttab.FirstTabFragment;
 import com.hminq.quizlett.ui.secondtab.SecondTabFragment;
 import com.hminq.quizlett.ui.thirdtab.Tab3HostFragment;
-import com.hminq.quizlett.ui.thirdtab.ThirdTabFragment;
 
 public class ViewPagerAdapter extends FragmentStateAdapter  {
     private static final int TAB_NUMS = 3;

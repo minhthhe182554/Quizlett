@@ -15,19 +15,35 @@ import com.google.firebase.database.ValueEventListener;
 
 import com.hminq.quizlett.data.remote.model.Folder;
 import com.hminq.quizlett.data.remote.model.Lesson;
+import com.hminq.quizlett.data.repository.FolderRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
+@HiltViewModel
 public class FolderDetailViewModel extends ViewModel {
 
     private static final String TAG = "FolderDetailViewModel";
 
     private final FirebaseDatabase db = FirebaseDatabase.getInstance();
+    private final FolderRepository folderRepository;
+    private final CompositeDisposable disposables = new CompositeDisposable();
     private DatabaseReference folderRef;
     private ValueEventListener folderListener;
+    
+    @Inject
+    public FolderDetailViewModel(FolderRepository folderRepository) {
+        this.folderRepository = folderRepository;
+    }
 
 
     private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>(false);
@@ -41,6 +57,9 @@ public class FolderDetailViewModel extends ViewModel {
 
     private final MutableLiveData<String> _errorMessage = new MutableLiveData<>();
     public LiveData<String> getErrorMessage() { return _errorMessage; }
+    
+    private final MutableLiveData<Boolean> _deleteSuccess = new MutableLiveData<>();
+    public LiveData<Boolean> getDeleteSuccess() { return _deleteSuccess; }
 
     public void loadFolderAndLessons(String folderId) {
         _isLoading.setValue(true);
@@ -89,7 +108,7 @@ public class FolderDetailViewModel extends ViewModel {
     }
 
     private void fetchLessonsByIDs(List<String> lessonIds) {
-
+        Log.d(TAG, "Fetching " + lessonIds.size() + " lessons by IDs: " + lessonIds);
         DatabaseReference lessonsDbRef = db.getReference("lessons");
 
         final List<Lesson> lessonsList = Collections.synchronizedList(new ArrayList<>());
@@ -97,21 +116,27 @@ public class FolderDetailViewModel extends ViewModel {
         final AtomicInteger fetchCounter = new AtomicInteger(lessonIds.size());
 
         for (String id : lessonIds) {
+            Log.d(TAG, "Fetching lesson ID: " + id);
             lessonsDbRef.child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Log.d(TAG, "Snapshot exists for " + id + ": " + snapshot.exists());
                     if (snapshot.exists()) {
                         Lesson lesson = snapshot.getValue(Lesson.class);
                         if (lesson != null) {
                             lesson.setLessonId(snapshot.getKey());
+                            Log.d(TAG, "✅ Loaded lesson: " + lesson.getTitle() + ", questions: " + 
+                                (lesson.getQuestions() != null ? lesson.getQuestions().size() : "null"));
                             lessonsList.add(lesson);
+                        } else {
+                            Log.w(TAG, "⚠️ Lesson object is null for ID: " + id);
                         }
                     } else {
-                        Log.w(TAG, "Lesson với ID " + id + " không tồn tại.");
+                        Log.w(TAG, "❌ Lesson với ID " + id + " không tồn tại.");
                     }
 
                     if (fetchCounter.decrementAndGet() == 0) {
-                        Log.d(TAG, "Đã tải xong tất cả " + lessonsList.size() + " lessons.");
+                        Log.d(TAG, "✅ Đã tải xong tất cả " + lessonsList.size() + " lessons.");
                         _lessons.setValue(lessonsList);
                         _isLoading.setValue(false); // Hoàn tất loading
                     }
@@ -130,6 +155,36 @@ public class FolderDetailViewModel extends ViewModel {
         }
     }
 
+    public void deleteFolder(String folderId) {
+        _isLoading.setValue(true);
+        
+        // Remove listener BEFORE deleting to prevent "folder not found" error message
+        if (folderRef != null && folderListener != null) {
+            Log.d(TAG, "Removing folder listener before deletion");
+            folderRef.removeEventListener(folderListener);
+            folderListener = null;
+        }
+        
+        disposables.add(
+            folderRepository.deleteFolder(folderId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    () -> {
+                        Log.d(TAG, "Folder deleted successfully");
+                        _isLoading.setValue(false);
+                        _deleteSuccess.setValue(true);
+                    },
+                    throwable -> {
+                        Log.e(TAG, "Failed to delete folder: " + throwable.getMessage());
+                        _isLoading.setValue(false);
+                        _errorMessage.setValue("Failed to delete folder: " + throwable.getMessage());
+                        _deleteSuccess.setValue(false);
+                    }
+                )
+        );
+    }
+
     @Override
     protected void onCleared() {
         super.onCleared();
@@ -137,5 +192,6 @@ public class FolderDetailViewModel extends ViewModel {
         if (folderRef != null && folderListener != null) {
             folderRef.removeEventListener(folderListener);
         }
+        disposables.clear();
     }
 }

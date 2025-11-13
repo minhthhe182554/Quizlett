@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
+
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 
 public class LessonRepository {
@@ -510,8 +512,12 @@ public class LessonRepository {
             return;
         }
 
+        // Normalize path (remove leading slash, add extension if missing)
+        String normalizedPath = normalizeProfileImagePath(creatorImagePath);
+        Log.d(TAG, "Loading creator image from path: " + normalizedPath);
+
         // Convert Storage path to download URL
-        StorageReference imageRef = profileImageReference.child(creatorImagePath);
+        StorageReference imageRef = profileImageReference.child(normalizedPath);
         imageRef.getDownloadUrl()
                 .addOnSuccessListener(uri -> {
                     String downloadUrl = uri.toString();
@@ -531,6 +537,117 @@ public class LessonRepository {
                                 listener.onImageUrlLoaded(null, errorEx.getMessage());
                             });
                 });
+    }
+    
+    private String normalizeProfileImagePath(String path) {
+        if (path == null || path.isEmpty()) {
+            return ERROR_IMG_URL;
+        }
+        
+        // Remove leading slash
+        String normalized = path.startsWith("/") ? path.substring(1) : path;
+        
+        // Handle legacy paths without extension
+        if (!normalized.toLowerCase().endsWith(".jpg") && 
+            !normalized.toLowerCase().endsWith(".jpeg") && 
+            !normalized.toLowerCase().endsWith(".png") &&
+            !normalized.toLowerCase().endsWith(".webp")) {
+            
+            // Map specific legacy paths to correct file names
+            if (normalized.equals("default/default_profile_img") || 
+                normalized.equals("default/default_profile_image")) {
+                return "default/default_profile_image.jpg";
+            }
+            if (normalized.equals("default/error_img") || 
+                normalized.equals("default/error_image")) {
+                return "default/error_image.jpg";
+            }
+            
+            // For other paths, just add .jpg
+            normalized += ".jpg";
+        }
+        
+        return normalized;
+    }
+
+    /**
+     * Update creatorImage cho tất cả lessons của một user
+     * @param userId User ID
+     * @param newImageUrl Download URL mới của ảnh profile
+     * @return Completable
+     */
+    public Completable updateAllLessonCreatorImage(String userId, String newImageUrl) {
+        return Completable.create(emitter -> {
+            if (userId == null || userId.isEmpty()) {
+                emitter.tryOnError(new IllegalArgumentException("User ID cannot be null or empty"));
+                return;
+            }
+            
+            Log.d(TAG, "Updating creatorImage for all lessons of userId: " + userId);
+            Log.d(TAG, "New image URL: " + newImageUrl);
+            
+            // Query tất cả lessons của user
+            lessonReference.orderByChild("userId").equalTo(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (emitter.isDisposed()) return;
+                        
+                        if (!dataSnapshot.exists()) {
+                            Log.d(TAG, "No lessons found for userId: " + userId);
+                            emitter.onComplete();
+                            return;
+                        }
+                        
+                        int totalLessons = (int) dataSnapshot.getChildrenCount();
+                        Log.d(TAG, "Found " + totalLessons + " lessons to update");
+                        
+                        // Counter để track updates
+                        final int[] updatedCount = {0};
+                        final int[] errorCount = {0};
+                        
+                        for (DataSnapshot lessonSnapshot : dataSnapshot.getChildren()) {
+                            String lessonId = lessonSnapshot.getKey();
+                            if (lessonId != null) {
+                                lessonReference.child(lessonId).child("creatorImage")
+                                    .setValue(newImageUrl)
+                                    .addOnSuccessListener(aVoid -> {
+                                        updatedCount[0]++;
+                                        Log.d(TAG, "✅ Updated lesson " + lessonId + " (" + updatedCount[0] + "/" + totalLessons + ")");
+                                        
+                                        // Khi đã update hết
+                                        if (updatedCount[0] + errorCount[0] == totalLessons) {
+                                            if (errorCount[0] > 0) {
+                                                Log.w(TAG, "Completed with " + errorCount[0] + " errors");
+                                            }
+                                            if (!emitter.isDisposed()) {
+                                                emitter.onComplete();
+                                            }
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        errorCount[0]++;
+                                        Log.e(TAG, "❌ Failed to update lesson " + lessonId + ": " + e.getMessage());
+                                        
+                                        if (updatedCount[0] + errorCount[0] == totalLessons) {
+                                            if (!emitter.isDisposed()) {
+                                                emitter.onComplete(); // Complete anyway
+                                            }
+                                        }
+                                    });
+                            }
+                        }
+                    }
+                    
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        if (!emitter.isDisposed()) {
+                            Log.e(TAG, "Query cancelled: " + databaseError.getMessage());
+                            emitter.tryOnError(databaseError.toException());
+                        }
+                    }
+                });
+        });
     }
 
     // Listener interfaces

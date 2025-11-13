@@ -63,12 +63,17 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
 
         void bind(Lesson lesson, OnItemClickListener listener) {
             txtTitle.setText(lesson.getTitle());
-            txtCategory.setText(lesson.getCategory() != null ? lesson.getCategory().name() : "Unknown");
+            String categoryText = lesson.getCategory() != null
+                    ? lesson.getCategory().getLocalizedName(itemView.getContext())
+                    : itemView.getContext().getString(R.string.category_others);
+            txtCategory.setText(categoryText);
 
-            txtNumberVisited.setText("Number of Visits: " + lesson.getVisitCount());
+            txtNumberVisited.setText(itemView.getContext().getString(
+                    R.string.number_visit_placeholder, lesson.getVisitCount()));
 
             int questionCount = (lesson.getQuestions() != null) ? lesson.getQuestions().size() : 0;
-            txtQuestionCount.setText("Number of Questions: " + questionCount);
+            txtQuestionCount.setText(itemView.getContext().getString(
+                    R.string.number_question_placeholder, questionCount));
 
             itemView.setOnClickListener(v -> listener.onItemClick(lesson));
         }

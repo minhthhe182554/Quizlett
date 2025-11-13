@@ -35,13 +35,16 @@ public class SharedViewModel extends ViewModel {
     }
 
     public void getCurrentUser() {
+        Log.d(TAG, "=== Reloading current user from DB ===");
         disposables.add(
                 userRepository.getCurrentUser()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(user -> {
+                            Log.d(TAG, "✅ User reloaded, profileImageUrl: " + user.getProfileImageUrl());
                             currentUser.postValue(user);
                         }, throwable -> {
+                            Log.e(TAG, "❌ Failed to reload user: " + throwable.getMessage());
                             currentUser.postValue(null);
                             error.postValue(throwable);
                         })
@@ -49,13 +52,18 @@ public class SharedViewModel extends ViewModel {
     }
 
     public void loadUserImage(User user) {
+        Log.d(TAG, "=== Loading user image, path from user: " + user.getProfileImageUrl() + " ===");
         disposables.add(
                 userRepository.loadProfileImage(user)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(url -> profileImageUrl.setValue(url),
-                                throwable -> error.setValue(throwable)
-                        )
+                        .subscribe(url -> {
+                            Log.d(TAG, "✅ Image URL loaded: " + url);
+                            profileImageUrl.setValue(url);
+                        }, throwable -> {
+                            Log.e(TAG, "❌ Failed to load image: " + throwable.getMessage());
+                            error.setValue(throwable);
+                        })
         );
     }
 

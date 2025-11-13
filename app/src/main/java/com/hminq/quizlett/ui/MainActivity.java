@@ -1,5 +1,6 @@
 package com.hminq.quizlett.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -14,6 +15,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.hminq.quizlett.R;
 import com.hminq.quizlett.data.remote.model.User;
 import com.hminq.quizlett.databinding.ActivityMainBinding;
+import com.hminq.quizlett.utils.LocaleHelper;
 import com.hminq.quizlett.utils.Message;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -25,6 +27,12 @@ public class MainActivity extends AppCompatActivity {
     private NavController navController;
     private NavOptions navigateToAndClearStackOption;
     private ActivityMainBinding binding;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        // Apply saved locale before creating views
+        super.attachBaseContext(LocaleHelper.applySavedLocale(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

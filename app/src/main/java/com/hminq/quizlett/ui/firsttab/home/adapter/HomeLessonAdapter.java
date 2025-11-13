@@ -58,7 +58,7 @@ public class HomeLessonAdapter extends RecyclerView.Adapter<HomeLessonAdapter.Le
     @Override
     public void onBindViewHolder(@NonNull LessonViewHolder holder, int position) {
         Lesson lesson = lessons.get(position);
-        holder.bind(lesson, listener); //fix: Simplified
+        holder.bind(lesson, listener);
     }
 
     @Override
@@ -86,11 +86,15 @@ public class HomeLessonAdapter extends RecyclerView.Adapter<HomeLessonAdapter.Le
             int questionCount = (lesson.getQuestions() != null)
                     ? lesson.getQuestions().size()
                     : 0;
-            tvQuestionCount.setText(questionCount + " questions");
+            String questionsText = questionCount == 1
+                    ? itemView.getContext().getString(R.string.question_singular, questionCount)
+                    : itemView.getContext().getString(R.string.questions_count, questionCount);
+            tvQuestionCount.setText(questionsText);
 
-            tvCategory.setText(lesson.getCategory() != null
-                    ? lesson.getCategory().name()
-                    : "Others");
+            String categoryText = lesson.getCategory() != null
+                    ? lesson.getCategory().getLocalizedName(itemView.getContext())
+                    : itemView.getContext().getString(R.string.category_others);
+            tvCategory.setText(categoryText);
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {

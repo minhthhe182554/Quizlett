@@ -56,60 +56,81 @@ public class FolderRepository {
                 return;
             }
 
-            lessonsReference.child(lesson.getLessonId())
-                    .setValue(lesson)
+            String lessonId = lesson.getLessonId();
+            Log.d(TAG, "Adding lesson ID " + lessonId + " to folder " + folderId);
+            
+            // Step 1: Verify lesson exists in database
+            lessonsReference.child(lessonId).get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            DatabaseReference folderRef = foldersReference.child(folderId);
-
-                            folderRef.runTransaction(new Transaction.Handler() {
-                                @NonNull
-                                @Override
-                                public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-                                    Folder folder = mutableData.getValue(Folder.class);
-                                    if (folder == null) {
-                                        Log.e(TAG, "Folder not found for ID: " + folderId);
-                                        return Transaction.abort();
-                                    }
-
-                                    if (folder.getLessonIds() == null) {
-                                        folder.setLessonIds(new ArrayList<>());
-                                    }
-
-                                    String lessonId = lesson.getLessonId();
-
-                                    if (!folder.getLessonIds().contains(lessonId)) {
-                                        folder.getLessonIds().add(lessonId);
-
-                                        folder.setLessonCount(folder.getLessonIds().size());
-                                    } else {
-                                        emitter.onComplete();
-                                        return Transaction.abort();
-                                    }
-
-                                    mutableData.setValue(folder);
-                                    return Transaction.success(mutableData);
-                                }
-
-                                @Override
-                                public void onComplete(DatabaseError databaseError, boolean committed, DataSnapshot currentData) {
-                                    if (emitter.isDisposed()) return;
-
-                                    if (databaseError != null) {
-                                        Log.e(TAG, "Transaction failed: " + databaseError.getMessage(), databaseError.toException());
-                                        emitter.tryOnError(databaseError.toException());
-                                    } else if (committed) {
-                                        Log.d(TAG, "Lesson added to folder successfully: " + folderId);
-                                        emitter.onComplete();
-                                    } else {
-                                        if (!emitter.isDisposed()) {
-                                            emitter.onComplete();
+                            DataSnapshot lessonSnapshot = task.getResult();
+                            if (!lessonSnapshot.exists()) {
+                                Log.e(TAG, "❌ Lesson ID " + lessonId + " does not exist in database!");
+                                emitter.tryOnError(new ValidationException("Lesson does not exist in database."));
+                                return;
+                            }
+                            
+                            Log.d(TAG, "✅ Lesson exists, loading folder data...");
+                            
+                            // Step 2: Get folder data, modify, then save
+                            foldersReference.child(folderId).get()
+                                    .addOnCompleteListener(folderTask -> {
+                                        if (emitter.isDisposed()) return;
+                                        
+                                        if (folderTask.isSuccessful()) {
+                                            DataSnapshot folderSnapshot = folderTask.getResult();
+                                            if (!folderSnapshot.exists()) {
+                                                Log.e(TAG, "❌ Folder ID " + folderId + " does not exist in database!");
+                                                emitter.tryOnError(new ValidationException("Folder does not exist in database."));
+                                                return;
+                                            }
+                                            
+                                            Folder folder = folderSnapshot.getValue(Folder.class);
+                                            if (folder == null) {
+                                                Log.e(TAG, "❌ Failed to deserialize folder data!");
+                                                emitter.tryOnError(new Exception("Failed to deserialize folder data"));
+                                                return;
+                                            }
+                                            
+                                            Log.d(TAG, "✅ Folder loaded, adding lesson...");
+                                            
+                                            // Initialize lessonIds if null
+                                            if (folder.getLessonIds() == null) {
+                                                folder.setLessonIds(new ArrayList<>());
+                                            }
+                                            
+                                            // Check if lesson already in folder
+                                            if (folder.getLessonIds().contains(lessonId)) {
+                                                Log.d(TAG, "Lesson already in folder, skipping");
+                                                emitter.onComplete();
+                                                return;
+                                            }
+                                            
+                                            // Add lesson ID to folder
+                                            folder.getLessonIds().add(lessonId);
+                                            folder.setLessonCount(folder.getLessonIds().size());
+                                            
+                                            Log.d(TAG, "Saving folder with " + folder.getLessonCount() + " lessons...");
+                                            
+                                            // Step 3: Save updated folder back to database
+                                            foldersReference.child(folderId).setValue(folder)
+                                                    .addOnSuccessListener(aVoid -> {
+                                                        if (emitter.isDisposed()) return;
+                                                        Log.d(TAG, "✅ Lesson added to folder successfully!");
+                                                        emitter.onComplete();
+                                                    })
+                                                    .addOnFailureListener(e -> {
+                                                        if (emitter.isDisposed()) return;
+                                                        Log.e(TAG, "❌ Failed to save folder: " + e.getMessage());
+                                                        emitter.tryOnError(e);
+                                                    });
+                                        } else {
+                                            Log.e(TAG, "Failed to load folder: " + folderTask.getException().getMessage());
+                                            emitter.tryOnError(folderTask.getException());
                                         }
-                                    }
-                                }
-                            });
+                                    });
                         } else {
-                            Log.e(TAG, "Failed to save lesson: " + task.getException().getMessage(), task.getException());
+                            Log.e(TAG, "Failed to verify lesson existence: " + task.getException().getMessage());
                             emitter.tryOnError(task.getException());
                         }
                     });
@@ -216,5 +237,65 @@ public class FolderRepository {
             return "User_" + user.getUid().substring(0, 5);
         }
         return null;
+    }
+    
+    /**
+     * Delete folder by ID
+     * @param folderId Folder ID to delete
+     * @return Completable
+     */
+    public Completable deleteFolder(String folderId) {
+        return Completable.create(emitter -> {
+            if (folderId == null || folderId.trim().isEmpty()) {
+                emitter.tryOnError(new ValidationException("Folder ID cannot be empty."));
+                return;
+            }
+            
+            String currentUserId = getCurrentUserId();
+            if (currentUserId == null) {
+                emitter.tryOnError(new IllegalStateException("No user logged in."));
+                return;
+            }
+            
+            Log.d(TAG, "Attempting to delete folder: " + folderId);
+            
+            // First verify folder exists and belongs to current user
+            foldersReference.child(folderId).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DataSnapshot snapshot = task.getResult();
+                        if (!snapshot.exists()) {
+                            Log.e(TAG, "Folder does not exist: " + folderId);
+                            emitter.tryOnError(new ValidationException("Folder does not exist."));
+                            return;
+                        }
+                        
+                        Folder folder = snapshot.getValue(Folder.class);
+                        if (folder == null || !currentUserId.equals(folder.getUserId())) {
+                            Log.e(TAG, "User does not own this folder");
+                            emitter.tryOnError(new IllegalStateException("You don't have permission to delete this folder."));
+                            return;
+                        }
+                        
+                        // Delete folder
+                        foldersReference.child(folderId).removeValue()
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "✅ Folder deleted successfully: " + folderId);
+                                if (!emitter.isDisposed()) {
+                                    emitter.onComplete();
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e(TAG, "❌ Failed to delete folder: " + e.getMessage());
+                                if (!emitter.isDisposed()) {
+                                    emitter.tryOnError(e);
+                                }
+                            });
+                    } else {
+                        Log.e(TAG, "Failed to verify folder: " + task.getException().getMessage());
+                        emitter.tryOnError(task.getException());
+                    }
+                });
+        });
     }
 }

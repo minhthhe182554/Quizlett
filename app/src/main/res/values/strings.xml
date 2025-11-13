@@ -41,6 +41,9 @@
         <item>Humanities</item>
         <item>Others</item>
     </string-array>
+    <string name="category_sciences">Sciences</string>
+    <string name="category_humanities">Humanities</string>
+    <string name="category_others">Others</string>
     <string-array name="language_options_array">
         <item>English</item>
         <item>Tiếng Việt</item>
@@ -48,6 +51,7 @@
     <string name="question_text_placeholder">Question Text</string>
     <string name="answer_options_placeholder">Answer Options: %s</string>
     <string name="correct_answer_placeholder">Correct Answer: %s</string>
+    <string name="correct_answer_not_set">Correct answer not set</string>
     <string name="question_list_title">Manage Questions</string>
     <string name="ques_category_label">Category</string>
     <string name="question_detail_title">Edit your question</string>
@@ -64,7 +68,11 @@
     <string name="delete_question_button">Delete</string>
     <string name="fab_add_question_description">Add new question</string>
     <string name="manage_questions_button_text">Manage question</string>
+    <string name="home_title">Home</string>
     <string name="top_lesson_title">Top lessons</string>
+    <string name="try_flashcard_sets">Try out these flashcard sets</string>
+    <string name="questions_count">%d questions</string>
+    <string name="question_singular">%d question</string>
     <string name="english_lesson_title">English</string>
     <string name="chinese_lesson_title">Chinese</string>
     <string name="japanese_lesson_title">Japanese</string>
@@ -98,10 +106,36 @@
     <string name="start_test">START TEST</string>
     <string name="search_lesson">Search lessons...</string>
     <string name="my_folders">My Folders</string>
+    <string name="my_library">My Library</string>
+    <string name="select_folder">Select Folder</string>
     <string name="add_folder">Add Folder</string>
     <string name="folder_name_cannot_be_empty">Folder name cannot be empty</string>
     <string name="create_folder_dialog_title">Create New Folder</string>
     <string name="folder_detail">Folder Detail</string>
+    <string name="folder_deleted_success">Folder deleted successfully</string>
+    <string name="delete_folder_title">Delete folder</string>
+    <string name="delete_folder_message">Are you sure you want to delete this folder? Lessons will not be deleted.</string>
+    <string name="delete_button">Delete</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="items_suffix">items</string>
+    <string name="save_lesson_success">Lesson saved successfully!</string>
+    <string name="save_lesson_error">Error saving lesson. Please try again.</string>
+    <string name="navigate_to_save_lesson">Switching to save lesson tab...</string>
+    <string name="language_saved_success">Language settings saved successfully! Restarting...</string>
+    <string name="language_saved_error">Error saving language settings.</string>
+    <string name="do_not_click_yet">Don\'t click yet, not finished</string>
+    <string name="value_cannot_empty">Value cannot be empty!</string>
+    <string name="current_password_required">Current password is required for security!</string>
+    <string name="operation_successful">Operation successful!</string>
+    <string name="error_getting_data">Error when getting data.</string>
+    <string name="error_loading_lessons">Error loading lessons: %s</string>
+    <string name="opening_lesson">Opening: %s</string>
+    <string name="result_your_answer">Your answer: %1$s</string>
+    <string name="result_correct_answer">Correct answer: %1$s</string>
+    <string name="close">Close</string>
+    <string name="tf_answer_hint">Answer: %1$s</string>
+    <string name="tf_truth_label_true">True (Answer: %1$s)</string>
+    <string name="tf_truth_label_false">False (Correct: %1$s)</string>
 
 </resources>
 

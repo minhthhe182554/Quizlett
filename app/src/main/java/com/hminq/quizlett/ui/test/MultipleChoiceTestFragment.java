@@ -126,11 +126,9 @@ public class MultipleChoiceTestFragment extends Fragment {
         String correctAnswer = currentQuestion.getAnswerOptions().get(currentQuestion.getCorrectAnswerIndex());
         if (selectedAnswer.equals(correctAnswer)) {
             correctAnswers++;
-            Toast.makeText(getContext(), "Correct!", Toast.LENGTH_SHORT).show();
         } else {
             incorrectAnswers++;
             incorrectAnswerList.add(new IncorrectAnswer(currentQuestion.getQuestionText(), selectedAnswer, correctAnswer));
-            Toast.makeText(getContext(), "Wrong! The answer is " + correctAnswer, Toast.LENGTH_SHORT).show();
         }
         currentQuestionIndex++;
         displayCurrentQuestion();
@@ -141,6 +139,7 @@ public class MultipleChoiceTestFragment extends Fragment {
         bundle.putInt("correctAnswers", correctAnswers);
         bundle.putInt("incorrectAnswers", incorrectAnswers);
         bundle.putSerializable("incorrectAnswerList", incorrectAnswerList);
+        bundle.putSerializable("lesson", lesson);
         navController.navigate(R.id.action_multipleChoiceTestFragment_to_resultFragment, bundle);
     }
 

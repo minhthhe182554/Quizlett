@@ -227,69 +227,150 @@ public class UserRepository {
 
         return Single.create(
                 emitter -> {
+                    Log.d(TAG, "=== START loadProfileImage ===");
+                    Log.d(TAG, "User profileImageUrl from DB: [" + user.getProfileImageUrl() + "]");
+                    
                     // Cập nhật: Kiểm tra nếu profileImageUrl là null hoặc rỗng
                     if (user.getProfileImageUrl() == null || user.getProfileImageUrl().isEmpty()) {
+                        Log.d(TAG, "ProfileImageUrl is null/empty, loading error image: " + ERROR_IMG_URL);
                         // Tải ảnh lỗi (hoặc ảnh mặc định) nếu không có đường dẫn ảnh hồ sơ
                         StorageReference errorImageRef = profileImageReference.child(ERROR_IMG_URL);
+                        Log.d(TAG, "Error image full path: " + errorImageRef.getPath());
                         errorImageRef.getDownloadUrl()
                                 .addOnSuccessListener(defaultUri -> {
                                     if (emitter.isDisposed()) return;
+                                    Log.d(TAG, "✅ Loaded error image URL: " + defaultUri.toString());
                                     emitter.onSuccess(defaultUri.toString());
                                 })
-                                .addOnFailureListener(emitter::tryOnError);
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "❌ Failed to load error image: " + e.getMessage());
+                                    emitter.tryOnError(e);
+                                });
                         return;
                     }
 
-                    StorageReference imageRef = profileImageReference.child(user.getProfileImageUrl());
+                    // Normalize path: remove leading slash and add .jpg if missing extension
+                    String normalizedPath = normalizeProfileImagePath(user.getProfileImageUrl());
+                    Log.d(TAG, "Normalized path: [" + normalizedPath + "]");
+                    
+                    StorageReference imageRef = profileImageReference.child(normalizedPath);
+                    Log.d(TAG, "Full Storage path: " + imageRef.getPath());
 
                     imageRef.getDownloadUrl()
-                            .addOnSuccessListener(uri -> emitter.onSuccess(uri.toString()))
+                            .addOnSuccessListener(uri -> {
+                                Log.d(TAG, "✅ Successfully loaded profile image URL");
+                                emitter.onSuccess(uri.toString());
+                            })
                             .addOnFailureListener(e -> {
+                                Log.e(TAG, "❌ Failed to load profile image from path: " + normalizedPath);
+                                Log.e(TAG, "Error: " + e.getMessage());
                                 // fallback to error picture
+                                Log.d(TAG, "Attempting fallback to error image: " + ERROR_IMG_URL);
                                 StorageReference errorImageRef = profileImageReference.child(ERROR_IMG_URL);
+                                Log.d(TAG, "Error image full path: " + errorImageRef.getPath());
 
                                 errorImageRef.getDownloadUrl()
                                         .addOnSuccessListener(defaultUri -> {
                                             if (emitter.isDisposed()) return;
-
+                                            Log.d(TAG, "✅ Fallback error image loaded successfully");
                                             emitter.onSuccess(defaultUri.toString());
                                         })
-                                        .addOnFailureListener(emitter::tryOnError);
+                                        .addOnFailureListener(errorEx -> {
+                                            Log.e(TAG, "❌ Failed to load fallback error image: " + errorEx.getMessage());
+                                            emitter.tryOnError(errorEx);
+                                        });
                             });
                 }
         );
     }
+    
+    private String normalizeProfileImagePath(String path) {
+        if (path == null || path.isEmpty()) {
+            return ERROR_IMG_URL;
+        }
+        
+        // Remove leading slash
+        String normalized = path.startsWith("/") ? path.substring(1) : path;
+        
+        // Handle legacy paths without extension
+        if (!normalized.toLowerCase().endsWith(".jpg") && 
+            !normalized.toLowerCase().endsWith(".jpeg") && 
+            !normalized.toLowerCase().endsWith(".png") &&
+            !normalized.toLowerCase().endsWith(".webp")) {
+            
+            // Map specific legacy paths to correct file names
+            if (normalized.equals("default/default_profile_img") || 
+                normalized.equals("default/default_profile_image")) {
+                return "default/default_profile_image.jpg";
+            }
+            if (normalized.equals("default/error_img") || 
+                normalized.equals("default/error_image")) {
+                return "default/error_image.jpg";
+            }
+            
+            // For other paths, just add .jpg
+            normalized += ".jpg";
+        }
+        
+        return normalized;
+    }
 
-    public Completable uploadNewProfileImage(Uri imageUri, String previousPath) {
-        return Completable.create(emitter -> {
+    public Single<String> uploadNewProfileImage(Uri imageUri, String previousPath) {
+        return Single.create(emitter -> {
+            Log.d(TAG, "=== START uploadNewProfileImage ===");
             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
             if (firebaseUser == null) {
+                Log.e(TAG, "No user logged in");
                 emitter.tryOnError(new IllegalStateException("No user logged in"));
                 return;
             }
 
             String uid = firebaseUser.getUid();
             String storagePath = buildProfileImagePath(uid, imageUri);
+            Log.d(TAG, "UID: " + uid);
+            Log.d(TAG, "Storage path to upload: " + storagePath);
+            Log.d(TAG, "Previous path: " + previousPath);
+            
             StorageReference photoRef = profileImageReference.child(storagePath);
+            Log.d(TAG, "Full Storage reference path: " + photoRef.getPath());
 
             photoRef.putFile(imageUri)
                     .addOnSuccessListener(taskSnapshot -> {
-                        userReference.child(uid)
-                                .child("profileImageUrl")
-                                .setValue(storagePath)
-                                .addOnSuccessListener(aVoid -> {
-                                    deletePreviousProfileImage(previousPath);
-                                    if (!emitter.isDisposed()) {
-                                        emitter.onComplete();
-                                    }
-                                })
-                                .addOnFailureListener(error -> {
-                                    if (!emitter.isDisposed()) {
-                                        emitter.tryOnError(error);
-                                    }
-                                });
+                        Log.d(TAG, "✅ Image uploaded successfully to Storage");
+                        
+                        // Get download URL
+                        photoRef.getDownloadUrl()
+                            .addOnSuccessListener(downloadUri -> {
+                                String downloadUrl = downloadUri.toString();
+                                Log.d(TAG, "Download URL: " + downloadUrl);
+                                Log.d(TAG, "Updating profileImageUrl in Realtime DB to: " + storagePath);
+                                
+                                userReference.child(uid)
+                                        .child("profileImageUrl")
+                                        .setValue(storagePath)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Log.d(TAG, "✅ Database updated successfully");
+                                            deletePreviousProfileImage(previousPath);
+                                            if (!emitter.isDisposed()) {
+                                                emitter.onSuccess(downloadUrl); // Return download URL
+                                            }
+                                        })
+                                        .addOnFailureListener(error -> {
+                                            Log.e(TAG, "❌ Failed to update database: " + error.getMessage());
+                                            if (!emitter.isDisposed()) {
+                                                emitter.tryOnError(error);
+                                            }
+                                        });
+                            })
+                            .addOnFailureListener(error -> {
+                                Log.e(TAG, "❌ Failed to get download URL: " + error.getMessage());
+                                if (!emitter.isDisposed()) {
+                                    emitter.tryOnError(error);
+                                }
+                            });
                     })
                     .addOnFailureListener(error -> {
+                        Log.e(TAG, "❌ Failed to upload image to Storage: " + error.getMessage());
                         if (!emitter.isDisposed()) {
                             emitter.tryOnError(error);
                         }
@@ -305,8 +386,9 @@ public class UserRepository {
             String cleanSegment = lastSegment.substring(lastSegment.lastIndexOf('/') + 1);
             if (cleanSegment.contains(".")) {
                 String extension = cleanSegment.substring(cleanSegment.lastIndexOf('.'));
-                if (extension.length() <= 6) {
-                    fileName += extension;
+                // Validate extension length (avoid very long extensions)
+                if (extension.length() >= 2 && extension.length() <= 6) {
+                    fileName += extension.toLowerCase();
                 } else {
                     fileName += ".jpg";
                 }
@@ -317,17 +399,27 @@ public class UserRepository {
             fileName += ".jpg";
         }
 
-        return uid + "/" + fileName;
+        String path = uid + "/" + fileName;
+        Log.d(TAG, "Built profile image path: " + path);
+        return path;
     }
 
     private void deletePreviousProfileImage(String previousPath) {
-        if (previousPath == null || previousPath.isEmpty() || previousPath.startsWith("default/")) {
+        if (previousPath == null || previousPath.isEmpty()) {
+            Log.d(TAG, "No previous path to delete (null/empty)");
+            return;
+        }
+        
+        if (previousPath.startsWith("default/")) {
+            Log.d(TAG, "Skipping delete of default image: " + previousPath);
             return;
         }
 
+        Log.d(TAG, "Deleting previous profile image: " + previousPath);
         profileImageReference.child(previousPath)
                 .delete()
-                .addOnFailureListener(e -> Log.w(TAG, "Failed to delete previous profile image: " + e.getMessage()));
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Previous image deleted successfully"))
+                .addOnFailureListener(e -> Log.w(TAG, "⚠️ Failed to delete previous image (may not exist): " + e.getMessage()));
     }
 
     /**

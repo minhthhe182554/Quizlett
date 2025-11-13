@@ -1,5 +1,6 @@
 package com.hminq.quizlett.ui.thirdtab.detail;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,10 +19,14 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.hminq.quizlett.R;
 import com.hminq.quizlett.databinding.FragmentFolderDetailBinding;
 import com.hminq.quizlett.data.remote.model.Lesson;
+import com.hminq.quizlett.ui.MainTabViewModel;
 import com.hminq.quizlett.ui.secondtab.lesson.adapter.LessonAdapter;
 
 import java.util.ArrayList;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class FolderDetailFragment extends Fragment implements LessonAdapter.OnItemClickListener {
 
     private static final String TAG = "FolderDetailFragment";
@@ -29,6 +34,7 @@ public class FolderDetailFragment extends Fragment implements LessonAdapter.OnIt
 
     private FragmentFolderDetailBinding binding;
     private FolderDetailViewModel viewModel;
+    private MainTabViewModel mainTabViewModel;
 
     private String folderId;
     private LessonAdapter lessonAdapter;
@@ -59,6 +65,7 @@ public class FolderDetailFragment extends Fragment implements LessonAdapter.OnIt
         }
 
         viewModel = new ViewModelProvider(this).get(FolderDetailViewModel.class);
+        mainTabViewModel = new ViewModelProvider(requireActivity()).get(MainTabViewModel.class);
     }
 
     @Override
@@ -87,6 +94,21 @@ public class FolderDetailFragment extends Fragment implements LessonAdapter.OnIt
                 requireActivity().onBackPressed();
             }
         });
+        
+        binding.btnDeleteFolder.setOnClickListener(v -> showDeleteConfirmationDialog());
+    }
+    
+    private void showDeleteConfirmationDialog() {
+        new AlertDialog.Builder(requireContext())
+            .setTitle(R.string.delete_folder_title)
+            .setMessage(R.string.delete_folder_message)
+            .setPositiveButton(R.string.delete_button, (dialog, which) -> {
+                if (folderId != null) {
+                    viewModel.deleteFolder(folderId);
+                }
+            })
+            .setNegativeButton(R.string.cancel_button, null)
+            .show();
     }
 
     private void observeViewModel() {
@@ -103,11 +125,23 @@ public class FolderDetailFragment extends Fragment implements LessonAdapter.OnIt
         });
 
         viewModel.isLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            if (binding.btnDeleteFolder != null) {
+                binding.btnDeleteFolder.setEnabled(!isLoading);
+            }
         });
 
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), errorMessage -> {
             if (errorMessage != null) {
                 Toast.makeText(getContext(), errorMessage, Toast.LENGTH_LONG).show();
+            }
+        });
+        
+        viewModel.getDeleteSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                Toast.makeText(getContext(), R.string.folder_deleted_success, Toast.LENGTH_SHORT).show();
+                if (navController != null) {
+                    navController.popBackStack();
+                }
             }
         });
     }
@@ -121,19 +155,9 @@ public class FolderDetailFragment extends Fragment implements LessonAdapter.OnIt
     @Override
     public void onItemClick(Lesson lesson) {
         Log.d(TAG, "Lesson clicked: " + lesson.getTitle() + " (ID: " + lesson.getLessonId() + ")");
-
-        if (navController != null) {
-            Bundle bundle = new Bundle();
-            bundle.putString("lesson_id", lesson.getLessonId());
-
-            try {
-                navController.navigate(R.id.lessonDetailFragment, bundle);
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Navigation Error: Destination R.id.lessonDetailFragment not found.", e);
-                Toast.makeText(getContext(), "Error: Lesson detail page not found.", Toast.LENGTH_LONG).show();
-            }
-        } else {
-            Toast.makeText(getContext(), "Error: Navigation system not ready.", Toast.LENGTH_SHORT).show();
-        }
+        Log.d(TAG, "Requesting navigation to Tab 1 to view lesson detail");
+        
+        // Use MainTabViewModel to coordinate between tabs
+        mainTabViewModel.requestViewLessonDetail(lesson);
     }
 }

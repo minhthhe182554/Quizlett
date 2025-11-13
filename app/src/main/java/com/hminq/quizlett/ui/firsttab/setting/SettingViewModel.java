@@ -2,6 +2,7 @@ package com.hminq.quizlett.ui.firsttab.setting;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
@@ -11,11 +12,14 @@ import androidx.lifecycle.ViewModel;
 
 import com.hminq.quizlett.data.remote.model.User;
 import com.hminq.quizlett.data.remote.model.Language;
+import com.hminq.quizlett.data.repository.LessonRepository;
 import com.hminq.quizlett.data.repository.UserRepository;
+import com.hminq.quizlett.utils.LocaleHelper;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -25,6 +29,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class SettingViewModel extends ViewModel {
 
     private final UserRepository userRepository;
+    private final LessonRepository lessonRepository;
+    private final Context context;
     private final CompositeDisposable disposables = new CompositeDisposable();
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
     public LiveData<User> getCurrentUser() {
@@ -57,8 +63,14 @@ public class SettingViewModel extends ViewModel {
 
 
     @Inject
-    public SettingViewModel(UserRepository userRepository) {
+    public SettingViewModel(
+            @ApplicationContext Context context,
+            UserRepository userRepository,
+            LessonRepository lessonRepository
+    ) {
+        this.context = context;
         this.userRepository = userRepository;
+        this.lessonRepository = lessonRepository;
 
         loadUserProfile();
 //        loadPreferences();
@@ -72,29 +84,58 @@ public class SettingViewModel extends ViewModel {
                         .subscribe(user -> {
                             currentUser.setValue(user);
                             loadUserImage(user);
+                            
+                            // Sync language from Firebase to SharedPreferences
+                            if (user.getUserSetting() != null && user.getUserSetting().getLanguage() != null) {
+                                String languageCode = user.getUserSetting().getLanguage().getCode();
+                                String savedLanguage = LocaleHelper.getSavedLanguage(context);
+                                if (!languageCode.equals(savedLanguage)) {
+                                    LocaleHelper.saveLanguage(context, languageCode);
+                                    Log.d(TAG, "Synced language from Firebase to SharedPreferences: " + languageCode);
+                                }
+                            }
                         }, throwable -> {
-
+                            Log.e(TAG, "Error loading user profile: " + throwable.getMessage());
                         })
         );
     }
 
+    private final MutableLiveData<Boolean> imageUploadSuccess = new MutableLiveData<>();
+    public LiveData<Boolean> getImageUploadSuccess() {
+        return imageUploadSuccess;
+    }
+    
     public void updateProfileImage(Uri imageUri) {
         updateStatus.setValue("Uploading new profile image...");
 
-        String previousPath = currentUser.getValue() != null
-                ? currentUser.getValue().getProfileImageUrl()
-                : null;
+        User user = currentUser.getValue();
+        if (user == null) {
+            updateStatus.setValue("Error: User not loaded");
+            return;
+        }
+
+        String previousPath = user.getProfileImageUrl();
+        String userId = user.getUid();
 
         disposables.add(
                 userRepository.uploadNewProfileImage(imageUri, previousPath)
                         .subscribeOn(Schedulers.io())
+                        .flatMapCompletable(downloadUrl -> {
+                            // Sau khi upload thành công, update tất cả lessons của user
+                            Log.d(TAG, "Updating all lessons with new image URL: " + downloadUrl);
+                            return lessonRepository.updateAllLessonCreatorImage(userId, downloadUrl);
+                        })
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(() -> {
                             updateStatus.setValue("Profile image updated successfully.");
                             // Tải lại Profile để cập nhật URL ảnh mới và hiển thị
                             loadUserProfile();
+                            // Trigger event để SharedViewModel reload
+                            imageUploadSuccess.setValue(true);
                         }, throwable -> {
+                            Log.e(TAG, "Error updating profile image: " + throwable.getMessage());
                             updateStatus.setValue("Error updating profile image: " + throwable.getMessage());
+                            imageUploadSuccess.setValue(false);
                         })
         );
     }
@@ -103,11 +144,16 @@ public class SettingViewModel extends ViewModel {
         updateLanguageResult.setValue(null);
         Language languageEnum = Language.fromCode(languageCode);
 
+        // Save to SharedPreferences first for immediate locale change
+        LocaleHelper.saveLanguage(context, languageCode);
+        Log.d(TAG, "Saved language to SharedPreferences: " + languageCode);
+
         disposables.add(
                 userRepository.updateLanguageSetting(languageEnum)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(() -> {
+                            Log.d(TAG, "Saved language to Firebase: " + languageCode);
                             updateLanguageResult.setValue(true);
                             loadUserProfile();
                         }, throwable -> {

@@ -108,7 +108,7 @@ public class QuestionDetailFragment extends Fragment {
 
         viewModel.getActionSuccess().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Message.showShort(view, "Operation successful!");
+                Message.showShort(view, getString(R.string.operation_successful));
                 navController.popBackStack();
             }
         });
