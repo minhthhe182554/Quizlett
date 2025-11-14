@@ -298,4 +298,83 @@ public class FolderRepository {
                 });
         });
     }
+
+    public Completable removeLessonFromFolder(String folderId, String lessonId) {
+        return Completable.create(emitter -> {
+            if (folderId == null || folderId.trim().isEmpty()) {
+                emitter.tryOnError(new ValidationException("Folder ID cannot be empty."));
+                return;
+            }
+            
+            if (lessonId == null || lessonId.trim().isEmpty()) {
+                emitter.tryOnError(new ValidationException("Lesson ID cannot be empty."));
+                return;
+            }
+            
+            String currentUserId = getCurrentUserId();
+            if (currentUserId == null) {
+                emitter.tryOnError(new IllegalStateException("No user logged in."));
+                return;
+            }
+            
+            Log.d(TAG, "Removing lesson " + lessonId + " from folder " + folderId);
+            
+            // Fetch folder
+            foldersReference.child(folderId).get()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.e(TAG, "Failed to fetch folder: " + task.getException().getMessage());
+                        emitter.tryOnError(task.getException());
+                        return;
+                    }
+                    
+                    DataSnapshot snapshot = task.getResult();
+                    if (!snapshot.exists()) {
+                        Log.e(TAG, "Folder does not exist: " + folderId);
+                        emitter.tryOnError(new ValidationException("Folder does not exist."));
+                        return;
+                    }
+                    
+                    Folder folder = snapshot.getValue(Folder.class);
+                    if (folder == null) {
+                        Log.e(TAG, "Failed to deserialize folder");
+                        emitter.tryOnError(new IllegalStateException("Failed to load folder data."));
+                        return;
+                    }
+                    
+                    if (!currentUserId.equals(folder.getUserId())) {
+                        Log.e(TAG, "User does not own this folder");
+                        emitter.tryOnError(new IllegalStateException("You don't have permission to modify this folder."));
+                        return;
+                    }
+                    
+                    // Remove lesson from list
+                    List<String> lessonIds = folder.getLessonIds();
+                    if (lessonIds == null || !lessonIds.contains(lessonId)) {
+                        Log.w(TAG, "Lesson not found in folder");
+                        emitter.tryOnError(new ValidationException("Lesson not found in this folder."));
+                        return;
+                    }
+                    
+                    lessonIds.remove(lessonId);
+                    folder.setLessonIds(lessonIds);
+                    folder.setLessonCount(lessonIds.size());
+                    
+                    // Save updated folder
+                    foldersReference.child(folderId).setValue(folder)
+                        .addOnSuccessListener(aVoid -> {
+                            Log.d(TAG, "✅ Lesson removed from folder successfully");
+                            if (!emitter.isDisposed()) {
+                                emitter.onComplete();
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, "❌ Failed to update folder: " + e.getMessage());
+                            if (!emitter.isDisposed()) {
+                                emitter.tryOnError(e);
+                            }
+                        });
+                });
+        });
+    }
 }

@@ -128,12 +128,11 @@ public class LessonDetailFragment extends Fragment {
 
         binding.btnAdd.setOnClickListener(v -> {
             mainTabViewModel.requestSaveLessonToFolder(clickedLesson);
-            Toast.makeText(getContext(), R.string.navigate_to_save_lesson, Toast.LENGTH_SHORT).show();
         });
 
         // TODO: Test button
         binding.btnTest.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "TODO: Start test", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getContext(), "TODO: Start test", Toast.LENGTH_SHORT).show();
             // navigation to lesson detail
             Bundle createTestLesson = new Bundle();
 

@@ -264,7 +264,7 @@ public class ThirdTabFragment extends Fragment {
             dialog.show();
         } catch (Exception e) {
             Log.e(FRAGMENT_TAG, "LỖI KHI MỞ DIALOG:", e);
-            Toast.makeText(requireContext(), "Lỗi hệ thống khi mở dialog.", Toast.LENGTH_LONG).show();
+//            Toast.makeText(requireContext(), R.string.open_dialog_error, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -283,13 +283,13 @@ public class ThirdTabFragment extends Fragment {
 
             switch (result) {
                 case SUCCESS:
-                    Toast.makeText(requireContext(), "Tạo folder thành công!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), R.string.create_folder_success, Toast.LENGTH_SHORT).show();
                     break;
                 case INVALID_INPUT:
-                    Toast.makeText(requireContext(), "Tên folder không được để trống!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireContext(), R.string.folder_name_cannot_be_empty, Toast.LENGTH_LONG).show();
                     break;
                 case ERROR:
-                    Toast.makeText(requireContext(), "Lỗi hệ thống khi tạo folder. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireContext(), R.string.create_folder_error, Toast.LENGTH_LONG).show();
                     break;
                 default:
             }
