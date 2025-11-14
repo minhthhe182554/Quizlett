@@ -60,6 +60,9 @@ public class FolderDetailViewModel extends ViewModel {
     
     private final MutableLiveData<Boolean> _deleteSuccess = new MutableLiveData<>();
     public LiveData<Boolean> getDeleteSuccess() { return _deleteSuccess; }
+    
+    private final MutableLiveData<Boolean> _removeLessonSuccess = new MutableLiveData<>();
+    public LiveData<Boolean> getRemoveLessonSuccess() { return _removeLessonSuccess; }
 
     public void loadFolderAndLessons(String folderId) {
         _isLoading.setValue(true);
@@ -180,6 +183,24 @@ public class FolderDetailViewModel extends ViewModel {
                         _isLoading.setValue(false);
                         _errorMessage.setValue("Failed to delete folder: " + throwable.getMessage());
                         _deleteSuccess.setValue(false);
+                    }
+                )
+        );
+    }
+    
+    public void removeLessonFromFolder(String folderId, String lessonId) {
+        disposables.add(
+            folderRepository.removeLessonFromFolder(folderId, lessonId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    () -> {
+                        Log.d(TAG, "Lesson removed from folder successfully");
+                        _removeLessonSuccess.setValue(true);
+                    },
+                    throwable -> {
+                        Log.e(TAG, "Failed to remove lesson: " + throwable.getMessage());
+                        _removeLessonSuccess.setValue(false);
                     }
                 )
         );

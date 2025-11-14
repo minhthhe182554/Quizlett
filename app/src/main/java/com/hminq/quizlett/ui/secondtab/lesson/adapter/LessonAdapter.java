@@ -17,14 +17,23 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
 
     private List<Lesson> lessons;
     private final OnItemClickListener listener;
+    private OnItemLongClickListener longClickListener;
 
     public interface OnItemClickListener {
         void onItemClick(Lesson lesson);
+    }
+    
+    public interface OnItemLongClickListener {
+        boolean onItemLongClick(Lesson lesson);
     }
 
     public LessonAdapter(List<Lesson> lessons, OnItemClickListener listener) {
         this.lessons = lessons;
         this.listener = listener;
+    }
+    
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        this.longClickListener = listener;
     }
 
     @NonNull
@@ -37,7 +46,7 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
     @Override
     public void onBindViewHolder(@NonNull LessonViewHolder holder, int position) {
         Lesson lesson = lessons.get(position);
-        holder.bind(lesson, listener);
+        holder.bind(lesson, listener, longClickListener);
     }
 
     @Override
@@ -61,7 +70,7 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
             txtQuestionCount = itemView.findViewById(R.id.tvQuestionCount);
         }
 
-        void bind(Lesson lesson, OnItemClickListener listener) {
+        void bind(Lesson lesson, OnItemClickListener listener, OnItemLongClickListener longClickListener) {
             txtTitle.setText(lesson.getTitle());
             String categoryText = lesson.getCategory() != null
                     ? lesson.getCategory().getLocalizedName(itemView.getContext())
@@ -76,6 +85,12 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
                     R.string.number_question_placeholder, questionCount));
 
             itemView.setOnClickListener(v -> listener.onItemClick(lesson));
+            
+            if (longClickListener != null) {
+                itemView.setOnLongClickListener(v -> longClickListener.onItemLongClick(lesson));
+            } else {
+                itemView.setOnLongClickListener(null);
+            }
         }
     }
 }

@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class FolderDetailFragment extends Fragment implements LessonAdapter.OnItemClickListener {
+public class FolderDetailFragment extends Fragment implements LessonAdapter.OnItemClickListener, LessonAdapter.OnItemLongClickListener {
 
     private static final String TAG = "FolderDetailFragment";
     public static final String ARG_FOLDER_ID = "folder_id";
@@ -79,6 +79,7 @@ public class FolderDetailFragment extends Fragment implements LessonAdapter.OnIt
         }
 
         lessonAdapter = new LessonAdapter(new ArrayList<>(), this);
+        lessonAdapter.setOnItemLongClickListener(this);
         binding.rvLessonsList.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvLessonsList.setAdapter(lessonAdapter);
 
@@ -144,6 +145,16 @@ public class FolderDetailFragment extends Fragment implements LessonAdapter.OnIt
                 }
             }
         });
+        
+        viewModel.getRemoveLessonSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (success != null) {
+                if (success) {
+                    Toast.makeText(getContext(), R.string.remove_lesson_success, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), R.string.remove_lesson_failed, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @Override
@@ -159,5 +170,24 @@ public class FolderDetailFragment extends Fragment implements LessonAdapter.OnIt
         
         // Use MainTabViewModel to coordinate between tabs
         mainTabViewModel.requestViewLessonDetail(lesson);
+    }
+    
+    @Override
+    public boolean onItemLongClick(Lesson lesson) {
+        showRemoveLessonConfirmationDialog(lesson);
+        return true;
+    }
+    
+    private void showRemoveLessonConfirmationDialog(Lesson lesson) {
+        new AlertDialog.Builder(requireContext())
+            .setTitle(R.string.remove_lesson_from_folder_title)
+            .setMessage(R.string.remove_lesson_confirm)
+            .setPositiveButton(R.string.delete_button, (dialog, which) -> {
+                if (folderId != null && lesson.getLessonId() != null) {
+                    viewModel.removeLessonFromFolder(folderId, lesson.getLessonId());
+                }
+            })
+            .setNegativeButton(R.string.cancel_button, null)
+            .show();
     }
 }
